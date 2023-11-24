@@ -23,6 +23,9 @@ export default function HomePage() {
           <Link href="/next">
             <a>Go to next page</a>
           </Link>
+          <Link href="/dashboard">
+            <a>Dashboard</a>
+          </Link>
         </p>
         <Image
           src="/images/logo.png"
