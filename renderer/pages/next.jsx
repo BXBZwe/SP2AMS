@@ -1,6 +1,7 @@
-import React from 'react'
-import Head from 'next/head'
-import Link from 'next/link'
+import React from "react";
+import Head from "next/head";
+import Link from "next/link";
+import Button from "@mui/material/Button";
 
 export default function NextPage() {
   return (
@@ -8,14 +9,17 @@ export default function NextPage() {
       <Head>
         <title>Next - Nextron (basic-lang-javascript)</title>
       </Head>
+    
       <div>
         <p>
           ⚡ Electron + Next.js ⚡ -
-          <Link href="/home">
-            <a>Go to home page</a>
-          </Link>
+          <Button variant="contained">
+            <Link href="/home">
+              <a>Go to home page</a>
+            </Link>
+          </Button>
         </p>
       </div>
     </React.Fragment>
-  )
+  );
 }
