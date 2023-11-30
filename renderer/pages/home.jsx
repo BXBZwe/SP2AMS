@@ -17,33 +17,7 @@ export default function HomePage() {
       <Head>
         <title>Home - Yasi (basic-lang-javascript)</title>
       </Head>
-      <div>
-        <p>
-          ⚡ Electron + Next.js ⚡ -
-          <Link href="/next">
-            <a>Go to next page</a>
-          </Link>
-          <Link href="/dashboard">
-            <a>Dashboard</a>
-          </Link>
-        </p>
-        <Image
-          src="/images/logo.png"
-          alt="Logo image"
-          width="256px"
-          height="256px"
-        />
-      </div>
-      <div>
-        <button
-          onClick={() => {
-            window.ipc.send('message', 'Hello')
-          }}
-        >
-          Test IPC
-        </button>
-        <p>{message}</p>
-      </div>
+      
     </React.Fragment>
   )
 }
