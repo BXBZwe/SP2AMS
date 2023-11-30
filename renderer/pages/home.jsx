@@ -1,7 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
-import Image from 'next/image'
+import { Card, CardContent, Typography } from '@mui/material'
 
 export default function HomePage() {
   const [message, setMessage] = React.useState('No message found')
@@ -15,7 +14,7 @@ export default function HomePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>Home - Yasi (basic-lang-javascript)</title>
+        <title>Home</title>
       </Head>
       
     </React.Fragment>
