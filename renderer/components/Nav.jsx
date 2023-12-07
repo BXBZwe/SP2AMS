@@ -385,16 +385,21 @@ import HomeIcon from '@mui/icons-material/Home';
 import GroupsIcon from '@mui/icons-material/Groups';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import AddCardIcon from '@mui/icons-material/AddCard';
-import CalculateIcon from '@mui/icons-material/Calculate';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PrintIcon from '@mui/icons-material/Print';
+import GavelIcon from '@mui/icons-material/Gavel';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ElectricMeterIcon from '@mui/icons-material/ElectricMeter';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Link from "next/link";
-
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Typography } from '@mui/material';
 const drawerWidth = 240;
-
+const isActive = (link) => {
+  return router.pathname === link;
+};
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -419,10 +424,15 @@ const closedMixin = (theme) => ({
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
+}));
+
+const TitleWrapper = styled('div')(({ theme }) => ({
+  flex: 1, // Take up all available space
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center', // Center the content horizontally
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -441,49 +451,130 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
   }),
 );
-
-const navigationItems = [
-  { label: 'Dashboard', link: '/dashboard', icon: <DashboardIcon /> },
+const title = "PS Park";
+const navigationItems1 = [
+  { label: 'Dashboard (Home)', link: '/dashboard', icon: <DashboardIcon /> },
+];
+const navigationItems2 = [
   { label: 'Rate Maintenance', link: '/rateMaintenance', icon: <MenuBookIcon /> },
   { label: 'Room Maintenance', link: '/roomMaintenance', icon: <HomeIcon /> },
   { label: 'Tenant Maintenance', link: '/tenantMaintenance', icon: <GroupsIcon /> },
+]
+const navigationItems3 = [
   { label: 'Check-In', link: '/checkIn', icon: <HowToRegIcon /> },
   { label: 'Check-Out', link: '/checkOut', icon: <ExitToAppIcon /> },
-];
+]
+const navigationItems4 = [
+  { label: 'Generate Billing', link: '/generatebilling', icon: <ReceiptIcon /> },
+  { label: 'Enter Billing Details', link: '/billingdetails', icon: <ReceiptLongIcon /> },
+  { label: 'Printing/payment', link: '/printpayment', icon: <PrintIcon /> },
+  { label: 'Generate Contract', link: '/generatecontract', icon: <GavelIcon /> },
+]
+const navigationItems5 = [
+  { label: 'Billing Report', link: '/Summarybilling', icon: <AssessmentIcon /> },
+  { label: 'Meter/Water', link: '/SummaryMeter', icon: <ElectricMeterIcon /> },
+  { label: 'Feedback', link: '/Feedback', icon: <FeedbackIcon /> },
+]
+const navigationItems6 = [
+  { label: 'Profile', link: '/profile', icon: <AccountCircleIcon /> },
+  { label: 'Logout', link: '/logout', icon: <LogoutIcon /> },
+]
+
 
 export default function Nav() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
+  
+  const [activeLink, setActiveLink] = React.useState('/dashboard'); // Set the default active link
 
+  const handleLinkClick = (link) => {
+    setActiveLink(link);
+  };
+
+  const isLinkActive = (link) => link === activeLink;
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex' }} >
       <CssBaseline />
-      <Drawer variant="permanent" open={open}>
+      
+      <Drawer variant="permanent" open={open} >
+      
         <DrawerHeader>
+        <TitleWrapper>
+            {open ? (
+              <Typography variant="h4" noWrap style={{fontWeight: 'bold', fontFamily: 'Normal'}}>
+                PS Park
+              </Typography>
+            ) : null}
+          </TitleWrapper>
           <IconButton onClick={() => setOpen(!open)}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
         <List>
-          {navigationItems.map((item, index) => (
-            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <Link href={item.link} passHref>
-                <ListItemButton
-                  component="a"
+        {navigationItems1.map((item, index) => (
+          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+            <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
+                <ListItemIcon
                   sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
                   }}
                 >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+        ))}
+      </List>
+        
+        <Divider>
+          {open && (
+            <div style={{ opacity: "60%", fontSize: '13px' }}>Master Data</div>
+          )}
+        </Divider>
+        <List>
+          {navigationItems2.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
                   <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
+                  }}
+                >
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
@@ -492,9 +583,161 @@ export default function Nav() {
             </ListItem>
           ))}
         </List>
-        <Divider />
+        <Divider>
+          {open && (
+            <div style={{ opacity: "60%", fontSize: '13px' }}>Check-In/Check-Out</div>
+          )}
+        </Divider>
+        <List>
+          {navigationItems3.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
+                  <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
+                  }}
+                >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
+        <Divider>
+          {open && (
+            <div style={{ opacity: "60%", fontSize: '13px' }}>Operation</div>
+          )}
+        </Divider>
+        <List>
+          {navigationItems4.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
+                  <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
+                  }}
+                >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
+        <Divider>
+          {open && (
+            <div style={{ opacity: "60%", fontSize: '13px' }}>Report</div>
+          )}
+        </Divider>
+        <List>
+          {navigationItems5.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
+                   <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
+                  }}
+                >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
+        <Divider>
+          {open && (
+            <div style={{ opacity: "60%", fontSize: '13px' }}>Account</div>
+          )}
+        </Divider>
+        <List>
+          {navigationItems6.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <Link href={item.link} passHref>
+              <ListItemButton
+                component="a"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+                onClick={() => handleLinkClick(item.link)}
+              >
+                   <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
+                  }}
+                >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
         {/* Additional list items can be added here */}
       </Drawer>
+      
     </Box>
   );
 }
