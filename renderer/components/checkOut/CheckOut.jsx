@@ -1,5 +1,4 @@
-import { React, useState } from "react";
-
+import { React, useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,7 +19,7 @@ import {
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-export default function CheckIn() {
+export default function CheckOut() {
   const rooms = [
     {
       value: "R102",
@@ -64,12 +63,58 @@ export default function CheckIn() {
     },
   ];
 
+  const roomDetails = [
+    {
+      roomId: "R001",
+      room: "101",
+      moveInDate: "20/02/2022",
+      moveOutDate: "20/02/2023",
+      tenantId: "123",
+      tenantName: "Yasi",
+      depositAmount: 3000,
+      monthsLeft: 6,
+      dueDate: "20/02/2023",
+      dayMonth:"Tuesday,March"
+    },
+    {
+      roomId: "R002",
+      room: "102",
+      moveInDate: "19/01/2022",
+      moveOutDate: "19/01/2023",
+      tenantId: "124",
+      tenantName: "Zwe",
+      depositAmount: 5000,
+      monthsLeft: 3,
+      dueDate: "20/02/2023",
+      dayMonth:"Wednesday,May"
+    },
+    {
+      roomId: "R003",
+      room: "203",
+      moveInDate: "20/02/2022",
+      moveOutDate: "20/02/2025",
+      tenantId: "125",
+      tenantName: "Saw",
+      depositAmount: 2500,
+      monthsLeft: 1,
+      dueDate: "20/02/2023",
+      dayMonth:"Friday,December"
+    },
+  ];
+
   const [selectedRoom, setSelectedRoom] = useState("");
   const [selectedTenant, setSelectedTenant] = useState("");
   const [contractMonths, setContractMonths] = useState("");
+  const [contractMonthsLeft, setContractMonthsLeft] = useState("");
   const [deposit, setDeposit] = useState("");
   const [moveInDate, setMoveInDate] = useState(null);
   const [moveOutDate, setMoveOutDate] = useState(null);
+  const [tenantMoveInDate, setTenantMoveInDate] = useState("");
+  const [tenantMoveOutDate, setTenantMoveOutDate] = useState("");
+  const [monthsLeft,setMonthsLeft]= useState("");
+  const [dueDate,setDueDate]= useState("");
+  const [dayMonth,setDayMonth]= useState("");
+
   const [addButtonClicked, setAddButtonClicked] = useState(false);
 
   const handleMoveInDateChange = (date) => {
@@ -92,9 +137,15 @@ export default function CheckIn() {
     setSelectedRoom("");
     setSelectedTenant("");
     setContractMonths("");
+    setContractMonthsLeft("");
     setDeposit("");
     setMoveInDate(null);
     setMoveOutDate(null);
+    setTenantMoveInDate("");
+    setTenantMoveOutDate("");
+    setMonthsLeft("");
+    setDueDate("");
+    setDayMonth("");
     setAddButtonClicked(false); // Reset button state
   };
 
@@ -107,6 +158,8 @@ export default function CheckIn() {
     const isContractMonthsValid =
       validateFloat(contractMonths) && contractMonths > 0;
     const isDepositValid = validateFloat(deposit) && deposit > 0;
+    const isContractMonthsLeftValid =
+      validateInt(contractMonthsLeft) && contractMonthsLeft >= 0;
 
     // Validate MoveIn and MoveOut
     const isMoveInValid = moveInDate !== null;
@@ -117,7 +170,8 @@ export default function CheckIn() {
       !isContractMonthsValid ||
       !isDepositValid ||
       !isMoveInValid ||
-      !isMoveOutValid
+      !isMoveOutValid ||
+      !isContractMonthsLeftValid
     ) {
       return;
     }
@@ -129,6 +183,36 @@ export default function CheckIn() {
   const validateFloat = (value) => {
     const floatValue = parseFloat(value);
     return !isNaN(floatValue);
+  };
+
+  const validateInt = (value) => {
+    const floatValue = parseInt(value);
+    return !isNaN(floatValue);
+  };
+
+  useEffect(() => {
+    // Fetch and set the corresponding details when selectedRoom changes
+    const selectedRoomDetails = roomDetails.find(
+      (detail) => detail.room === selectedRoom
+    );
+    if (selectedRoomDetails) {
+      setSelectedTenant(selectedRoomDetails.tenantName);
+      setTenantMoveInDate(selectedRoomDetails.moveInDate);
+      setTenantMoveOutDate(selectedRoomDetails.moveOutDate);
+      setDeposit(selectedRoomDetails.depositAmount);
+      setMonthsLeft(selectedRoomDetails.monthsLeft);
+      setDueDate(selectedRoomDetails.dueDate);
+      setDayMonth(selectedRoomDetails.dayMonth);
+    }
+  }, [selectedRoom]);
+
+  const handleSelectedRoomChange = (e) => {
+    const selectedRoomValue = e.target.value;
+    setSelectedRoom(selectedRoomValue);
+
+    // If you want to reset Move In and Move Out dates when selecting a new room
+    setMoveInDate(null);
+    setMoveOutDate(null);
   };
 
   return (
@@ -154,7 +238,7 @@ export default function CheckIn() {
               <Card sx={{ width: "55vw", marginBottom: "10px" }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                    Select Room/Tenant
+                    Current Room Details
                   </Typography>
 
                   <Box sx={{ display: "flex", gap: "30px" }}>
@@ -176,37 +260,65 @@ export default function CheckIn() {
                           : ""
                       }
                     >
-                      {rooms.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
+                      {roomDetails.map((option) => (
+                        <MenuItem key={option.roomId} value={option.room}>
+                          {option.room}
                         </MenuItem>
                       ))}
                     </TextField>
 
                     <TextField
                       id="tenantId"
-                      select
+                      disabled
                       label="Tenant Name"
                       value={selectedTenant}
-                      onChange={(e) => setSelectedTenant(e.target.value)}
                       sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked &&
-                        (!selectedTenant || selectedTenant === "")
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!selectedTenant || selectedTenant === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    >
-                      {tenants.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    />
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <TextField
+                      id="moveindateId"
+                      disabled
+                      label="Move In"
+                      value={tenantMoveInDate}
+                      sx={{ width: "40vw" }}
+                    />
+
+                    <Typography variant="h6" sx={{ margin: "0 10px" }}>
+                      -
+                    </Typography>
+
+                    <TextField
+                      id="moveoutdateId"
+                      disabled
+                      label="Move Out"
+                      value={tenantMoveOutDate}
+                      sx={{ width: "40vw" }}
+                    />
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <TextField
+                      id="moveoutdateId"
+                      disabled
+                      label="Deposit"
+                      value={deposit}
+                      sx={{ width: "40vw" }}
+                    />
                   </Box>
                 </CardContent>
               </Card>
@@ -217,111 +329,62 @@ export default function CheckIn() {
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                      Input Contract Details
+                      Months left on Contract
                     </Typography>
                   </Box>
 
                   <Box
                     sx={{
                       display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <DatePicker
-                      id="moveindateId"
-                      label="Move In"
-                      value={moveInDate}
-                      onChange={handleMoveInDateChange}
-                      sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked && (!moveInDate || moveInDate === "")
-                      }
-                      helperText={
-                        addButtonClicked && (!moveInDate || moveInDate === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    />
-
-                    <Typography variant="h6" sx={{ margin: "0 10px" }}>
-                      -
-                    </Typography>
-
-                    <DatePicker
-                      id="moveoutdateId"
-                      label="Move Out"
-                      value={moveOutDate}
-                      minDate={moveInDate} // Set minimum date for move-out
-                      onChange={handleMoveOutDateChange}
-                      sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked && (!moveOutDate || moveOutDate === "")
-                      }
-                      helperText={
-                        addButtonClicked && (!moveOutDate || moveOutDate === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    />
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginTop: "10px",
-                      gap: "30px",
+                      justifyContent: "left",
+                      alignItems: "left",
+                      flexDirection: "column",
+                      gap: "10px",
                     }}
                   >
                     <TextField
-                      id="contractMonths"
-                      label="Contract Months"
-                      sx={{ width: "40vw" }}
-                      value={contractMonths}
+                      id="contractMonthsLeft"
+                      label="Months Left"
+                      sx={{ width: "25vw" }}
+                      value={monthsLeft}
                       type="number"
                       error={
                         addButtonClicked &&
-                        (!validateFloat(contractMonths) || contractMonths <= 0)
+                        (!validateFloat(contractMonthsLeft) ||
+                          contractMonthsLeft < 0)
                       }
                       helperText={
                         addButtonClicked &&
-                        (!validateFloat(contractMonths) || contractMonths <= 0)
-                          ? "Contract months must be a positive number."
+                        (!validateFloat(contractMonthsLeft) ||
+                          contractMonthsLeft < 0)
+                          ? "Months must be a positive number."
                           : ""
                       }
                       InputProps={{
                         endAdornment: (
-                          <InputAdornment position="end">M</InputAdornment>
+                          <InputAdornment position="end">Months</InputAdornment>
                         ),
                       }}
-                      onChange={(e) => setContractMonths(e.target.value)}
+                      onChange={(e) => setContractMonthsLeft(e.target.value)}
+                    />
+                    <Box sx={{display:'flex', gap:'10px'}}>
+                    <TextField
+                      id="dueDate"
+                      disabled
+                      label="Due Date"
+                      value={dueDate}
+                      sx={{ width: "25vw" }}
+                    />
+                    <TextField
+                      id="dayMonth"
+                      disabled
+                      label="Day/Month"
+                      value={dayMonth}
+                      sx={{ width: "25vw" }}
                     />
 
-                    <TextField
-                      id="deposit"
-                      label="Deposit"
-                      sx={{ width: "40vw" }}
-                      value={deposit}
-                      type="number"
-                      error={
-                        addButtonClicked &&
-                        (!validateFloat(deposit) || deposit <= 0)
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!validateFloat(deposit) || deposit <= 0)
-                          ? "Deposit must be a positive number."
-                          : ""
-                      }
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">THB</InputAdornment>
-                        ),
-                      }}
-                      onChange={(e) => setDeposit(e.target.value)}
-                    />
+                    </Box>
+
                   </Box>
                 </CardContent>
               </Card>
@@ -365,11 +428,15 @@ export default function CheckIn() {
                       display: "flex",
                       justifyContent: "space-between",
                       marginBottom: "10px",
-                      gap: "5px"
+                      gap: "5px",
                     }}
                   >
-                    <TextField disabled id={activity.id} value={activity.room} sx={{width:'8vw'}}/>
-                    <TextField disabled id={activity.id} value={activity.status} />
+                    <TextField
+                      id={activity.id}
+                      value={activity.room}
+                      sx={{ width: "8vw" }}
+                    />
+                    <TextField id={activity.id} value={activity.status} />
                   </Box>
                 ))}
               </CardContent>
