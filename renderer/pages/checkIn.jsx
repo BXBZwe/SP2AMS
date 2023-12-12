@@ -131,6 +131,7 @@ export default function CheckInPage() {
             display: "flex",
             flexDirection: "column",
             marginBottom: "10px",
+            
           }}
         >
           <Typography variant="h4">Check-In</Typography>
