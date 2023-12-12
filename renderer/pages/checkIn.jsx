@@ -4,7 +4,7 @@ import CheckIn from "../components/checkIn/CheckIn";
 export default function CheckInPage() {
   return (
     <>
-      <CheckIn />
+      <CheckIn /> 
     </>
   );
 }

@@ -1,17 +1,16 @@
-import React from "react";
-import Head from "next/head";
-import { Card, CardContent, Typography } from "@mui/material";
+import * as React from 'react';
+import Head from 'next/head'
+import Roomtable from '../components/ratemaintenance/roomtable';
+
 export default function RoomMaintenancePage() {
+  
   return (
     <>
       <Head>
         <title>Room Maintenance</title>
       </Head>
-      <Card>
-        <CardContent>
-          <Typography>Room Page</Typography>
-        </CardContent>
-      </Card>
+      <Roomtable />
+      
     </>
   );
 }
