@@ -75,7 +75,7 @@ export default function AddRoom() {
             Configure Room Items and Details
           </Typography>
         </CardContent>
-        <CardContent>
+        <CardContent >
           {editMode ? (
             <>
               <Button
@@ -105,8 +105,8 @@ export default function AddRoom() {
         </CardContent>
       </Card>
 
-      <Box sx={{ display: 'flex' }}>
-        <Card sx={{ width: '48vw', marginBottom: '10px' }}>
+      <Box sx={{ display: 'flex', marginTop: '10px' }}>
+        <Card sx={{ width: '70%', display: 'flex', marginBottom: '5px' }}>
           <CardContent>
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
               Select Room/Tenant
@@ -151,7 +151,7 @@ export default function AddRoom() {
               id="combo-box-demo"
               options={type}
               sx={{ width: 250, marginBottom: 1.5 }}
-              renderInput={(params) => <TextField {...params} label="Type" />}
+              renderInput={(params) => <TextField {...params} label="Room Type" />}
               disabled={!editMode}
             />
             <Autocomplete
@@ -159,7 +159,7 @@ export default function AddRoom() {
               id="combo-box-demo"
               options={status}
               sx={{ width: 250, marginBottom: 1.5 }}
-              renderInput={(params) => <TextField {...params} label="Status" />}
+              renderInput={(params) => <TextField {...params} label="Room Status" />}
               disabled={!editMode}
             />
             <Autocomplete
@@ -167,7 +167,7 @@ export default function AddRoom() {
               id="combo-box-demo"
               options={rent}
               sx={{ width: 250, marginBottom: 1.5 }}
-              renderInput={(params) => <TextField {...params} label="For Rent" />}
+              renderInput={(params) => <TextField {...params} label="Rent Status" />}
               disabled={!editMode}
             />
 
@@ -206,7 +206,7 @@ export default function AddRoom() {
           </CardContent>
         </Card>
 
-        <Card sx={{ display: 'inline-block', width: '28vw', marginLeft: 2, marginBottom: '10px' }}>
+        <Card sx={{ display: 'inline-block', width: '30%', marginLeft: 2, marginBottom: '5px' }}>
           <CardContent>
             <Typography variant="h4" sx={{ textAlign: 'center', marginBottom: 1 }}>
               Room Summary
