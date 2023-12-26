@@ -2,6 +2,8 @@ import path from 'path'
 import { app, ipcMain } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
+import startServer from './server';
+
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -13,6 +15,8 @@ if (isProd) {
 
 ;(async () => {
   await app.whenReady()
+
+  startServer();
 
   const mainWindow = createWindow('main', {
     width: 1000,

@@ -48,7 +48,7 @@ export default function SignIn({ onLogin }) {
       }
 
       // Call the onLogin prop (which should be a function to handle login)
-      onLogin();
+      //onLogin();
 
       // Navigate to the /home
       router.push("/home");

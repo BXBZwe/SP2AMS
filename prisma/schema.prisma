@@ -10,13 +10,15 @@ datasource db {
 model bills {
   bill_id               Int      @id @default(autoincrement())
   room_id               Int
-  water_usage           Decimal? @db.Decimal(10, 2)
-  water_cost            Decimal? @db.Decimal(10, 2)
-  electricity_usage     Decimal? @db.Decimal(10, 2)
-  electricity_cost      Decimal? @db.Decimal(10, 2)
-  additional_rates_cost Decimal? @db.Decimal(10, 2)
-  bill_date             DateTime @db.Date
-  total_amount          Decimal? @db.Decimal(10, 2)
+  water_usage           Decimal  @db.Decimal(10, 2)
+  water_cost            Decimal  @db.Decimal(10, 2)
+  electricity_usage     Decimal  @db.Decimal(10, 2)
+  electricity_cost      Decimal  @db.Decimal(10, 2)
+  additional_rates_cost Decimal  @db.Decimal(10, 2)
+  billing_date          DateTime @db.Date
+  baserent_month        String   @db.VarChar(20)
+  baserent_year         Int
+  total_amount          Decimal  @db.Decimal(10, 2)
   rooms                 rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -42,6 +44,15 @@ model check_outs {
   tenants          tenants? @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model manager {
+  manager_id    Int     @id @default(autoincrement())
+  name          String  @db.VarChar(255)
+  email         String  @unique @db.VarChar(255)
+  password_hash String
+  phone_number  String? @db.VarChar(20)
+  profile_image Bytes?
+}
+
 model meter_readings {
   reading_id          Int      @id @default(autoincrement())
   room_id             Int
@@ -49,6 +60,25 @@ model meter_readings {
   electricity_reading Int
   reading_date        DateTime @db.Date
   rooms               rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rates {
+  rate_id          Int          @id @default(autoincrement())
+  item_name        String       @db.VarChar(255)
+  item_price       Decimal      @db.Decimal(10, 2)
+  item_description String?
+  last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
+  room_rates       room_rates[]
+}
+
+model room_rates {
+  room_id  Int
+  rate_id  Int
+  quantity Int   @default(1)
+  rates    rates @relation(fields: [rate_id], references: [rate_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms    rooms @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([room_id, rate_id])
 }
 
 model rooms {
@@ -65,20 +95,47 @@ model rooms {
   check_ins      check_ins[]
   check_outs     check_outs[]
   meter_readings meter_readings[]
+  room_rates     room_rates[]
   tenants        tenants[]
 }
 
 model tenants {
-  tenant_id    Int          @id @default(autoincrement())
-  first_name   String       @db.VarChar(100)
-  last_name    String       @db.VarChar(100)
-  personal_id  String       @unique @db.VarChar(255)
-  phone_number String?      @db.VarChar(20)
-  email        String?      @db.VarChar(255)
-  room_id      Int?
-  start_date   DateTime?    @db.Date
-  end_date     DateTime?    @db.Date
-  check_ins    check_ins[]
-  check_outs   check_outs[]
-  rooms        rooms?       @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  tenant_id   Int          @id @default(autoincrement())
+  first_name  String       @db.VarChar(100)
+  last_name   String       @db.VarChar(100)
+  personal_id String       @unique @db.VarChar(255)
+  room_id     Int?
+  rooms       rooms?       @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  check_ins   check_ins[]
+  check_outs  check_outs[]
+  addresses   addresses?
+  contacts    contacts?
+}
+
+model addresses {
+  address_id   Int     @id @default(autoincrement())
+  tenant_id    Int
+  street       String  @db.VarChar(255)
+  sub_district String  @db.VarChar(255)
+  district     String  @db.VarChar(255)
+  province     String  @db.VarChar(255)
+  postal_code  String  @db.VarChar(20)
+  tenants      tenants @relation(fields: [tenant_id], references: [tenant_id])
+
+  @@unique([tenant_id])
+}
+
+model contacts {
+  contact_id   Int     @id @default(autoincrement())
+  tenant_id    Int
+  phone_number String  @db.VarChar(20)
+  email        String  @db.VarChar(255)
+  line_id      String  @db.VarChar(255)
+  eme_name     String  @db.VarChar(255)
+  eme_phone    String  @db.VarChar(20)
+  eme_line_id  String  @db.VarChar(255)
+  eme_relation String  @db.VarChar(255)
+  tenants      tenants @relation(fields: [tenant_id], references: [tenant_id])
+
+  @@unique([tenant_id])
 }
