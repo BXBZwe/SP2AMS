@@ -9,9 +9,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const columns = [
   { field: 'id', headerName: 'Item ID', width: 160 },
   { field: 'itemname', headerName: 'Item Name', width: 170 },
-  { field: 'fee', headerName: 'Item Fee', width: 170 },
-  { field: 'addeddate', headerName: 'Added Date', width: 170 },
-  { field: 'enddate', headerName: 'End Date', width: 170 },
+  { field: 'itemprice', headerName: 'Item Price', width: 170 },
+  { field: 'updateddate', headerName: 'Last Updated', width: 170 },
+  
   {
     field: 'actions',
     headerName: 'Actions',
@@ -33,18 +33,18 @@ const columns = [
 ];
 
 const initialRows = [
-  { id: 'A001', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A002', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A003', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A004', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A005', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A006', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A007', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A008', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A009', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A0010', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A0011', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A0012', itemname: 'A001', fee: 35, addeddate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A001', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A002', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A003', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A004', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A005', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A006', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A007', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A008', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A009', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023'},
+  { id: 'A0010', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A0011', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
+  { id: 'A0012', itemname: 'A001', itemprice: 35, updateddate: '23/01/2023' },
   // ... other rows ...
 ];
 
@@ -103,7 +103,7 @@ export default function RateTable() {
           </Link>
         </CardContent>
       </Card>
-      <Card sx={{ height: '89%', width: '100%' }}>
+      <Card sx={{marginTop: '10px', height: '89%', width: '100%' }}>
         <CardContent>
           <div style={{ display: 'flex', marginBottom: '10px' }}>
             <TextField

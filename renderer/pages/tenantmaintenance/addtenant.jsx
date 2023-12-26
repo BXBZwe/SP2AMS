@@ -30,7 +30,7 @@ export default function addtenant() {
           field: 'fee',
           headerName: 'Fee',
           type: 'number',
-          width: 100,
+          width: '100%',
         },
         
       ];
@@ -62,15 +62,17 @@ export default function addtenant() {
 </CardContent>
 
 </Card>
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '90%' }}>
         
-      <Card sx={{ width: "48vw", marginBottom: "10px"}}>
+    <Card sx={{ width: "100%", marginBottom: "10px"}}>
         
     <CardContent>
     <Typography variant="h4" sx={{marginBottom: 2}}>Tenant Details</Typography>        
     
     <TextField id="outlined-basic" label="First Name" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
     <TextField id="outlined-basic" label="Last Name" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
+    <br></br>
+    
     <RadioGroup
         aria-labelledby="demo-radio-buttons-group-label"
         defaultValue="Male"
@@ -80,8 +82,11 @@ export default function addtenant() {
         <FormControlLabel value="Male" control={<Radio />} label="Male" />
         <FormControlLabel value="Female" control={<Radio />} label="Female" />
       </RadioGroup>
+     
+      
       <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-      <TextField id="outlined-basic" label="Personal ID" variant="outlined" sx={{width: 400, marginBottom: 1.5, marginRight: 2.5}}/>
+      <TextField id="outlined-basic" label="Citizen ID" variant="outlined" sx={{width: 400, marginBottom: 1.5, marginRight: 2.5}}/>
+      
       <Autocomplete
         disablePortal
         id="combo-box-demo"
@@ -91,18 +96,42 @@ export default function addtenant() {
       />
       <TextField id="outlined-basic" label="Phone Number" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.6}} />
     </Box>
-      
+    
     <TextField id="outlined-basic" label="Room Number" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
     <TextField id="outlined-basic" label="Email" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
-    <Typography sx={{marginBottom: 1}}>Address</Typography>
+    <Typography sx={{marginBottom: 1, marginTop:'10px'}}>Address</Typography>
     <TextField id="outlined-basic" label="Street" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
+    
     <TextField id="outlined-basic" label="District" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
+    <br></br>
     <TextField id="outlined-basic" label="Province" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
+    
     <TextField id="outlined-basic" label="Postal Code" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
+    <br></br>
     <TextField id="outlined-basic" label="Sub District" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 5}}/>
     </CardContent>
-   
+    <Box sx={{marginBottom: 2, marginLeft: 2}}>
+      <Typography variant="h4" sx={{marginBottom: 2,}} >Emergency Contact</Typography>
+      <TextField id="outlined-basic" label="Full Name" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
+      <TextField id="outlined-basic" label="Phone Number" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
+      <TextField id="outlined-basic" label="Line ID" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 2.5}}/>
+      <TextField id="outlined-basic" label="Relationship" variant="outlined" sx={{width: 270, marginBottom: 1.5, marginRight: 0.5}}/>
+      
+    </Box>
     
+    </Card>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '90%' }}>
+    <Card sx={{display: 'inline-block', width: "28vw", marginLeft: 2, marginBottom: "10px", height: 300}}>
+      <CardContent sx={{textAlign: 'center'}}>
+        <Typography sx={{textAlign: 'center', marginBottom: 0.3, fontWeight: 'bold', fontSize: '19px'}}>National Thai Citizen ID or Passport</Typography>
+        <Typography sx={{textAlign: 'center', margin: 0, opacity: '50%'}}>Attach a a of the tenant Identification </Typography>
+        <Box sx={{ '& > :not(style)': { m: 1 }, marginTop: 10 }}>
+      
+          <Fab color="secondary" aria-label="add">
+            <AddIcon />
+          </Fab>
+        </Box>
+      </CardContent>
     </Card>
     
     <Card sx={{display: 'inline-block', width: "28vw", marginLeft: 2, marginBottom: "10px", height: 300}}>
@@ -117,6 +146,8 @@ export default function addtenant() {
         </Box>
       </CardContent>
     </Card>
+    </Box>
+
     </Box>
     </>
   )

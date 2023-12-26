@@ -12,10 +12,13 @@ const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 const columns = [
   { field: 'id', headerName: 'Room ID', width: 130 },
   { field: 'roomnumber', headerName: 'Room Number', width: 170 },
-  { field: 'apartment', headerName: 'Apartment', width: 150 },
+  { field: 'floor', headerName: 'Floor', width: 150 },
+  { field: 'roomtype', headerName: 'Room Type', width: 170 },
   { field: 'roomstatus', headerName: 'Room Status', width: 150 },
-  { field: 'startdate', headerName: 'Start Date', width: 130 },
+  
+  { field: 'startdate', headerName: 'Contract Start Date', width: 170 },
   { field: 'enddate', headerName: 'End Date', width: 130 },
+  
   {
     field: 'action',
     headerName: 'Action',
@@ -36,15 +39,15 @@ const columns = [
 ];
 
 const rows = [
-  { id: 'A001', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A002', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A003', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A004', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A005', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A006', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A007', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A008', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A009', roomnumber: 'A001', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A001', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
+  { id: 'A002', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
+  { id: 'A003', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
+  { id: 'A004', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
+  { id: 'A005', roomnumber: 'A001', floor: '1', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A006', roomnumber: 'A001', floor: '2', roomstatus: 'Available', startdate: '-', enddate: '-' },
+  { id: 'A007', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A008', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A009', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
 ];
 
 const handleEdit = (roomId) => {
@@ -96,8 +99,8 @@ export default function ratetable() {
           </Link>
         </CardContent>
       </Card>
-      <Card>
-        <CardContent>
+      <Card sx={{  marginTop: '10px' }}>
+        <CardContent >
         <div style={{ display: 'flex', marginBottom: '10px' }}>
           <TextField
             label="Search"

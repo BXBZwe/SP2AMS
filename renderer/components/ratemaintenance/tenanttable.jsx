@@ -10,9 +10,10 @@ const columns = [
   { field: 'id', headerName: 'Tenant ID', width: 130 },
   { field: 'roomnumber', headerName: 'Room Number', width: 170 },
   { field: 'fullname', headerName: 'Full Name', width: 140 },
-  { field: 'apartment', headerName: 'Apartment', width: 140 },
-  { field: 'startdate', headerName: 'Start Date', width: 140 },
-  { field: 'enddate', headerName: 'End Date', width: 140 },
+  { field: 'phnumber', headerName: 'Phone Number', width: 140 },
+  { field: 'lineid', headerName: 'Line ID', width: 140 },
+  { field: 'floor', headerName: 'Floor', width: 140 },
+ 
   {
     field: 'actions',
     headerName: 'Actions',
@@ -33,15 +34,15 @@ const columns = [
 ];
 
 const rows = [
-  { id: 'A001', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A002', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A003', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A004', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A005', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A006', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A007', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A008', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A009', roomnumber: 'A001', fullname: 'Ahmad', apartment: 'Building A', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A001', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A002', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A003', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A004', roomnumber: 'A001', fullname: 'Ahmad', floor: '2', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A005', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A006', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A007', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A008', roomnumber: 'A001', fullname: 'Ahmad', floor: '2', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
+  { id: 'A009', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
 ];
 
 const handleDelete = (id) => {
@@ -91,8 +92,8 @@ export default function ratetable() {
         </CardContent>
       </Card>
 
-      <Card sx={{ height: '89%', width: '100%' }}>
-        <CardContent>
+      <Card sx={{marginTop: '10px', height: '89%', width: '100%' }}>
+        <CardContent >
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
             <TextField
               label="Search"
