@@ -139,241 +139,280 @@ export default function CheckIn() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              marginBottom: "10px",
             }}
           >
-            <Typography variant="h4">Check-In</Typography>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
-              Add New Tenants to the rooms they rent
-            </Typography>
-            <Divider />
-          </Box>
-
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Box>
-              <Card sx={{ width: "55vw", marginBottom: "10px" }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                    Select Room/Tenant
-                  </Typography>
-
-                  <Box sx={{ display: "flex", gap: "30px" }}>
-                    <TextField
-                      id="roomId"
-                      select
-                      label="Room Number"
-                      value={selectedRoom}
-                      onChange={(e) => setSelectedRoom(e.target.value)}
-                      sx={{ width: "40vw", marginBottom: "10px" }}
-                      error={
-                        addButtonClicked &&
-                        (!selectedRoom || selectedRoom === "")
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!selectedRoom || selectedRoom === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    >
-                      {rooms.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-
-                    <TextField
-                      id="tenantId"
-                      select
-                      label="Tenant Name"
-                      value={selectedTenant}
-                      onChange={(e) => setSelectedTenant(e.target.value)}
-                      sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked &&
-                        (!selectedTenant || selectedTenant === "")
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!selectedTenant || selectedTenant === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    >
-                      {tenants.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ width: "55vw" }}>
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                      Input Contract Details
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <DatePicker
-                      id="moveindateId"
-                      label="Move In"
-                      value={moveInDate}
-                      onChange={handleMoveInDateChange}
-                      sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked && (!moveInDate || moveInDate === "")
-                      }
-                      helperText={
-                        addButtonClicked && (!moveInDate || moveInDate === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    />
-
-                    <Typography variant="h6" sx={{ margin: "0 10px" }}>
-                      -
-                    </Typography>
-
-                    <DatePicker
-                      id="moveoutdateId"
-                      label="Move Out"
-                      value={moveOutDate}
-                      minDate={moveInDate} // Set minimum date for move-out
-                      onChange={handleMoveOutDateChange}
-                      sx={{ width: "40vw" }}
-                      error={
-                        addButtonClicked && (!moveOutDate || moveOutDate === "")
-                      }
-                      helperText={
-                        addButtonClicked && (!moveOutDate || moveOutDate === "")
-                          ? "The field cannot be empty."
-                          : ""
-                      }
-                    />
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginTop: "10px",
-                      gap: "30px",
-                    }}
-                  >
-                    <TextField
-                      id="contractMonths"
-                      label="Contract Months"
-                      sx={{ width: "40vw" }}
-                      value={contractMonths}
-                      type="number"
-                      error={
-                        addButtonClicked &&
-                        (!validateFloat(contractMonths) || contractMonths <= 0)
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!validateFloat(contractMonths) || contractMonths <= 0)
-                          ? "Contract months must be a positive number."
-                          : ""
-                      }
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">M</InputAdornment>
-                        ),
-                      }}
-                      onChange={(e) => setContractMonths(e.target.value)}
-                    />
-
-                    <TextField
-                      id="deposit"
-                      label="Deposit"
-                      sx={{ width: "40vw" }}
-                      value={deposit}
-                      type="number"
-                      error={
-                        addButtonClicked &&
-                        (!validateFloat(deposit) || deposit <= 0)
-                      }
-                      helperText={
-                        addButtonClicked &&
-                        (!validateFloat(deposit) || deposit <= 0)
-                          ? "Deposit must be a positive number."
-                          : ""
-                      }
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">THB</InputAdornment>
-                        ),
-                      }}
-                      onChange={(e) => setDeposit(e.target.value)}
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Box
+            <Card sx={{ width: "100%", display: "flex", marginBottom: "10px" }}>
+              <CardContent
                 sx={{
-                  display: "flex",
-                  gap: "20px",
-                  alignItems: "right",
-                  marginTop: "20px",
-                  justifyContent: "right",
+                  marginRight: "auto",
+                  marginBottom: "10px",
                 }}
               >
-                <Button
-                  variant="outlined"
-                  sx={{ width: "20%" }}
-                  onClick={resetForm}
-                >
-                  Clear
-                </Button>
-
-                <Button
-                  variant="contained"
-                  sx={{ width: "20%" }}
-                  onClick={handleAddButtonClick}
-                >
-                  Add
-                </Button>
-              </Box>
-            </Box>
-
-            <Card sx={{ width: "20vw", marginLeft: "1vw" }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                  Recent Activity
+                <Typography variant="h4">Check-In</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                  Add New Tenants to the rooms they rent
                 </Typography>
-                {recentActivity.map((activity) => (
-                  <Box
-                    key={activity.id}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "10px",
-                      gap: "5px"
-                    }}
-                  >
-                    <TextField disabled id={activity.id} value={activity.room} sx={{width:'8vw'}}/>
-                    <TextField disabled id={activity.id} value={activity.status} />
-                  </Box>
-                ))}
               </CardContent>
             </Card>
+
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Box>
+                <Card sx={{ width: "55vw", marginBottom: "10px" }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                      Select Room/Tenant
+                    </Typography>
+
+                    <Box sx={{ display: "flex", gap: "30px" }}>
+                      <TextField
+                        id="roomId"
+                        select
+                        label="Room Number"
+                        value={selectedRoom}
+                        onChange={(e) => setSelectedRoom(e.target.value)}
+                        sx={{ width: "40vw", marginBottom: "10px" }}
+                        error={
+                          addButtonClicked &&
+                          (!selectedRoom || selectedRoom === "")
+                        }
+                        helperText={
+                          addButtonClicked &&
+                          (!selectedRoom || selectedRoom === "")
+                            ? "The field cannot be empty."
+                            : ""
+                        }
+                      >
+                        {rooms.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+
+                      <TextField
+                        id="tenantId"
+                        select
+                        label="Tenant Name"
+                        value={selectedTenant}
+                        onChange={(e) => setSelectedTenant(e.target.value)}
+                        sx={{ width: "40vw" }}
+                        error={
+                          addButtonClicked &&
+                          (!selectedTenant || selectedTenant === "")
+                        }
+                        helperText={
+                          addButtonClicked &&
+                          (!selectedTenant || selectedTenant === "")
+                            ? "The field cannot be empty."
+                            : ""
+                        }
+                      >
+                        {tenants.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ width: "55vw" }}>
+                  <CardContent>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                        Input Contract Details
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <DatePicker
+                        id="moveindateId"
+                        label="Move In"
+                        value={moveInDate}
+                        onChange={handleMoveInDateChange}
+                        sx={{ width: "40vw" }}
+                        error={
+                          addButtonClicked && (!moveInDate || moveInDate === "")
+                        }
+                        helperText={
+                          addButtonClicked && (!moveInDate || moveInDate === "")
+                            ? "The field cannot be empty."
+                            : ""
+                        }
+                      />
+
+                      <Typography variant="h6" sx={{ margin: "0 10px" }}>
+                        -
+                      </Typography>
+
+                      <DatePicker
+                        id="moveoutdateId"
+                        label="Move Out"
+                        value={moveOutDate}
+                        minDate={moveInDate} // Set minimum date for move-out
+                        onChange={handleMoveOutDateChange}
+                        sx={{ width: "40vw" }}
+                        error={
+                          addButtonClicked &&
+                          (!moveOutDate || moveOutDate === "")
+                        }
+                        helperText={
+                          addButtonClicked &&
+                          (!moveOutDate || moveOutDate === "")
+                            ? "The field cannot be empty."
+                            : ""
+                        }
+                      />
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: "10px",
+                        gap: "30px",
+                      }}
+                    >
+                      <TextField
+                        id="contractMonths"
+                        label="Contract Months"
+                        sx={{ width: "40vw" }}
+                        value={contractMonths}
+                        type="number"
+                        error={
+                          addButtonClicked &&
+                          (!validateFloat(contractMonths) ||
+                            contractMonths <= 0)
+                        }
+                        helperText={
+                          addButtonClicked &&
+                          (!validateFloat(contractMonths) ||
+                            contractMonths <= 0)
+                            ? "Contract months must be a positive number."
+                            : ""
+                        }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">M</InputAdornment>
+                          ),
+                        }}
+                        onChange={(e) => setContractMonths(e.target.value)}
+                      />
+
+                      <TextField
+                        id="deposit"
+                        label="Deposit"
+                        sx={{ width: "40vw" }}
+                        value={deposit}
+                        type="number"
+                        error={
+                          addButtonClicked &&
+                          (!validateFloat(deposit) || deposit <= 0)
+                        }
+                        helperText={
+                          addButtonClicked &&
+                          (!validateFloat(deposit) || deposit <= 0)
+                            ? "Deposit must be a positive number."
+                            : ""
+                        }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">THB</InputAdornment>
+                          ),
+                        }}
+                        onChange={(e) => setDeposit(e.target.value)}
+                      />
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: "20px",
+                    alignItems: "right",
+                    marginTop: "20px",
+                    justifyContent: "right",
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    sx={{ width: "20%" }}
+                    onClick={resetForm}
+                  >
+                    Clear
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    sx={{ width: "20%" }}
+                    onClick={handleAddButtonClick}
+                  >
+                    Add
+                  </Button>
+                </Box>
+              </Box>
+
+              <Card sx={{ width: "100%", marginLeft: "1vw" }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                    Recent Activity
+                  </Typography>
+                  {recentActivity.map((activity) => (
+                    <Box
+                      key={activity.id}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "10px",
+                        gap: "5px",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          borderRadius: "2px",
+                          border: "1px solid #ccc",
+                          padding: "8px",
+                          display: "flex",
+                          width: "30%",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography sx={{ marginRight: "8px" }}>
+                          {activity.room}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          borderRadius: "2px",
+                          border: "1px solid #ccc",
+                          padding: "8px",
+                          display: "flex",
+                          width: "70%",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography sx={{ marginRight: "8px" }}>
+                          {activity.status}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </CardContent>
+              </Card>
+            </Box>
           </Box>
         </div>
       </LocalizationProvider>

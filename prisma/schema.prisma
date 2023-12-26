@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bills {
+  bill_id               Int      @id @default(autoincrement())
+  room_id               Int
+  water_usage           Decimal? @db.Decimal(10, 2)
+  water_cost            Decimal? @db.Decimal(10, 2)
+  electricity_usage     Decimal? @db.Decimal(10, 2)
+  electricity_cost      Decimal? @db.Decimal(10, 2)
+  additional_rates_cost Decimal? @db.Decimal(10, 2)
+  bill_date             DateTime @db.Date
+  total_amount          Decimal? @db.Decimal(10, 2)
+  rooms                 rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model check_ins {
+  check_in_id    Int      @id @default(autoincrement())
+  tenant_id      Int?
+  room_id        Int?
+  move_in_date   DateTime @db.Date
+  period_of_stay Int
+  deposit_paid   Decimal  @db.Decimal(10, 2)
+  rooms          rooms?   @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  tenants        tenants? @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model check_outs {
+  check_out_id     Int      @id @default(autoincrement())
+  tenant_id        Int?
+  room_id          Int?
+  move_out_date    DateTime @db.Date
+  deposit_returned Decimal? @db.Decimal(10, 2)
+  final_bill       Decimal? @db.Decimal(10, 2)
+  rooms            rooms?   @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  tenants          tenants? @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model meter_readings {
+  reading_id          Int      @id @default(autoincrement())
+  room_id             Int
+  water_reading       Int
+  electricity_reading Int
+  reading_date        DateTime @db.Date
+  rooms               rooms    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rooms {
+  room_id        Int              @id @default(autoincrement())
+  room_number    String           @db.VarChar(50)
+  floor          Int
+  base_rent      Decimal          @db.Decimal(10, 2)
+  status         String           @db.VarChar(50)
+  type           String?          @db.VarChar(50)
+  reserved       Boolean?         @default(false)
+  for_rent       Boolean?         @default(true)
+  deposit        Decimal?         @db.Decimal(10, 2)
+  bills          bills[]
+  check_ins      check_ins[]
+  check_outs     check_outs[]
+  meter_readings meter_readings[]
+  tenants        tenants[]
+}
+
+model tenants {
+  tenant_id    Int          @id @default(autoincrement())
+  first_name   String       @db.VarChar(100)
+  last_name    String       @db.VarChar(100)
+  personal_id  String       @unique @db.VarChar(255)
+  phone_number String?      @db.VarChar(20)
+  email        String?      @db.VarChar(255)
+  room_id      Int?
+  start_date   DateTime?    @db.Date
+  end_date     DateTime?    @db.Date
+  check_ins    check_ins[]
+  check_outs   check_outs[]
+  rooms        rooms?       @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+}
