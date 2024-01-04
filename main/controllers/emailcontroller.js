@@ -17,7 +17,7 @@ const Emailsender = async (req, res) => {
                 room_id: parseInt(room_id), 
             },
             include: {
-                rooms: true, 
+                roomBaseDetails: true, 
             },
             orderBy: {
                 bill_date: 'desc',
@@ -30,7 +30,7 @@ const Emailsender = async (req, res) => {
         }
 
         // Format the email content with bill details and the additional message
-        const emailContent = `${message}\n\nBill Details for Room Number: ${bills.rooms.room_number}
+        const emailContent = `${message}\n\nBill Details for Room Number: ${bills.roomBaseDetails.room_number}
         \nWater Usage: ${bills.water_usage}
         \nElectricity Usage: ${bills.electricity_usage}
         \nWater Cost: ${bills.water_cost}

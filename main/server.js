@@ -4,9 +4,10 @@ import cors from 'cors';
 //import nodemailer from 'nodemailer';
 // import billroute from './routes/billroute';
 // import meterreadingroute from './routes/meterreadingroute';
-import roomroute from './routes/roomroute';
+import roomroutes from './routes/roomroutes';
 import emailroute from './routes/emailroute';
 import rateroutes from './routes/rateroutes';
+import tenantroutes from './routes/tenantroutes';
 
 const app = express();
 app.use(express.json());
@@ -27,9 +28,10 @@ var corsOptions = {
 app.use(cors(corsOptions));
 // app.use(billroute);
 // app.use(meterreadingroute);
- app.use(roomroute);
+ app.use(roomroutes);
  app.use(emailroute);
  app.use(rateroutes);
+ app.use(tenantroutes);
 
 
 export default function startServer() {

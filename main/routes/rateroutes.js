@@ -5,14 +5,14 @@ import { getallRateItem, addRateItem, updateRateItem, deleteRateItem } from '../
 
 const rateroute = express.Router();
 
-rateroute.get('/rates', getallRateItem);
+rateroute.get('/getallrates', getallRateItem);
 // Route for adding a new rate
-rateroute.post('/rates', addRateItem);
+rateroute.post('/addrates', addRateItem);
 
 // Route for updating an existing rate
-rateroute.put('/rates/:rate_id', updateRateItem);
+rateroute.put('/updaterates/:rate_id', updateRateItem);
 
 // Route for deleting a rate
-rateroute.delete('/rates/:rate_id', deleteRateItem);
+rateroute.delete('/deleterates/:rate_id', deleteRateItem);
 
 export default rateroute;
