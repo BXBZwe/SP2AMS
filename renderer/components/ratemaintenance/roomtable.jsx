@@ -176,31 +176,59 @@ import Typography from '@mui/material/Typography';
 import { Button, Card, CardContent, TextField, Select, MenuItem } from "@mui/material";
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from 'next/router'
 
 const columns = [
-  { field: 'id', headerName: 'Room ID', width: 130 },
-  { field: 'roomnumber', headerName: 'Room Number', width: 170 },
-  { field: 'floor', headerName: 'Floor', width: 150 },
-  { field: 'roomtype', headerName: 'Room Type', width: 170 },
-  { field: 'roomstatus', headerName: 'Room Status', width: 150 }
+  { field: 'roomnumber', headerName: 'Room Number', width: 120 },
+  { field: 'floor', headerName: 'Floor', width: 120 },
+  { field: 'roomtype', headerName: 'Room Type', width: 120 },
+  { field: 'occupancystatus', headerName: 'Occupancy', width: 120 },
+  { field: 'reservationstatus', headerName: 'Reservation', width: 120 },
+  { field: 'paymentstatus', headerName: 'Payment', width: 250 },
 ];
+
+// const totalColumns = 6; // Total number of columns
+// const columnWidth = `${100 / totalColumns}%`; // Calculate equal width for each column
+
+// const columns = [
+//   { field: 'roomnumber', headerName: 'Room Number', width: columnWidth },
+//   { field: 'floor', headerName: 'Floor', width: columnWidth },
+//   { field: 'roomtype', headerName: 'Room Type', width: columnWidth },
+//   { field: 'occupancystatus', headerName: 'Occupancy', width: columnWidth },
+//   { field: 'reservationstatus', headerName: 'Reservation', width: columnWidth },
+//   { field: 'paymentstatus', headerName: 'Payment', width: columnWidth },
+// ];
 
 export default function ratetable() {
   const [rooms, setRooms] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [filterValue, setFilterValue] = useState('all');
 
+  const router = useRouter();
+
+  const handleRowClick = (params) => {
+    // Extract the id from the clicked row's data
+    const roomId = params.row.id;
+    // console.log('Room Table',roomId);
+
+    // Use Next.js router to navigate to the details page
+    router.push(`/roommaintenance/editroom?roomId=${roomId}`);
+
+  };
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const response = await axios.get('http://localhost:3000/getallrooms');
-        console.log(response.data.getrooms)
+        // console.log(response.data.getrooms)
         const roomsData = response.data.getrooms.map(room => ({
           id: room.room_id,
           roomnumber: room.room_number,
           floor: room.floor,
           roomtype: room.room_type,
-          roomstatus: room.statusDetails.occupancy_status
+          occupancystatus: room.statusDetails.occupancy_status,
+          reservationstatus: room.statusDetails.is_reserved,
+          paymentstatus: room.statusDetails.payment_status
         }));
         setRooms(roomsData);
       } catch (error) {
@@ -211,12 +239,11 @@ export default function ratetable() {
     fetchRooms();
   }, []);
 
-  console.log(rooms)
 
   const filteredRows = rooms.filter(row => {
     return (
       row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
-      (filterValue === 'all' || row.roomstatus === filterValue)
+      (filterValue === 'all' || row.occupancystatus === filterValue)
     );
   });
 
@@ -263,9 +290,9 @@ export default function ratetable() {
               inputProps={{ 'aria-label': 'Filter' }}
               sx={{width: '30%'}}
             >
-              <MenuItem value="all">All Status</MenuItem>
+              <MenuItem value="all">All</MenuItem>
               <MenuItem value="Available">Available</MenuItem>
-              <MenuItem value="Occupied">Occupied</MenuItem>
+              <MenuItem value="Unavailable">Unavailable</MenuItem>
               {/* Add other status options here as needed */}
             </Select>
           </div>
@@ -276,6 +303,7 @@ export default function ratetable() {
               pageSize={5}
               pageSizeOptions={[5, 10]}
               checkboxSelection
+              onRowClick={handleRowClick}
             />
           </div>
         </CardContent>

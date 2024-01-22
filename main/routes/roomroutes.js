@@ -1,9 +1,11 @@
 import express from 'express';
-import { createRoom, deleteRoom, getRooms, updateRoom } from '../controllers/roomcontroller';
+import { createRoom, deleteRoom, getRooms, updateRoom,getEachRoom } from '../controllers/roomcontroller';
 
 const roomroute = express.Router();
 
 roomroute.get('/getallrooms', getRooms);
+
+roomroute.get('/geteachroom/:room_id', getEachRoom);
 
 roomroute.post('/addrooms', createRoom);
 
