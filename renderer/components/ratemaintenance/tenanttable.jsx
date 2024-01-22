@@ -1,58 +1,75 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
 import { Card, CardContent, TextField, Select, MenuItem, Button, IconButton } from "@mui/material";
 import Link from 'next/link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
-const columns = [
-  { field: 'id', headerName: 'Tenant ID', width: 130 },
-  { field: 'roomnumber', headerName: 'Room Number', width: 170 },
-  { field: 'fullname', headerName: 'Full Name', width: 140 },
-  { field: 'phnumber', headerName: 'Phone Number', width: 140 },
-  { field: 'lineid', headerName: 'Line ID', width: 140 },
-  { field: 'floor', headerName: 'Floor', width: 140 },
- 
-  {
-    field: 'actions',
-    headerName: 'Actions',
-    width: 120,
-    renderCell: (params) => (
-      <>
-        <Link href="tenantmaintenance/addtenant" passHref>
-          <IconButton component="a">
-            <EditIcon />
-          </IconButton>
-        </Link>
-        <IconButton >
-          <DeleteIcon />
-        </IconButton>
-      </>
-    ),
-  },
-];
 
-const rows = [
-  { id: 'A001', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A002', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A003', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A004', roomnumber: 'A001', fullname: 'Ahmad', floor: '2', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A005', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A006', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A007', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A008', roomnumber: 'A001', fullname: 'Ahmad', floor: '2', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-  { id: 'A009', roomnumber: 'A001', fullname: 'Ahmad', floor: '1', roomstatus: 'Available', startdate: '23/01/2023', enddate: '01/23/2024' },
-];
-
-const handleDelete = (id) => {
-  // Implement your delete logic here
-  console.log(`Delete tenant with ID: ${id}`);
-};
 
 export default function ratetable() {
   const [searchText, setSearchText] = React.useState('');
   const [filterValue, setFilterValue] = React.useState('');
+  const [tenants, setTenants] = React.useState([]);
+  const columns = [
+    { field: 'id', headerName: 'Tenant ID', width: 130 },
+    { field: 'roomnumber', headerName: 'Room Number', width: 170 },
+    { field: 'fullname', headerName: 'Full Name', width: 140 },
+    { field: 'phnumber', headerName: 'Phone Number', width: 140 },
+    { field: 'lineid', headerName: 'Line ID', width: 140 },
+    { field: 'floor', headerName: 'Floor', width: 140 },
+  
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 120,
+      renderCell: (params) => {
+        console.log("params:", params)
+        const tenant_id = params.row.id;
+        console.log("This tenant id ", tenant_id)
+        return (
+          <>
+            <Link href={`/tenantmaintenance/Update&DeleteTenant/${tenant_id}`} passHref>
+              <IconButton component="a">
+                <EditIcon />
+              </IconButton>
+            </Link>
+            <IconButton onClick={() => handleDelete(tenant_id)}> 
+              <DeleteIcon />
+            </IconButton>
+          </>
+        )
+      },
+    },
+  ];
+
+  const handleDelete = async (tenant_id) => {
+    try {
+      await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
+      console.log(`Tenant with ID: ${tenant_id} deleted successfully`);
+      fetchTenants();
+
+  
+    } catch (error) {
+      console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
+    }
+  };
+  
+  const fetchTenants = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getalltenants');
+      console.log("Raw tenants data:", response.data.getTenant); 
+      setTenants(response.data.getTenant);
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTenants();
+  }, []);
 
   const handleSearchTextChange = (event) => {
     setSearchText(event.target.value);
@@ -62,13 +79,17 @@ export default function ratetable() {
     setFilterValue(event.target.value);
   };
 
-  const filteredRows = rows.filter((row) =>
-    Object.values(row).some(
-      (value) =>
-        typeof value === 'string' && value.toLowerCase().includes(searchText.toLowerCase())
-    ) &&
-    (filterValue === '' || row.roomstatus === filterValue)
-  );
+  const formattedTenants = tenants.map((tenant) => ({
+    id: tenant.tenant_id,
+    roomnumber: tenant.room_id, 
+    fullname: `${tenant.first_name} ${tenant.last_name}`,
+    phnumber: tenant.contacts?.phone_number || 'N/A', 
+    lineid: tenant.contacts?.line_id || 'N/A',
+    floor: tenant.roomBaseDetails?.floor || 'N/A',
+  }));
+
+  
+
 
   return (
     <>
@@ -92,7 +113,7 @@ export default function ratetable() {
         </CardContent>
       </Card>
 
-      <Card sx={{marginTop: '10px', height: '89%', width: '100%' }}>
+      <Card sx={{ marginTop: '10px', height: '89%', width: '100%' }}>
         <CardContent >
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
             <TextField
@@ -107,7 +128,7 @@ export default function ratetable() {
               onChange={handleFilterChange}
               displayEmpty
               variant="outlined"
-              sx={{width: '20%'}}
+              sx={{ width: '20%' }}
             >
               <MenuItem value="" disabled>
                 Filter
@@ -119,11 +140,12 @@ export default function ratetable() {
 
           <div style={{ height: 'calc(100% - 40px)', width: '100%' }}>
             <DataGrid
-              rows={filteredRows}
+              rows={formattedTenants}
               columns={columns}
               pageSize={5}
               checkboxSelection
             />
+
           </div>
         </CardContent>
       </Card>

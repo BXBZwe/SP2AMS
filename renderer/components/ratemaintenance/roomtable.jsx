@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
 import { Button, Card, CardContent, IconButton, InputAdornment, TextField, MenuItem, Select } from "@mui/material";
@@ -6,6 +5,9 @@ import Link from 'next/link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -51,12 +53,10 @@ const rows = [
 ];
 
 const handleEdit = (roomId) => {
-  // Implement the edit logic here
   console.log(`Edit room with ID ${roomId}`);
 };
 
 const handleDelete = (roomId) => {
-  // Implement the delete logic here
   console.log(`Delete room with ID ${roomId}`);
 };
 
@@ -72,6 +72,21 @@ export default function ratetable() {
     ) && (filterValue === 'all' || row.roomstatus === filterValue)
     );
   }, [searchText, filterValue]);
+
+  useEffect(() => {
+
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/getallrooms')
+        const rooms = await response.data;
+        console.log('Fetched rooms:', rooms);
+      } catch (error) {
+        console.error('Error fetching rooms:', error.message);
+      }
+    };
+    
+  fetchRooms();
+  }, []);
 
   return (
     <>
