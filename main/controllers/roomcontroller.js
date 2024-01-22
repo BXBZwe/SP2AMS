@@ -16,6 +16,30 @@ const getRooms = async (req, res) => {
     }
 };
 
+// GET - Fetch one room with their status details
+const getEachRoom = async (req, res) => {
+    const { room_id } = req.params;
+    try {
+      const room = await prisma.roomBaseDetails.findUnique({
+        where: { room_id: parseInt(room_id) },
+        include: {
+          statusDetails: true,
+        },
+      });
+  
+      if (!room) {
+        // Handle the case where the room with the specified room_id is not found
+        res.status(404).json({ message: 'Room not found' });
+      } else {
+        res.status(200).json({ message: 'Get room successfully', room });
+      }
+    } catch (error) {
+      console.error('Error fetching room:', error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+
 // POST - Create a new room
 const createRoom = async (req, res) => {
     try {
@@ -82,4 +106,4 @@ const deleteRoom = async (req, res) => {
     }
 };
 
-export { getRooms, createRoom, updateRoom, deleteRoom };
+export { getRooms, createRoom, updateRoom, deleteRoom,getEachRoom };

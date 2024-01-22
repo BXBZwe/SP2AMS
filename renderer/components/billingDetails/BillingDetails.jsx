@@ -301,7 +301,7 @@ export default function BillingDetails() {
       room: "101",
       meter: 0,
       water: 0,
-      lastMeter: 200,
+      lastMeter: 999,
       lastWater: 333,
     },
     {
