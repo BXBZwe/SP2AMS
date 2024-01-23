@@ -88,6 +88,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 const title = "PS Park";
+
 const navigationItems1 = [
   // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
   { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
@@ -167,26 +168,25 @@ export default function Nav() {
       <CssBaseline />
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <TitleWrapper>
-            {open ? (
-              <Typography
-                variant="h4"
-                noWrap
-                style={{ fontWeight: "bold", fontFamily: "Normal" }}
-              >
-                PS Park
-              </Typography>
-            ) : null}
-          </TitleWrapper>
-          <IconButton onClick={() => setOpen(!open)}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
+      <DrawerHeader>
+  {open ? (
+    // Replace the text with an image
+    
+      <img
+        src="logo.png" // Provide the correct path to your PNG image
+        alt="Logo"
+        style={{ width: "100%" }}
+      />
+    
+  ) : null}
+  <IconButton onClick={() => setOpen(!open)}>
+    {theme.direction === "rtl" ? (
+      <ChevronRightIcon />
+    ) : (
+      <ChevronLeftIcon />
+    )}
+  </IconButton>
+</DrawerHeader>
         <Divider />
         <List>
           {navigationItems1.map((item, index) => (

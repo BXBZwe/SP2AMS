@@ -6,6 +6,7 @@ import Link from 'next/link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import axios from 'axios';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -63,6 +64,21 @@ const handleDelete = (roomId) => {
 export default function ratetable() {
   const [searchText, setSearchText] = React.useState('');
   const [filterValue, setFilterValue] = React.useState('all');
+
+  useEffect(() => {
+ 
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/getallrooms')
+        const rooms = await response.data;
+        console.log('Fetched rooms:', rooms);
+      } catch (error) {
+        console.error('Error fetching rooms:', error.message);
+      }
+    };
+   
+  fetchRooms();
+  }, []);
 
   const filteredRows = React.useMemo(() => {
     return rows.filter(row => (
