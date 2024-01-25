@@ -79,9 +79,10 @@ export default function ratetable() {
     setFilterValue(event.target.value);
   };
 
+  // console.log('tEansts',tenants)
   const formattedTenants = tenants.map((tenant) => ({
     id: tenant.tenant_id,
-    roomnumber: tenant.room_id, 
+    roomnumber: tenant.roomBaseDetails.room_number, 
     fullname: `${tenant.first_name} ${tenant.last_name}`,
     phnumber: tenant.contacts?.phone_number || 'N/A', 
     lineid: tenant.contacts?.line_id || 'N/A',
