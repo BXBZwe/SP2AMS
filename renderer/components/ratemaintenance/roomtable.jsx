@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogContentText,
   Typography,
+  Chip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -34,6 +35,13 @@ export default function ratetable() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
+
+  const paymentStatusColors = {
+    PENDING: 'default', // grey color
+    OVERDUE: 'error',   // red color
+    PARTIAL: 'warning', // yellow color
+    PAID: 'success',    // green color
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -58,16 +66,36 @@ export default function ratetable() {
   }, []);
 
   const columns = [
-    { field: "roomnumber", headerName: "Room Number", width: 120 },
-    { field: "floor", headerName: "Floor", width: 120 },
-    { field: "roomtype", headerName: "Room Type", width: 120 },
-    { field: "occupancystatus", headerName: "Occupancy", width: 120 },
-    { field: "reservationstatus", headerName: "Reservation", width: 120 },
-    { field: "paymentstatus", headerName: "Payment", width: 250 },
+    { field: "roomnumber", headerName: "Room Number", flex: 1 },
+    { field: "floor", headerName: "Floor", flex: 1 },
+    { field: "roomtype", headerName: "Room Type", flex: 1 },
+    { field: "occupancystatus", headerName: "Occupancy", flex: 1 },
+    { field: "reservationstatus", headerName: "Reservation", flex: 1 },
+    // { field: "paymentstatus", headerName: "Payment", flex: 1 },
+    {
+      field: 'paymentstatus',
+      headerName: 'Payment',
+      flex: 1,
+      renderCell: (params) => {
+        const color = paymentStatusColors[params.row.paymentstatus] || 'default';
+        return (
+          <Chip
+          label={params.row.paymentstatus}
+          color={color}
+          size="small"
+          variant="outlined"
+          style={{
+            width: '100%', // set the width to 100% to fill the cell
+            justifyContent: 'center' // center the text inside the chip
+          }}
+        />  
+        );
+      },
+    },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      flex: 1,
       renderCell: (params) => (
         <>
           <Link
@@ -145,7 +173,7 @@ export default function ratetable() {
           <Link href="roommaintenance/addroom" passHref>
             <Button
               variant="contained"
-              sx={{ width: "60px", marginTop: "15px" }}
+              sx={{ width: "110px", marginTop: "15px" }}
               component="a"
             >
               Add
@@ -173,7 +201,8 @@ export default function ratetable() {
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This process will detele the specified room you have selected. Once deleted the process cannot be undone.
+            This process will detele the specified room you have selected. Once
+            deleted the process cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
