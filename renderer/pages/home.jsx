@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <React.Fragment>
       <Head>
-        <title>Home</title>
+        <title>Dashboard</title>
       </Head>
       {/* {isLoggedIn ? <Dashboard /> : <SignIn/>} */}
       <Dashboard />

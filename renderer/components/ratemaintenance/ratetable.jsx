@@ -5,7 +5,7 @@ import { Button, Card, CardContent, IconButton, TextField, MenuItem, Select } fr
 import Link from 'next/link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import axios from 'axios';
 const columns = [
   { field: 'id', headerName: 'Item ID', width: 160 },
   { field: 'itemname', headerName: 'Item Name', width: 170 },
@@ -51,8 +51,26 @@ const initialRows = [
 export default function RateTable() {
   const [searchText, setSearchText] = React.useState('');
   const [filter, setFilter] = React.useState('');
-  const [rows, setRows] = React.useState(initialRows);
+  const [rows, setRows] = React.useState([]);
 
+  // Fetch data from the API when the component mounts
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      // Check if the connection is secure (HTTPS)
+      if (window.location.protocol === 'https:') {
+        const response = await axios.get('http://localhost:3000/getallrates');
+        setRows(response.data); // Assuming the API response is an array of rate items
+      } else {
+        console.error('Insecure connection. Please use HTTPS for API requests.');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
