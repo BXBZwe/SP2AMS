@@ -1,177 +1,7 @@
-
-// import React, { useEffect, useState } from 'react';
-// import { DataGrid } from '@mui/x-data-grid';
-// import Typography from '@mui/material/Typography';
-// import { Button, Card, CardContent, IconButton, InputAdornment, TextField, MenuItem, Select } from "@mui/material";
-// import Link from 'next/link';
-// import EditIcon from '@mui/icons-material/Edit';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import SearchIcon from '@mui/icons-material/Search';
-// import axios from 'axios';
-
-// const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
-
-// const columns = [
-//   { field: 'id', headerName: 'Room ID', width: 130 },
-//   { field: 'roomnumber', headerName: 'Room Number', width: 170 },
-//   { field: 'floor', headerName: 'Floor', width: 150 },
-//   { field: 'roomtype', headerName: 'Room Type', width: 170 },
-//   { field: 'roomstatus', headerName: 'Room Status', width: 150 },
-  
-//   { field: 'startdate', headerName: 'Contract Start Date', width: 170 },
-//   { field: 'enddate', headerName: 'End Date', width: 130 },
-  
-//   {
-//     field: 'action',
-//     headerName: 'Action',
-//     width: 150,
-//     renderCell: (params) => (
-//       <div>
-//         <Link href="roommaintenance/addroom" passHref>
-//           <IconButton onClick={() => handleEdit(params.row.id)}>
-//             <EditIcon />
-//           </IconButton>
-//         </Link>
-//         <IconButton onClick={() => handleDelete(params.row.id)}>
-//           <DeleteIcon />
-//         </IconButton>
-//       </div>
-//     ),
-//   },
-// ];
-
-// const rows = [
-//   { id: 'A001', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
-//   { id: 'A002', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
-//   { id: 'A003', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
-//   { id: 'A004', roomnumber: 'A001', floor: '1', roomstatus: 'Available', startdate: '-', enddate: '-' },
-//   { id: 'A005', roomnumber: 'A001', floor: '1', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-//   { id: 'A006', roomnumber: 'A001', floor: '2', roomstatus: 'Available', startdate: '-', enddate: '-' },
-//   { id: 'A007', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-//   { id: 'A008', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-//   { id: 'A009', roomnumber: 'A001', floor: '2', roomstatus: 'Occupied', startdate: '23/01/2023', enddate: '01/23/2024' },
-// ];
-
-// const handleEdit = (roomId) => {
-//   // Implement the edit logic here
-//   console.log(`Edit room with ID ${roomId}`);
-// };
-
-// const handleDelete = (roomId) => {
-//   // Implement the delete logic here
-//   console.log(`Delete room with ID ${roomId}`);
-// };
-
-// export default function ratetable() {
-//   const [searchText, setSearchText] = React.useState('');
-//   const [filterValue, setFilterValue] = React.useState('all');
-//   const [rooms, setRooms] = useState([]);
-
-//   useEffect(() => {
-//     const fetchRooms = async () => {
-//       try {
-//         const response = await axios.get('http://localhost:3000/getallrooms');
-//         const roomsData = response.data;
-    
-//           setRooms(roomsData.getrooms);
-  
-//       } catch (error) {
-//         console.error('Error fetching rooms:', error.message);
-//       }
-//     };
-  
-//     fetchRooms();
-//   }, []);
-  
-//   console.log('Fetched Data',rooms[0]);
-//   console.log('Rows',rows[0]);
-
-//   // const filteredRows = React.useMemo(() => {
-//   //   return rows.filter(row => (
-//   //     row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) ||
-//   //     row.apartment.toLowerCase().includes(searchText.toLowerCase()) ||
-//   //     row.roomstatus.toLowerCase().includes(searchText.toLowerCase())
-//   //   ) && (filterValue === 'all' || row.roomstatus === filterValue)
-//   //   );
-//   // }, [searchText, filterValue]);
-
-//   const filteredRows = React.useMemo(() => {
-//     return rooms.filter(row => (
-//       row.room_number.toLowerCase().includes(searchText.toLowerCase()) ||
-//       row.room_type.toLowerCase().includes(searchText.toLowerCase()) ||
-//       row.roomstatus.toLowerCase().includes(searchText.toLowerCase())
-//     ) && (filterValue === 'all' || row.roomstatus === filterValue)
-//     );
-//   }, [searchText, filterValue]);
-
-
-//   return (
-//     <>
-//       <Card sx={{ width: '100%', display: 'flex' }}>
-//         <CardContent
-//           sx={{
-//             marginRight: "auto",
-//             marginBottom: "10px",
-//           }}
-//         >
-//           <Typography variant="h4">Room Maintenance</Typography>
-//           <Typography variant="body2" sx={{ opacity: 0.7 }}>
-//             Remove or Relocate tenants corresponding to their room settings
-//           </Typography>
-//         </CardContent>
-//         <CardContent>
-//           <Link href="roommaintenance/addroom" passHref>
-//             <Button
-//               variant="contained"
-//               sx={{ width: "60px", marginTop: '15px' }}
-//               component="a"
-//             >
-//               Add
-//             </Button>
-//           </Link>
-//         </CardContent>
-//       </Card>
-//       <Card sx={{  marginTop: '10px' }}>
-//         <CardContent >
-//         <div style={{ display: 'flex', marginBottom: '10px' }}>
-//           <TextField
-//             label="Search"
-//             variant="outlined"
-//             fullWidth
-//             value={searchText}
-//             onChange={(e) => setSearchText(e.target.value)}
-            
-//             sx={{ marginRight: '10px', width: '80%' }}
-//           />
-//           <Select
-//             value={filterValue}
-//             onChange={(e) => setFilterValue(e.target.value)}
-//             displayEmpty
-//             inputProps={{ 'aria-label': 'Filter' }}
-//             sx={{width: '20%'}}
-            
-//           >
-//             <MenuItem value="all">All</MenuItem>
-//             <MenuItem value="Available">Available</MenuItem>
-//             <MenuItem value="Occupied">Occupied</MenuItem>
-//           </Select></div>
-//           <div style={{ height: '89%', width: '100%' }}>
-//             <DataGrid
-//               rows={filteredRows}
-//               columns={columns}
-//               pageSize={5}
-//               pageSizeOptions={[5, 10]}
-//               checkboxSelection
-//             />
-//           </div>
-//         </CardContent>
-//       </Card>
-//     </>
-//   );
-// }
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography,} from "@mui/material";
+import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography,  Chip,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -190,6 +20,13 @@ export default function ratetable() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
+
+  const paymentStatusColors = {
+    PENDING: 'default', // grey color
+    OVERDUE: 'error',   // red color
+    PARTIAL: 'warning', // yellow color
+    PAID: 'success',    // green color
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -214,16 +51,36 @@ export default function ratetable() {
   }, []);
 
   const columns = [
-    { field: "roomnumber", headerName: "Room Number", width: 120 },
-    { field: "floor", headerName: "Floor", width: 120 },
-    { field: "roomtype", headerName: "Room Type", width: 120 },
-    { field: "occupancystatus", headerName: "Occupancy", width: 120 },
-    { field: "reservationstatus", headerName: "Reservation", width: 120 },
-    { field: "paymentstatus", headerName: "Payment", width: 250 },
+    { field: "roomnumber", headerName: "Room Number", flex: 1 },
+    { field: "floor", headerName: "Floor", flex: 1 },
+    { field: "roomtype", headerName: "Room Type", flex: 1 },
+    { field: "occupancystatus", headerName: "Occupancy", flex: 1 },
+    { field: "reservationstatus", headerName: "Reservation", flex: 1 },
+    // { field: "paymentstatus", headerName: "Payment", flex: 1 },
+    {
+      field: 'paymentstatus',
+      headerName: 'Payment',
+      flex: 1,
+      renderCell: (params) => {
+        const color = paymentStatusColors[params.row.paymentstatus] || 'default';
+        return (
+          <Chip
+          label={params.row.paymentstatus}
+          color={color}
+          size="small"
+          variant="outlined"
+          style={{
+            width: '100%', // set the width to 100% to fill the cell
+            justifyContent: 'center' // center the text inside the chip
+          }}
+        />  
+        );
+      },
+    },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      flex: 1,
       renderCell: (params) => (
         <>
           <Link
@@ -301,7 +158,7 @@ export default function ratetable() {
           <Link href="roommaintenance/addroom" passHref>
             <Button
               variant="contained"
-              sx={{ width: "60px", marginTop: "15px" }}
+              sx={{ width: "110px", marginTop: "15px" }}
               component="a"
             >
               Add
@@ -329,7 +186,8 @@ export default function ratetable() {
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This process will detele the specified room you have selected. Once deleted the process cannot be undone.
+            This process will detele the specified room you have selected. Once
+            deleted the process cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

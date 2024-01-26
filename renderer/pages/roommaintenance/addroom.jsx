@@ -101,7 +101,7 @@ export default function AddRoom() {
             sx={{ width: "110px", marginTop: "15px" }}
             onClick={handleSubmit}
           >
-            Add Room
+            Add
           </Button>
         </CardContent>
       </Card>
@@ -171,16 +171,6 @@ export default function AddRoom() {
             }
             label="Is Reserved"
           />
-          {/* <FormControlLabel
-            control={
-              <Checkbox
-                name="statusDetails.is_available_for_rent"
-                checked={formData.statusDetails.is_available_for_rent}
-                onChange={handleCheckboxChange}
-              />
-            }
-            label="Is Available for Rent"
-          /> */}
           <Autocomplete
             options={paymentOptions}
             value={formData.statusDetails.payment_status}
@@ -197,12 +187,6 @@ export default function AddRoom() {
               <TextField {...params} label="Payment Status" />
             )}
           />
-          {/* <TextField
-            label="Payment Status"
-            name="statusDetails.payment_status"
-            value={formData.statusDetails.payment_status}
-            onChange={handleInputChange}
-          /> */}
         </Box>
       </form>
     </>
