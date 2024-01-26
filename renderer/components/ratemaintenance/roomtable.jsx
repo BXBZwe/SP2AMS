@@ -221,7 +221,7 @@ export default function ratetable() {
           severity="success"
           sx={{ width: "100%" }}
         >
-          Room deleted successfully!
+          Room {roomToDelete} deleted successfully! 
         </MuiAlert>
       </Snackbar>
     </>

@@ -37,6 +37,7 @@
 
 import React from "react";
 import Nav from "./components/Nav";
+import { SnackbarProvider } from "./components/snackBar/SnackbarContent";
 
 const Layout = ({ children }) => {
   const isLoggedIn =
@@ -46,8 +47,12 @@ const Layout = ({ children }) => {
   return (
     <div style={{ display: "flex" }}>
       {/* {isLoggedIn && <Nav />} */}
-      <Nav/>
-      <main style={{ flex: 1, padding: "20px" }}>{children}</main>
+      <Nav />
+      <SnackbarProvider>
+        <main style={{ flex: 1, padding: "20px" }}>
+          {children}
+        </main>
+      </SnackbarProvider>
     </div>
   );
 };
