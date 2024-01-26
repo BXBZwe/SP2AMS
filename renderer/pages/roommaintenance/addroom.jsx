@@ -9,10 +9,22 @@ import {
   Checkbox,
   FormControlLabel,
   Autocomplete,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import axios from "axios";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import MuiAlert from "@mui/material/Alert";
 
 export default function AddRoom() {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [formData, setFormData] = useState({
     room_number: "",
     floor: "",
@@ -26,6 +38,8 @@ export default function AddRoom() {
       payment_status: "",
     },
   });
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -57,38 +71,97 @@ export default function AddRoom() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validateForm()) return;
+    setOpenDialog(true); // Open the dialog on form submission
+  };
+
+  const handleConfirmAdd = async () => {
+    if (!validateForm()) {
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
+      >
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          Room Addtion Failed
+        </MuiAlert>
+      </Snackbar>;
+      return;
+    }
 
     // Convert 'floor' to an integer
     const updatedFormData = {
       ...formData,
       floor: parseInt(formData.floor, 10) || 0, // Convert to integer, default to 0 if NaN
     };
-
     try {
-      const response = await axios.post(
-        "http://localhost:3000/addrooms",
-        updatedFormData
-      );
-      console.log("Room added successfully:", response.data);
-      // Reset the form or handle success as needed
+      await axios.post("http://localhost:3000/addrooms", updatedFormData);
+      setSnackbarOpen(true); // Show confirmation snackbar
+      setOpenDialog(false); // Close confirmation dialog
+
+      // Reset the form to its default state
+      setFormData({
+        room_number: "",
+        floor: "",
+        room_type: "",
+        base_rent: "",
+        deposit: "",
+        statusDetails: {
+          occupancy_status: "",
+          is_reserved: false,
+          is_available_for_rent: true,
+          payment_status: "",
+        },
+      });
     } catch (error) {
       console.error("Error adding room:", error);
-      // Handle error
+      setSnackbarOpen(true); // Optionally show an error message instead
+      setOpenDialog(false); // Close confirmation dialog
     }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   const occupancyOptions = ["Vacant", "Occupied", "Unavailable"];
   const paymentOptions = ["PENDING", "OVERDUE", "PARTIAL", "PAID"];
 
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    let tempErrors = {};
+    tempErrors.room_number = formData.room_number
+      ? ""
+      : "Room number is required.";
+    tempErrors.floor = formData.floor ? "" : "Floor is required.";
+    tempErrors.room_type = formData.room_type ? "" : "Room type is required.";
+    tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
+    tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
+    tempErrors.occupancy_status = formData.statusDetails.occupancy_status
+      ? ""
+      : "Occupancy status is required.";
+    tempErrors.payment_status = formData.statusDetails.payment_status
+      ? ""
+      : "Payment status is required.";
+
+    setErrors(tempErrors);
+    return Object.values(tempErrors).every((x) => x === "");
+  };
+
   return (
     <>
       <Card sx={{ width: "100%", display: "flex", marginBottom: 1 }}>
-        <CardContent
-          sx={{
-            marginRight: "auto",
-            marginBottom: "10px",
-          }}
-        >
+        <CardContent sx={{ marginRight: "auto", marginBottom: "10px" }}>
           <Typography variant="h4">Add New Room</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
             Configure New Room Details
@@ -96,7 +169,6 @@ export default function AddRoom() {
         </CardContent>
         <CardContent>
           <Button
-            type="submit"
             variant="contained"
             sx={{ width: "110px", marginTop: "15px" }}
             onClick={handleSubmit}
@@ -110,24 +182,33 @@ export default function AddRoom() {
         <Box
           sx={{ display: "flex", flexDirection: "column", gap: 2, margin: 2 }}
         >
+          {/* TextFields for room_number, floor, room_type, base_rent, deposit */}
           <TextField
             label="Room Number"
             name="room_number"
             value={formData.room_number}
             onChange={handleInputChange}
-          />
+            required
+            error={!!errors.room_number}
+            helperText={errors.room_number}          />
           <TextField
             label="Floor"
             name="floor"
             type="number"
             value={formData.floor}
             onChange={handleInputChange}
+            required
+            error={!!errors.floor}
+            helperText={errors.floor}
           />
           <TextField
             label="Room Type"
             name="room_type"
             value={formData.room_type}
             onChange={handleInputChange}
+            required
+            error={!!errors.room_type}
+            helperText={errors.room_type}
           />
           <TextField
             label="Base Rent"
@@ -135,6 +216,9 @@ export default function AddRoom() {
             type="number"
             value={formData.base_rent}
             onChange={handleInputChange}
+            required
+            error={!!errors.base_rent}
+            helperText={errors.base_rent}
           />
           <TextField
             label="Deposit"
@@ -142,9 +226,13 @@ export default function AddRoom() {
             type="number"
             value={formData.deposit}
             onChange={handleInputChange}
+            required
+            error={!!errors.deposit}
+            helperText={errors.deposit}
           />
 
-          <Autocomplete
+          {/* Autocomplete for occupancy_status */}
+          {/* <Autocomplete
             options={occupancyOptions}
             value={formData.statusDetails.occupancy_status}
             onChange={(event, newValue) => {
@@ -159,8 +247,53 @@ export default function AddRoom() {
             renderInput={(params) => (
               <TextField {...params} label="Occupancy Status" />
             )}
+          /> */}
+
+          <Autocomplete
+            options={occupancyOptions}
+            value={formData.statusDetails.occupancy_status}
+            onChange={(event, newValue) => {
+              setFormData({
+                ...formData,
+                statusDetails: {
+                  ...formData.statusDetails,
+                  occupancy_status: newValue || "",
+                },
+              });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Occupancy Status"
+                error={!!errors.occupancy_status}
+                helperText={errors.occupancy_status}
+              />
+            )}
           />
 
+          <Autocomplete
+            options={paymentOptions}
+            value={formData.statusDetails.payment_status}
+            onChange={(event, newValue) => {
+              setFormData({
+                ...formData,
+                statusDetails: {
+                  ...formData.statusDetails,
+                  payment_status: newValue || "",
+                },
+              });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Payment Status"
+                error={!!errors.payment_status}
+                helperText={errors.payment_status}
+              />
+            )}
+          />
+
+          {/* Checkbox for is_reserved */}
           <FormControlLabel
             control={
               <Checkbox
@@ -171,7 +304,9 @@ export default function AddRoom() {
             }
             label="Is Reserved"
           />
-          <Autocomplete
+
+          {/* Autocomplete for payment_status */}
+          {/* <Autocomplete
             options={paymentOptions}
             value={formData.statusDetails.payment_status}
             onChange={(event, newValue) => {
@@ -186,9 +321,52 @@ export default function AddRoom() {
             renderInput={(params) => (
               <TextField {...params} label="Payment Status" />
             )}
-          />
+          /> */}
         </Box>
       </form>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        fullScreen={fullScreen}
+        open={openDialog}
+        onClose={handleCloseDialog}
+      >
+        <DialogTitle>Confirm Addition</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to add this room?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" autoFocus onClick={handleCloseDialog}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            // color="success"
+            onClick={handleConfirmAdd}
+            autoFocus
+          >
+            Confirm Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for confirmation */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
+      >
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Room added successfully!
+        </MuiAlert>
+      </Snackbar>
     </>
   );
 }

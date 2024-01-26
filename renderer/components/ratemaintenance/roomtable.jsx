@@ -186,7 +186,7 @@ export default function ratetable() {
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This process will detele the specified room you have selected. Once
+            Once
             deleted the process cannot be undone.
           </DialogContentText>
         </DialogContent>
@@ -204,7 +204,7 @@ export default function ratetable() {
             onClick={handleConfirmDelete}
             autoFocus
           >
-            Yes, I want to delete
+            Confirm Delete
           </Button>
         </DialogActions>
       </Dialog>
