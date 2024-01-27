@@ -24,6 +24,7 @@ const addRateItem = async (req, res) => {
                 item_name,
                 item_price,
                 item_description
+                
             }
         });
         res.status(201).json({ message: 'New rate item added successfully', data: newRate });

@@ -9,7 +9,7 @@ import axios from "axios";
 import MuiAlert from "@mui/material/Alert";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-
+ 
 export default function ratetable() {
   const theme = useTheme();
   const [rooms, setRooms] = useState([]);
@@ -20,14 +20,14 @@ export default function ratetable() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
-
+ 
   const paymentStatusColors = {
     PENDING: 'default', // grey color
     OVERDUE: 'error',   // red color
     PARTIAL: 'warning', // yellow color
     PAID: 'success',    // green color
   };
-
+ 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -49,7 +49,7 @@ export default function ratetable() {
     };
     fetchRooms();
   }, []);
-
+ 
   const columns = [
     { field: "roomnumber", headerName: "Room Number", flex: 1 },
     { field: "floor", headerName: "Floor", flex: 1 },
@@ -98,7 +98,7 @@ export default function ratetable() {
       ),
     },
   ];
-
+ 
   const handleDeleteClick = (roomId) => {
     // Find the room with the given ID
     const room = rooms.find((room) => room.id === roomId);
@@ -108,7 +108,7 @@ export default function ratetable() {
       setOpenDeleteDialog(true);
     }
   };
-
+ 
   const handleConfirmDelete = async () => {
     if (deleteRoomId) {
       try {
@@ -122,23 +122,23 @@ export default function ratetable() {
     setOpenDeleteDialog(false);
     setDeleteRoomId(null);
   };
-
+ 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
     setDeleteRoomId(null);
   };
-
+ 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
-
+ 
   const filteredRows = rooms.filter((row) => {
     return (
       row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
       (filterValue === "all" || row.occupancystatus === filterValue)
     );
   });
-
+ 
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
@@ -174,9 +174,9 @@ export default function ratetable() {
           pageSizeOptions={[5, 10]}
         />
       </Card>
-
+ 
       {/* Confirmation Dialog */}
-
+ 
       <Dialog
         fullScreen={fullScreen}
         open={openDeleteDialog}
@@ -208,7 +208,7 @@ export default function ratetable() {
           </Button>
         </DialogActions>
       </Dialog>
-
+ 
       {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
@@ -221,7 +221,11 @@ export default function ratetable() {
           severity="success"
           sx={{ width: "100%" }}
         >
-          Room {roomToDelete} deleted successfully! 
+
+          Room {roomToDelete} deleted successfully!
+
+          
+
         </MuiAlert>
       </Snackbar>
     </>
