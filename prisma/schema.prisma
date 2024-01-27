@@ -97,6 +97,7 @@ model RoomBaseDetails {
   room_id              Int                   @id @default(autoincrement())
   room_number          String                @db.VarChar(50)
   floor                Int
+  base_rent            Decimal               @db.Decimal(10, 2) @default(0)
   room_type            String                @db.VarChar(50)
   deposit              Decimal               @db.Decimal(10, 2)
   statusDetails        RoomStatusDetails     @relation(fields: [statusDetailsId], references: [status_id], onDelete: Cascade)
