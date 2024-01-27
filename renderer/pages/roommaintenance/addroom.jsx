@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 import {
   Card,
   CardContent,
@@ -21,9 +22,13 @@ import axios from "axios";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import MuiAlert from "@mui/material/Alert";
+// import { useSnackbarContext } from './SnackbarContext'; // Adjust the import path as needed
+import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 
 export default function AddRoom() {
   const theme = useTheme();
+  const router = useRouter();
+  const { openSnackbar } = useSnackbarContext();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [formData, setFormData] = useState({
     room_number: "",
@@ -59,40 +64,34 @@ export default function AddRoom() {
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
-    const field = name.split(".")[1];
-    setFormData({
-      ...formData,
-      statusDetails: {
-        ...formData.statusDetails,
-        [field]: checked,
-      },
-    });
+
+    if (name === "statusDetails.is_reserved") {
+      setFormData({
+        ...formData,
+        statusDetails: {
+          ...formData.statusDetails,
+          is_reserved: checked,
+          // Set occupancy status to "Unavailable" if checked, or clear it if unchecked
+          occupancy_status: checked ? "Unavailable" : "",
+        },
+      });
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validateForm()) return;
+  if (!validateForm()) {
+    setSnackbarOpen(true);
+    return; // Exit the function if validation fails
+  }
     setOpenDialog(true); // Open the dialog on form submission
   };
 
   const handleConfirmAdd = async () => {
-    if (!validateForm()) {
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
-      >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          Room Addtion Failed
-        </MuiAlert>
-      </Snackbar>;
-      return;
-    }
+    // if (!validateForm()) {
+    //   setSnackbarOpen;
+    //   return;
+    // }
 
     // Convert 'floor' to an integer
     const updatedFormData = {
@@ -101,7 +100,10 @@ export default function AddRoom() {
     };
     try {
       await axios.post("http://localhost:3000/addrooms", updatedFormData);
-      setSnackbarOpen(true); // Show confirmation snackbar
+      openSnackbar("Room Added successfully!", "success");
+      setTimeout(() => {
+        router.push("/roomMaintenance"); // Redirect to the room maintenance page
+      }, 500);
       setOpenDialog(false); // Close confirmation dialog
 
       // Reset the form to its default state
@@ -190,7 +192,8 @@ export default function AddRoom() {
             onChange={handleInputChange}
             required
             error={!!errors.room_number}
-            helperText={errors.room_number}          />
+            helperText={errors.room_number}
+          />
           <TextField
             label="Floor"
             name="floor"
@@ -304,24 +307,6 @@ export default function AddRoom() {
             }
             label="Is Reserved"
           />
-
-          {/* Autocomplete for payment_status */}
-          {/* <Autocomplete
-            options={paymentOptions}
-            value={formData.statusDetails.payment_status}
-            onChange={(event, newValue) => {
-              setFormData({
-                ...formData,
-                statusDetails: {
-                  ...formData.statusDetails,
-                  payment_status: newValue,
-                },
-              });
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Payment Status" />
-            )}
-          /> */}
         </Box>
       </form>
 
@@ -331,7 +316,7 @@ export default function AddRoom() {
         open={openDialog}
         onClose={handleCloseDialog}
       >
-        <DialogTitle>Confirm Addition</DialogTitle>
+        <DialogTitle>{`Add Room ${formData.room_number}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Are you sure you want to add this room?
@@ -355,16 +340,16 @@ export default function AddRoom() {
       {/* Snackbar for confirmation */}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
         <MuiAlert
           onClose={handleCloseSnackbar}
-          severity="success"
+          severity="error"
           sx={{ width: "100%" }}
         >
-          Room added successfully!
+          Please enter all fields
         </MuiAlert>
       </Snackbar>
     </>
