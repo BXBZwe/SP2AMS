@@ -39,7 +39,6 @@ export default function AddRoom() {
     statusDetails: {
       occupancy_status: "",
       is_reserved: false,
-      is_available_for_rent: true,
       payment_status: "",
     },
   });
