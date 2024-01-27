@@ -3,10 +3,40 @@ import Checkbox from '@mui/material/Checkbox';
 import Link from 'next/link';
 import TextField from '@mui/material/TextField';
 import { Card, CardContent, Typography, Box, Button } from '@mui/material';
+import axios from "axios";
+export default function AddRate() {
+  const [isEditing, setIsEditing]  = useState({
+    rate_id: "",
+    item_name: "",
+    item_price: "",
+    item_description: "",
+    last_updated: "",
+  });
+  // Create separate handlers for each input
+  const handleItemNameChange = (event) => {
+    const { value } = event.target;
+    setIsEditing({
+      ...isEditing,
+      item_name: value,
+    });
+  };
 
-export default function EditRate() {
-  const [isEditing, setIsEditing] = useState(false);
+  const handleItemPriceChange = (event) => {
+    const { value } = event.target;
+    setIsEditing({
+      ...isEditing,
+      item_price: value,
+    });
+  };
 
+  const handleItemDescriptionChange = (event) => {
+    const { value } = event.target;
+    setIsEditing({
+      ...isEditing,
+      item_description: value,
+    });
+  };
+  
   const status = [
     { label: 'Booked' },
     { label: 'Not Booked' },
@@ -35,15 +65,37 @@ export default function EditRate() {
   const handleEditClick = () => {
     setIsEditing(true);
   };
-
+  
   const handleCancelClick = () => {
     setIsEditing(false);
-    // Reset values to default or fetch them from the server
+    
+    setIsEditing({
+      rate_id: "",
+      item_name: "",
+      item_price: "",
+      item_description: "",
+      last_updated: "",
+    });
   };
-
+  
   const handleSaveClick = () => {
     setIsEditing(false);
-    // Implement the logic to save changes
+    axios.post('http://localhost:3000/addrates', isEditing)
+      .then(response => {
+        console.log('Item saved successfully:', response.data);
+      })
+      .catch(error => {
+        // Handle error
+        console.error('Error saving item:', error);
+      });
+    // Optionally, you may want to reset the formData to its initial state after saving
+    setIsEditing({
+      rate_id: "",
+      item_name: "",
+      item_price: "",
+      item_description: "",
+      last_updated: "",
+    });
   };
 
   return (
@@ -95,27 +147,37 @@ export default function EditRate() {
             Select Room/Tenant
           </Typography>
           <TextField
-            id="outlined-basic"
+            id="item_name"
             label="Item Name"
             variant="outlined"
+            value={isEditing.item_name}
             sx={{ width: '100%', marginBottom: 1.5, marginRight: 5, display: 'inline-block' }}
+            onChange={handleItemNameChange}
             disabled={!isEditing}
+            
           />
           <br></br>
           <TextField
-            id="outlined-basic"
+            id="item_price"
             label="Item Price"
             variant="outlined"
+            type="number"
+            value={isEditing.item_price}
             sx={{ width: '100%', marginBottom: 1.5, marginRight: 5, display: 'inline-block' }}
+            onChange={handleItemPriceChange}
             disabled={!isEditing}
+            
           />
           <br></br>
           <TextField
-            id="outlined-basic"
-            label="Item Ranking"
+            id="item_description"
+            label="Item Description"
             variant="outlined"
+            value={isEditing.item_description}
             sx={{ width: '100%', marginBottom: 1.5, marginRight: 5, display: 'inline-block' }}
+            onChange={handleItemDescriptionChange}
             disabled={!isEditing}
+            
           />
         </CardContent>
         <CardContent sx={{ marginTop: 5.5 }}>
@@ -168,6 +230,7 @@ export default function EditRate() {
           <br></br>
         </CardContent>
       </Card>
+      
     </>
   );
 }
