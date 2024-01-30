@@ -56,7 +56,7 @@ export default function RateTable() {
       width: 120,
       renderCell: (params) => (
         <>
-          <Link href={`/ratetable/editrate?rateId=${params.row.id}`} passHref>
+          <Link href={`/ratemaintenance/editrate?rateId=${params.row.id}`} passHref>
             <IconButton component="a">
               <EditIcon />
             </IconButton>
@@ -68,7 +68,7 @@ export default function RateTable() {
       ),
     },
   ];
-
+  
   const handleDeleteClick = (rateId) => {
     // Find the rate with the given ID
     const rate = rates.find((rate) => rate.id === rateId);
