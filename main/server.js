@@ -8,7 +8,7 @@ import roomroutes from './routes/roomroutes';
 import emailroute from './routes/emailroute';
 import rateroutes from './routes/rateroutes';
 import tenantroutes from './routes/tenantroutes';
-
+import managerroute from './routes/managerroute';
 const app = express();
 app.use(express.json());
 
@@ -32,6 +32,7 @@ app.use(cors(corsOptions));
  app.use(emailroute);
  app.use(rateroutes);
  app.use(tenantroutes);
+ app.use(managerroute);
 
 
 export default function startServer() {

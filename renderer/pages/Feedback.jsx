@@ -59,7 +59,7 @@ export default function Feedback() {
             marginBottom: "10px",
           }}
         >
-          <Typography variant="h4">Feedback History</Typography>
+          <Typography variant="h4">Request History</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
             A vertically stacked set of interactive headings that each reveal an associated section of content.
           </Typography>
