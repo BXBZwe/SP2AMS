@@ -376,22 +376,7 @@ export default function CheckOut() {
                         }}
                         onChange={(e) => setContractMonthsLeft(e.target.value)}
                       />
-                      <Box sx={{ display: "flex", gap: "10px" }}>
-                        <TextField
-                          id="dueDate"
-                          disabled
-                          label="Due Date"
-                          value={dueDate}
-                          sx={{ width: "25vw" }}
-                        />
-                        <TextField
-                          id="dayMonth"
-                          disabled
-                          label="Day/Month"
-                          value={dayMonth}
-                          sx={{ width: "25vw" }}
-                        />
-                      </Box>
+
                     </Box>
                   </CardContent>
                 </Card>

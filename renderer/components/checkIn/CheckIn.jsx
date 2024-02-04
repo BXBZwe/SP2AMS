@@ -1,11 +1,5 @@
 import { React, useState } from "react";
-
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
+import {Box, Typography, Card, CardContent, CardActions,
   Button,
   Divider,
   TextField,
@@ -21,48 +15,6 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function CheckIn() {
-  const rooms = [
-    {
-      value: "R102",
-      label: "102",
-    },
-    {
-      value: "R101",
-      label: "101",
-    },
-  ];
-
-  const tenants = [
-    {
-      value: "P1",
-      label: "Yasi",
-    },
-    {
-      value: "P2",
-      label: "Saw",
-    },
-  ];
-
-  const recentActivity = [
-    {
-      id: "R001",
-      room: "101",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R002",
-      room: "105",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R003",
-      room: "102",
-      date: "21 Wed 2022",
-      status: "Move-Out",
-    },
-  ];
 
   const [selectedRoom, setSelectedRoom] = useState("");
   const [selectedTenant, setSelectedTenant] = useState("");
@@ -177,7 +129,7 @@ export default function CheckIn() {
                         }
                         helperText={
                           addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
+                            (!selectedRoom || selectedRoom === "")
                             ? "The field cannot be empty."
                             : ""
                         }
@@ -202,7 +154,7 @@ export default function CheckIn() {
                         }
                         helperText={
                           addButtonClicked &&
-                          (!selectedTenant || selectedTenant === "")
+                            (!selectedTenant || selectedTenant === "")
                             ? "The field cannot be empty."
                             : ""
                         }
@@ -267,7 +219,7 @@ export default function CheckIn() {
                         }
                         helperText={
                           addButtonClicked &&
-                          (!moveOutDate || moveOutDate === "")
+                            (!moveOutDate || moveOutDate === "")
                             ? "The field cannot be empty."
                             : ""
                         }
@@ -296,8 +248,8 @@ export default function CheckIn() {
                         }
                         helperText={
                           addButtonClicked &&
-                          (!validateFloat(contractMonths) ||
-                            contractMonths <= 0)
+                            (!validateFloat(contractMonths) ||
+                              contractMonths <= 0)
                             ? "Contract months must be a positive number."
                             : ""
                         }
@@ -321,7 +273,7 @@ export default function CheckIn() {
                         }
                         helperText={
                           addButtonClicked &&
-                          (!validateFloat(deposit) || deposit <= 0)
+                            (!validateFloat(deposit) || deposit <= 0)
                             ? "Deposit must be a positive number."
                             : ""
                         }

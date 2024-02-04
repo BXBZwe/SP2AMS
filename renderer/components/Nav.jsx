@@ -136,7 +136,7 @@ const navigationItems5 = [
     icon: <AssessmentIcon />,
   },
   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
-  { label: "Feedback", link: "/Feedback", icon: <FeedbackIcon /> },
+  { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
 ];
 const navigationItems6 = [
   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
@@ -450,46 +450,45 @@ export default function Nav() {
           ))}
         </List> */}
         <List>
-          {navigationItems6.map((item, index) => (
-            <ListItem key={index} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  backgroundColor: isLinkActive(item.link)
-                    ? theme.palette.action.selected
-                    : "transparent",
-                  "&:hover": {
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                }}
-                onClick={() =>
-                  item.link === "/home"
-                    ? handleLogout()
-                    : handleLinkClick(item.link)
-                }
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                    color: isLinkActive(item.link)
-                      ? theme.palette.primary.main
-                      : "rgba(0, 0, 0, 0.87)",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+  {navigationItems6.map((item, index) => (
+    <ListItem key={index} disablePadding sx={{ display: "block" }}>
+      <Link href={item.link} passHref>
+        <ListItemButton
+          component="a"
+          sx={{
+            minHeight: 48,
+            justifyContent: open ? "initial" : "center",
+            px: 2.5,
+            backgroundColor: isLinkActive(item.link)
+              ? theme.palette.action.selected
+              : "transparent",
+            "&:hover": {
+              backgroundColor: theme.palette.action.hover,
+            },
+          }}
+          onClick={() => item.link !== "/home" && handleLinkClick(item.link)}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: open ? 3 : "auto",
+              justifyContent: "center",
+              color: isLinkActive(item.link)
+                ? theme.palette.primary.main
+                : "rgba(0, 0, 0, 0.87)",
+            }}
+          >
+            {item.icon}
+          </ListItemIcon>
+          <ListItemText
+            primary={item.label}
+            sx={{ opacity: open ? 1 : 0 }}
+          />
+        </ListItemButton>
+      </Link>
+    </ListItem>
+  ))}
+</List>
         {/* Additional list items can be added here */}
       </Drawer>
     </Box>

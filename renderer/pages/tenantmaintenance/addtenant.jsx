@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -16,6 +17,32 @@ export default function addtenant() {
     last_name: "",
     personal_id: "",
     room_id: "",
+=======
+import React, { useState, useEffect } from 'react';
+import Checkbox from '@mui/material/Checkbox';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import { Card, CardContent, Typography, Box, Button, Select, MenuItem } from "@mui/material";
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
+import axios from 'axios';
+export default function addtenant() {
+  const paymentOptions = ['EMAIL', 'PAPER', 'BOTH'];
+
+  const type = [
+    { label: '+93' },
+    { label: '+66' },
+    { label: '+10' },
+  ];
+  const [tenantData, setTenantData] = useState({
+    first_name: '',
+    last_name: '',
+    personal_id: '',
+    payment_option: '',
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
     addresses: {
       street: "",
       sub_district: "",
@@ -33,8 +60,8 @@ export default function addtenant() {
       eme_relation: "",
     },
   });
-  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -53,6 +80,13 @@ export default function addtenant() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split(".");
+=======
+  const [message, setMessage] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const keys = name.split('.');
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
 
     if (keys.length === 1) {
       setTenantData({ ...tenantData, [name]: value });
@@ -69,12 +103,17 @@ export default function addtenant() {
       });
     }
   };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
     try {
+<<<<<<< HEAD
       const response = await axios.post(
         "http://localhost:3000/addtenants",
         tenantData
@@ -83,14 +122,26 @@ export default function addtenant() {
       if (response.status === 200 || response.status === 201) {
         console.log("Tenant added successfully:", response.data);
         setMessage("Tenant added successfully");
+=======
+      const response = await axios.post('http://localhost:3000/addtenants', tenantData);
+
+      if (response.status === 200 || response.status === 201) {
+        console.log('Tenant added successfully:', response.data);
+        setMessage('Tenant added successfully');
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
       } else {
         throw new Error("An error occurred while adding the tenant");
       }
     } catch (error) {
+<<<<<<< HEAD
       console.error("Error adding tenant:", error);
       setMessage(
         error.response?.data?.message || error.message || "An error occurred"
       );
+=======
+      console.error('Error adding tenant:', error);
+      setMessage(error.response?.data?.message || error.message || 'An error occurred');
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
     } finally {
       setLoading(false);
     }
@@ -111,10 +162,19 @@ export default function addtenant() {
           </Typography>
         </CardContent>
         <CardContent>
+<<<<<<< HEAD
           <Button
             type="submit"
             variant="contained"
             sx={{ width: "110px", marginTop: "15px" }}
+=======
+
+
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ width: "110px", marginTop: '15px' }}
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
             component="a"
             onClick={handleSubmit}
             disabled={loading}
@@ -165,6 +225,7 @@ export default function addtenant() {
               />
             </RadioGroup>
 
+<<<<<<< HEAD
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
               <TextField
                 id="personal_id"
@@ -175,6 +236,11 @@ export default function addtenant() {
                 onChange={handleChange}
                 sx={{ width: "40%", marginBottom: 1.5, marginRight: 0.6 }}
               />
+=======
+
+            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+              <TextField id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
 
               <Autocomplete
                 disablePortal
@@ -215,6 +281,7 @@ export default function addtenant() {
               />
             </Box>
 
+<<<<<<< HEAD
             <Typography sx={{ marginBottom: 1, marginTop: "10px", }}>
               Address
             </Typography>
@@ -228,6 +295,31 @@ export default function addtenant() {
                 onChange={handleChange}
                 sx={{ width: "50%", marginBottom: 1.5,  }}
               />
+=======
+            {/* <Autocomplete
+              disablePortal
+              id="payment_option"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
+              renderInput={(params) => <TextField {...params} label="Invoice Options" />}
+              value={tenantData.payment_option}
+              onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+            /> */}
+            <Select
+              label="Invoice Option"
+              id="payment_option"
+              value={tenantData.payment_option}
+              onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
+            >
+              {paymentOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
+            <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            <Typography sx={{ marginBottom: 1, marginTop: '10px' }}>Address</Typography>
+            <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
 
               <TextField
                 id="district"
@@ -385,5 +477,10 @@ export default function addtenant() {
         </Box>
       </Box>
     </>
+<<<<<<< HEAD
   );
 }
+=======
+  )
+}
+>>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import { Card, CardContent, Typography, Box, Button } from "@mui/material";
+import { Card, CardContent, Typography, Box, Button, Select, MenuItem } from "@mui/material";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -14,6 +14,8 @@ import { useRouter } from 'next/router';
 export default function updatetenant() {
     const router = useRouter();
     const { tenant_id } = router.query;
+    const paymentOptions = ['EMAIL', 'PAPER', 'BOTH'];
+
     //console.log('Tenant id in front end ',tenant_id);  
 
     const type = [
@@ -25,7 +27,7 @@ export default function updatetenant() {
         first_name: '',
         last_name: '',
         personal_id: '',
-        room_id: '',
+        payment_option: '',
         addresses: {
             street: '',
             sub_district: '',
@@ -43,32 +45,33 @@ export default function updatetenant() {
             eme_relation: ''
         }
     });
-    const [rooms, setRooms] = useState([]);
+    //const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/getallrooms');
-                setRooms(response.data.getrooms);
-            } catch (error) {
-                console.error('Error fetching rooms:', error);
-            }
-        };
+        // const fetchRooms = async () => {
+        //     try {
+        //         const response = await axios.get('http://localhost:3000/getallrooms');
+        //         setRooms(response.data.getrooms);
+        //     } catch (error) {
+        //         console.error('Error fetching rooms:', error);
+        //     }
+        // };
 
         const fetchTenantData = async () => {
             try {
-                console.log("Tenant ID:", tenant_id); 
+                console.log("Tenant ID:", tenant_id);
                 const response = await axios.get(`http://localhost:3000/getatenant/${tenant_id}`);
-                console.log("Received tenant data:", response.data); 
+                console.log("Received tenant data:", response.data);
 
                 const tenant = response.data.getaTenant;
                 setTenantData({
                     first_name: tenant.first_name,
                     last_name: tenant.last_name,
                     personal_id: tenant.personal_id,
-                    room_id: tenant.room_id,
+                    //room_id: tenant.room_id,
+                    payment_option: tenant.payment_option,
                     addresses: tenant.addresses || { street: '', sub_district: '', district: '', province: '', postal_code: '' },
                     contacts: tenant.contacts || { phone_number: '', email: '', line_id: '', eme_name: '', eme_phone: '', eme_line_id: '', eme_relation: '' },
                 });
@@ -77,7 +80,7 @@ export default function updatetenant() {
             }
         };
         fetchTenantData();
-        fetchRooms();
+        //fetchRooms();
     }, [tenant_id]);
 
     const handleChange = (e) => {
@@ -142,7 +145,7 @@ export default function updatetenant() {
                         sx={{ width: "110px", marginTop: '15px' }}
                         component="a"
                         onClick={handleUpdateSubmit}
-                        disabled={loading} 
+                        disabled={loading}
                     >
                         {loading ? 'Adding...' : 'Save'}
                     </Button>
@@ -185,7 +188,7 @@ export default function updatetenant() {
                             <TextField id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.contacts.phone_number} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
                         </Box>
 
-                        <Autocomplete
+                        {/* <Autocomplete
                             disablePortal
                             id="room-select"
                             options={rooms}
@@ -194,7 +197,18 @@ export default function updatetenant() {
                             renderInput={(params) => <TextField {...params} label="Room Number" />}
                             value={rooms.find(room => room.room_id === tenantData.room_id) || null} 
                             onChange={(event, value) => setTenantData({ ...tenantData, room_id: value ? value.room_id : '' })}
-                        />
+                        /> */}
+                        <Select
+                            label="Invoice Option"
+                            id="payment_option"
+                            value={tenantData.payment_option}
+                            onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+                            sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
+                        >
+                            {paymentOptions.map((option) => (
+                                <MenuItem key={option} value={option}>{option}</MenuItem>
+                            ))}
+                        </Select>
                         <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.contacts.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
                         <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.contacts.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
                         <Typography sx={{ marginBottom: 1, marginTop: '10px' }}>Address</Typography>

@@ -10,6 +10,14 @@
     "build": "nextron build",
     "postinstall": "electron-builder install-app-deps"
   },
+  "build": {
+    "extraResources": [
+      "prisma/**/*",
+      "node_modules/.prisma/**/*",
+      "node_modules/@prisma/client/**/*",
+      ".env"
+    ]
+  },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@emotion/react": "^11.11.1",
@@ -23,7 +31,7 @@
     "axios": "^1.6.4",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.1",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
     "express": "^4.18.2",
