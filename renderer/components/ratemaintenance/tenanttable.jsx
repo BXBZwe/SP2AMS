@@ -1,46 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import Typography from '@mui/material/Typography';
-import { Card, CardContent, TextField, Select, MenuItem, Button, IconButton } from "@mui/material";
-import Link from 'next/link';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import axios from 'axios';
-
-
+import React, { useState, useEffect } from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import Typography from "@mui/material/Typography";
+import {
+  Card,
+  CardContent,
+  TextField,
+  Select,
+  MenuItem,
+  Button,
+  IconButton,
+} from "@mui/material";
+import Link from "next/link";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import axios from "axios";
 
 export default function ratetable() {
-  const [searchText, setSearchText] = React.useState('');
-  const [filterValue, setFilterValue] = React.useState('');
+  const [searchText, setSearchText] = React.useState("");
+  const [filterValue, setFilterValue] = React.useState("");
   const [tenants, setTenants] = React.useState([]);
   const columns = [
-    { field: 'id', headerName: 'Tenant ID', width: 130 },
-    { field: 'roomnumber', headerName: 'Room Number', width: 170 },
-    { field: 'fullname', headerName: 'Full Name', width: 140 },
-    { field: 'phnumber', headerName: 'Phone Number', width: 140 },
-    { field: 'lineid', headerName: 'Line ID', width: 140 },
-    { field: 'floor', headerName: 'Floor', width: 140 },
-  
+    { field: "id", headerName: "Tenant ID", flex: 1 },
+    { field: "roomnumber", headerName: "Room Number", flex: 1 },
+    { field: "fullname", headerName: "Full Name", flex: 1 },
+    { field: "phnumber", headerName: "Phone Number", flex: 1 },
+    { field: "lineid", headerName: "Line ID", flex: 1 },
+    { field: "floor", headerName: "Floor", flex: 1 },
+
     {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 120,
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
       renderCell: (params) => {
-        console.log("params:", params)
+        console.log("params:", params);
         const tenant_id = params.row.id;
-        console.log("This tenant id ", tenant_id)
+        console.log("This tenant id ", tenant_id);
         return (
           <>
-            <Link href={`/tenantmaintenance/Update&DeleteTenant/${tenant_id}`} passHref>
+            <Link
+              href={`/tenantmaintenance/Update&DeleteTenant/${tenant_id}`}
+              passHref
+            >
               <IconButton component="a">
                 <EditIcon />
               </IconButton>
             </Link>
-            <IconButton onClick={() => handleDelete(tenant_id)}> 
+            <IconButton onClick={() => handleDelete(tenant_id)}>
               <DeleteIcon />
             </IconButton>
           </>
-        )
+        );
       },
     },
   ];
@@ -50,20 +59,19 @@ export default function ratetable() {
       await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
       console.log(`Tenant with ID: ${tenant_id} deleted successfully`);
       fetchTenants();
-
-  
     } catch (error) {
       console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
     }
   };
-  
+
   const fetchTenants = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/getalltenants');
-      console.log("Raw tenants data:", response.data.getTenant); 
+      const response = await axios.get("http://localhost:3000/getalltenants");
+      console.log("Raw tenants data:", response.data.getTenant);
       setTenants(response.data.getTenant);
+      console.log("Tenants data:")
     } catch (error) {
-      console.error('Error fetching tenants:', error);
+      console.error("Error fetching tenants:", error);
     }
   };
 
@@ -82,19 +90,16 @@ export default function ratetable() {
   // console.log('tEansts',tenants)
   const formattedTenants = tenants.map((tenant) => ({
     id: tenant.tenant_id,
-    roomnumber: tenant.roomBaseDetails.room_number, 
+    roomnumber: tenant.roomBaseDetails.room_number,
     fullname: `${tenant.first_name} ${tenant.last_name}`,
-    phnumber: tenant.contacts?.phone_number || 'N/A', 
-    lineid: tenant.contacts?.line_id || 'N/A',
-    floor: tenant.roomBaseDetails?.floor || 'N/A',
+    phnumber: tenant.contacts?.phone_number || "N/A",
+    lineid: tenant.contacts?.line_id || "N/A",
+    floor: tenant.roomBaseDetails?.floor || "N/A",
   }));
-
-  
-
 
   return (
     <>
-      <Card sx={{ width: '100%', display: 'flex' }}>
+      <Card sx={{ width: "100%", display: "flex" }}>
         <CardContent sx={{ marginRight: "auto", marginBottom: "10px" }}>
           <Typography variant="h4">Tenant Maintenance</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
@@ -105,7 +110,7 @@ export default function ratetable() {
           <Link href="tenantmaintenance/addtenant" passHref>
             <Button
               variant="contained"
-              sx={{ width: '60px', marginTop: '15px' }}
+              sx={{ width: "110px", marginTop: "15px" }}
               component="a"
             >
               Add
@@ -114,22 +119,28 @@ export default function ratetable() {
         </CardContent>
       </Card>
 
-      <Card sx={{ marginTop: '10px', height: '89%', width: '100%' }}>
-        <CardContent >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <Card sx={{ marginTop: "10px", height: "89%", width: "100%" }}>
+        <CardContent>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
             <TextField
               label="Search"
               variant="outlined"
               value={searchText}
               onChange={handleSearchTextChange}
-              sx={{ marginRight: '10px', width: '80%' }}
+              sx={{ marginRight: "10px", width: "80%" }}
             />
             <Select
               value={filterValue}
               onChange={handleFilterChange}
               displayEmpty
               variant="outlined"
-              sx={{ width: '20%' }}
+              sx={{ width: "20%" }}
             >
               <MenuItem value="" disabled>
                 Filter
@@ -139,14 +150,18 @@ export default function ratetable() {
             </Select>
           </div>
 
-          <div style={{ height: 'calc(100% - 40px)', width: '100%' }}>
+          <div style={{ height: "calc(100% - 40px)", width: "100%" }}>
             <DataGrid
               rows={formattedTenants}
               columns={columns}
               pageSize={5}
               checkboxSelection
+              sx={{
+                "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+              }}
+              autoHeight
+              density="compact"
             />
-
           </div>
         </CardContent>
       </Card>

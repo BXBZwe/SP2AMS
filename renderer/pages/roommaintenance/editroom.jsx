@@ -38,7 +38,6 @@ export default function EditRoom() {
     statusDetails: {
       occupancy_status: "",
       is_reserved: true,
-      is_available_for_rent: false,
       payment_status: "",
     },
   });

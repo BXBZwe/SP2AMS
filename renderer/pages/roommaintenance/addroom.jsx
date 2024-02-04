@@ -115,7 +115,6 @@ export default function AddRoom() {
         statusDetails: {
           occupancy_status: "",
           is_reserved: false,
-          is_available_for_rent: true,
           payment_status: "",
         },
       });
@@ -183,7 +182,9 @@ export default function AddRoom() {
         <Box
           sx={{ display: "flex", flexDirection: "column", gap: 2, margin: 2 }}
         >
-          {/* TextFields for room_number, floor, room_type, base_rent, deposit */}
+          <Box>
+            History
+          </Box>
           <TextField
             label="Room Number"
             name="room_number"
