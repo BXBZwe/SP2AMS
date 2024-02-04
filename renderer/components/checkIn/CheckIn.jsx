@@ -1,21 +1,11 @@
-import { React, useState } from "react";
-import {Box, Typography, Card, CardContent, CardActions,
-  Button,
-  Divider,
-  TextField,
-  MenuItem,
-  InputAdornment,
-} from "@mui/material";
-
-import {
-  MobileDatePicker,
-  LocalizationProvider,
-  DatePicker,
-} from "@mui/x-date-pickers";
+import { React, useState, useEffect } from "react";
+import { Box, Typography, Card, CardContent, Button, TextField, MenuItem, InputAdornment } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import axios from "axios";
+import dayjs from "dayjs";
 
 export default function CheckIn() {
-
   const [selectedRoom, setSelectedRoom] = useState("");
   const [selectedTenant, setSelectedTenant] = useState("");
   const [contractMonths, setContractMonths] = useState("");
@@ -23,6 +13,78 @@ export default function CheckIn() {
   const [moveInDate, setMoveInDate] = useState(null);
   const [moveOutDate, setMoveOutDate] = useState(null);
   const [addButtonClicked, setAddButtonClicked] = useState(false);
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [newTenants, setNewTenants] = useState([]);
+
+  const recentActivity = [
+    {
+      id: "R001",
+      room: "101",
+      date: "20 Tue 2022",
+      status: "Move-In",
+    },
+    {
+      id: "R002",
+      room: "105",
+      date: "20 Tue 2022",
+      status: "Move-In",
+    },
+    {
+      id: "R003",
+      room: "102",
+      date: "21 Wed 2022",
+      status: "Move-Out",
+    },
+  ];
+
+  useEffect(() => {
+    const fetchAvailableRooms = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getallrooms");
+        console.log("Response data rooms:", response.data);
+        const rooms = response.data.getrooms;
+
+        if (Array.isArray(rooms)) {
+          const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "Vacant");
+          console.log("filtered rooms:", filteredRooms);
+          setAvailableRooms(filteredRooms);
+        } else {
+          console.error("Expected 'getrooms' to be an array but got:", roomsArray);
+        }
+      } catch (error) {
+        console.error("Failed to fetch rooms:", error);
+      }
+    };
+
+    const fetchNewTenants = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getalltenants");
+        const tenants = response.data.getTenant;
+        if (Array.isArray(tenants)) {
+          const filteredTenants = tenants.filter((tenant) => tenant.contract_status === "NEW");
+          console.log("Filtered tenants:", filteredTenants);
+          setNewTenants(filteredTenants);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tenants:", error);
+      }
+    };
+
+    fetchAvailableRooms();
+    fetchNewTenants();
+  }, []);
+
+  const handleContractMonthsChange = (e) => {
+    const months = e.target.value;
+    setContractMonths(months);
+    if (moveInDate && months) {
+      const moveInDayjs = dayjs(moveInDate);
+      const moveOutDayjs = moveInDayjs.add(parseInt(months, 10), "month");
+      console.log("Type of moveInDate:", typeof moveInDate, "Value of moveInDate:", moveInDate);
+      console.log("Type of moveOutDayjs:", typeof moveOutDayjs, "Value of moveOutDayjs:", moveOutDayjs.format("YYYY-MM-DD"));
+      setMoveOutDate(dayjs(moveOutDayjs));
+    }
+  };
 
   const handleMoveInDateChange = (date) => {
     setMoveInDate(date);
@@ -31,15 +93,40 @@ export default function CheckIn() {
     }
   };
 
-  const handleMoveOutDateChange = (date) => {
-    if (moveInDate && date < moveInDate) {
-      setMoveOutDate(moveInDate);
+  const checkInTenant = async () => {
+    if (selectedTenant && selectedRoom && moveOutDate) {
+      try {
+        const moveOutDateISO = moveOutDate.toISOString();
+
+        const response = await axios.post("http://localhost:3000/checkintenant", {
+          tenant_id: selectedTenant,
+          room_id: selectedRoom,
+          move_in_date: moveInDate,
+          move_out_date: moveOutDateISO,
+          period_of_stay: parseInt(contractMonths, 10),
+          deposit_returned: deposit,
+        });
+        console.log(response.data.message);
+      } catch (error) {
+        console.error("Check-in failed:", error);
+      }
     } else {
-      setMoveOutDate(date);
+      console.error("No room or tenant selected.");
     }
   };
 
-  // Clear Button Function
+  const handleRoomSelection = (event) => {
+    const roomID = parseInt(event.target.value, 10);
+    const room = availableRooms.find((r) => r.room_id === roomID);
+    setSelectedRoom(room ? room.room_id : null);
+  };
+
+  const handleTenantSelection = (event) => {
+    const tenantID = parseInt(event.target.value, 10);
+    const tenant = newTenants.find((t) => t.tenant_id === tenantID);
+    setSelectedTenant(tenant ? tenant.tenant_id : null);
+  };
+
   const resetForm = () => {
     setSelectedRoom("");
     setSelectedTenant("");
@@ -47,35 +134,22 @@ export default function CheckIn() {
     setDeposit("");
     setMoveInDate(null);
     setMoveOutDate(null);
-    setAddButtonClicked(false); // Reset button state
+    setAddButtonClicked(false);
   };
 
-  // Add Button Function
   const handleAddButtonClick = () => {
-    // Set button clicked state to true
     setAddButtonClicked(true);
 
-    // Validate contractMonths and deposit
-    const isContractMonthsValid =
-      validateFloat(contractMonths) && contractMonths > 0;
+    const isContractMonthsValid = validateFloat(contractMonths) && contractMonths > 0;
     const isDepositValid = validateFloat(deposit) && deposit > 0;
 
-    // Validate MoveIn and MoveOut
     const isMoveInValid = moveInDate !== null;
     const isMoveOutValid = moveOutDate !== null && moveOutDate > moveInDate;
 
-    // If any validation fails, highlight the corresponding text field
-    if (
-      !isContractMonthsValid ||
-      !isDepositValid ||
-      !isMoveInValid ||
-      !isMoveOutValid
-    ) {
+    if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
       return;
     }
-
-    // If all validations pass, you can proceed with adding the data
-    // Add your logic here
+    checkInTenant();
   };
 
   const validateFloat = (value) => {
@@ -116,52 +190,18 @@ export default function CheckIn() {
                     </Typography>
 
                     <Box sx={{ display: "flex", gap: "30px" }}>
-                      <TextField
-                        id="roomId"
-                        select
-                        label="Room Number"
-                        value={selectedRoom}
-                        onChange={(e) => setSelectedRoom(e.target.value)}
-                        sx={{ width: "40vw", marginBottom: "10px" }}
-                        error={
-                          addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
-                        }
-                        helperText={
-                          addButtonClicked &&
-                            (!selectedRoom || selectedRoom === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
-                      >
-                        {rooms.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
+                      <TextField id="roomId" select label="Room Number" value={selectedRoom} onChange={handleRoomSelection} sx={{ width: "40vw", marginBottom: "10px" }} error={addButtonClicked && !selectedRoom} helperText={addButtonClicked && !selectedRoom ? "Please select a room." : ""}>
+                        {availableRooms.map((room) => (
+                          <MenuItem key={room.room_id} value={room.room_id}>
+                            {room.room_number}
                           </MenuItem>
                         ))}
                       </TextField>
 
-                      <TextField
-                        id="tenantId"
-                        select
-                        label="Tenant Name"
-                        value={selectedTenant}
-                        onChange={(e) => setSelectedTenant(e.target.value)}
-                        sx={{ width: "40vw" }}
-                        error={
-                          addButtonClicked &&
-                          (!selectedTenant || selectedTenant === "")
-                        }
-                        helperText={
-                          addButtonClicked &&
-                            (!selectedTenant || selectedTenant === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
-                      >
-                        {tenants.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
+                      <TextField id="tenantId" select label="Tenant Name" value={selectedTenant} onChange={handleTenantSelection} sx={{ width: "40vw" }} error={addButtonClicked && !selectedTenant} helperText={addButtonClicked && !selectedTenant ? "Please select a tenant." : ""}>
+                        {newTenants.map((tenant) => (
+                          <MenuItem key={tenant.tenant_id} value={tenant.tenant_id}>
+                            {tenant.first_name} {tenant.last_name}
                           </MenuItem>
                         ))}
                       </TextField>
@@ -171,9 +211,7 @@ export default function CheckIn() {
 
                 <Card sx={{ width: "55vw" }}>
                   <CardContent>
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                       <Typography variant="h6" sx={{ marginBottom: "10px" }}>
                         Input Contract Details
                       </Typography>
@@ -192,38 +230,15 @@ export default function CheckIn() {
                         value={moveInDate}
                         onChange={handleMoveInDateChange}
                         sx={{ width: "40vw" }}
-                        error={
-                          addButtonClicked && (!moveInDate || moveInDate === "")
-                        }
-                        helperText={
-                          addButtonClicked && (!moveInDate || moveInDate === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
+                        error={addButtonClicked && (!moveInDate || moveInDate === "")}
+                        helperText={addButtonClicked && (!moveInDate || moveInDate === "") ? "The field cannot be empty." : ""}
                       />
 
                       <Typography variant="h6" sx={{ margin: "0 10px" }}>
                         -
                       </Typography>
 
-                      <DatePicker
-                        id="moveoutdateId"
-                        label="Move Out"
-                        value={moveOutDate}
-                        minDate={moveInDate} // Set minimum date for move-out
-                        onChange={handleMoveOutDateChange}
-                        sx={{ width: "40vw" }}
-                        error={
-                          addButtonClicked &&
-                          (!moveOutDate || moveOutDate === "")
-                        }
-                        helperText={
-                          addButtonClicked &&
-                            (!moveOutDate || moveOutDate === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
-                      />
+                      <DatePicker id="moveoutdateId" label="Move Out" value={moveOutDate} onChange={() => {}} renderInput={(props) => <TextField {...props} />} readOnly inputFormat="YYYY-MM-DD" sx={{ width: "40vw" }} />
                     </Box>
 
                     <Box
@@ -241,24 +256,12 @@ export default function CheckIn() {
                         sx={{ width: "40vw" }}
                         value={contractMonths}
                         type="number"
-                        error={
-                          addButtonClicked &&
-                          (!validateFloat(contractMonths) ||
-                            contractMonths <= 0)
-                        }
-                        helperText={
-                          addButtonClicked &&
-                            (!validateFloat(contractMonths) ||
-                              contractMonths <= 0)
-                            ? "Contract months must be a positive number."
-                            : ""
-                        }
+                        error={addButtonClicked && (!validateFloat(contractMonths) || contractMonths <= 0)}
+                        helperText={addButtonClicked && (!validateFloat(contractMonths) || contractMonths <= 0) ? "Contract months must be a positive number." : ""}
                         InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">M</InputAdornment>
-                          ),
+                          endAdornment: <InputAdornment position="end">M</InputAdornment>,
                         }}
-                        onChange={(e) => setContractMonths(e.target.value)}
+                        onChange={handleContractMonthsChange}
                       />
 
                       <TextField
@@ -267,20 +270,10 @@ export default function CheckIn() {
                         sx={{ width: "40vw" }}
                         value={deposit}
                         type="number"
-                        error={
-                          addButtonClicked &&
-                          (!validateFloat(deposit) || deposit <= 0)
-                        }
-                        helperText={
-                          addButtonClicked &&
-                            (!validateFloat(deposit) || deposit <= 0)
-                            ? "Deposit must be a positive number."
-                            : ""
-                        }
+                        error={addButtonClicked && (!validateFloat(deposit) || deposit <= 0)}
+                        helperText={addButtonClicked && (!validateFloat(deposit) || deposit <= 0) ? "Deposit must be a positive number." : ""}
                         InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">THB</InputAdornment>
-                          ),
+                          endAdornment: <InputAdornment position="end">THB</InputAdornment>,
                         }}
                         onChange={(e) => setDeposit(e.target.value)}
                       />
@@ -297,19 +290,11 @@ export default function CheckIn() {
                     justifyContent: "right",
                   }}
                 >
-                  <Button
-                    variant="outlined"
-                    sx={{ width: "20%" }}
-                    onClick={resetForm}
-                  >
+                  <Button variant="outlined" sx={{ width: "20%" }} onClick={resetForm}>
                     Clear
                   </Button>
 
-                  <Button
-                    variant="contained"
-                    sx={{ width: "20%" }}
-                    onClick={handleAddButtonClick}
-                  >
+                  <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
                     Add
                   </Button>
                 </Box>
@@ -341,9 +326,7 @@ export default function CheckIn() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.room}
-                        </Typography>
+                        <Typography sx={{ marginRight: "8px" }}>{activity.room}</Typography>
                       </Box>
                       <Box
                         sx={{
@@ -356,9 +339,7 @@ export default function CheckIn() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.status}
-                        </Typography>
+                        <Typography sx={{ marginRight: "8px" }}>{activity.status}</Typography>
                       </Box>
                     </Box>
                   ))}

@@ -1,23 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import {
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Autocomplete,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+import { Card, CardContent, Typography, TextField, Box, Button, Checkbox, FormControlLabel, Autocomplete, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Snackbar, Alert } from "@mui/material";
 import axios from "axios";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -79,10 +62,10 @@ export default function AddRoom() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  if (!validateForm()) {
-    setSnackbarOpen(true);
-    return; // Exit the function if validation fails
-  }
+    if (!validateForm()) {
+      setSnackbarOpen(true);
+      return; // Exit the function if validation fails
+    }
     setOpenDialog(true); // Open the dialog on form submission
   };
 
@@ -141,24 +124,18 @@ export default function AddRoom() {
 
   const validateForm = () => {
     let tempErrors = {};
-    tempErrors.room_number = formData.room_number
-      ? ""
-      : "Room number is required.";
+    tempErrors.room_number = formData.room_number ? "" : "Room number is required.";
     tempErrors.floor = formData.floor ? "" : "Floor is required.";
     tempErrors.room_type = formData.room_type ? "" : "Room type is required.";
     tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
     tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
-    tempErrors.occupancy_status = formData.statusDetails.occupancy_status
-      ? ""
-      : "Occupancy status is required.";
-    tempErrors.payment_status = formData.statusDetails.payment_status
-      ? ""
-      : "Payment status is required.";
+    tempErrors.occupancy_status = formData.statusDetails.occupancy_status ? "" : "Occupancy status is required.";
+    tempErrors.payment_status = formData.statusDetails.payment_status ? "" : "Payment status is required.";
 
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
   };
-  
+
   return (
     <>
       <Card sx={{ width: "100%", display: "flex", marginBottom: 1 }}>
@@ -169,69 +146,20 @@ export default function AddRoom() {
           </Typography>
         </CardContent>
         <CardContent>
-          <Button
-            variant="contained"
-            sx={{ width: "110px", marginTop: "15px" }}
-            onClick={handleSubmit}
-          >
+          <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleSubmit}>
             Add
           </Button>
         </CardContent>
       </Card>
 
       <form onSubmit={handleSubmit}>
-        <Box
-          sx={{ display: "flex", flexDirection: "column", gap: 2, margin: 2 }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, margin: 2 }}>
           {/* TextFields for room_number, floor, room_type, base_rent, deposit */}
-          <TextField
-            label="Room Number"
-            name="room_number"
-            value={formData.room_number}
-            onChange={handleInputChange}
-            required
-            error={!!errors.room_number}
-            helperText={errors.room_number}
-          />
-          <TextField
-            label="Floor"
-            name="floor"
-            type="number"
-            value={formData.floor}
-            onChange={handleInputChange}
-            required
-            error={!!errors.floor}
-            helperText={errors.floor}
-          />
-          <TextField
-            label="Room Type"
-            name="room_type"
-            value={formData.room_type}
-            onChange={handleInputChange}
-            required
-            error={!!errors.room_type}
-            helperText={errors.room_type}
-          />
-          <TextField
-            label="Base Rent"
-            name="base_rent"
-            type="number"
-            value={formData.base_rent}
-            onChange={handleInputChange}
-            required
-            error={!!errors.base_rent}
-            helperText={errors.base_rent}
-          />
-          <TextField
-            label="Deposit"
-            name="deposit"
-            type="number"
-            value={formData.deposit}
-            onChange={handleInputChange}
-            required
-            error={!!errors.deposit}
-            helperText={errors.deposit}
-          />
+          <TextField label="Room Number" name="room_number" value={formData.room_number} onChange={handleInputChange} required error={!!errors.room_number} helperText={errors.room_number} />
+          <TextField label="Floor" name="floor" type="number" value={formData.floor} onChange={handleInputChange} required error={!!errors.floor} helperText={errors.floor} />
+          <TextField label="Room Type" name="room_type" value={formData.room_type} onChange={handleInputChange} required error={!!errors.room_type} helperText={errors.room_type} />
+          <TextField label="Base Rent" name="base_rent" type="number" value={formData.base_rent} onChange={handleInputChange} required error={!!errors.base_rent} helperText={errors.base_rent} />
+          <TextField label="Deposit" name="deposit" type="number" value={formData.deposit} onChange={handleInputChange} required error={!!errors.deposit} helperText={errors.deposit} />
 
           {/* Autocomplete for occupancy_status */}
           {/* <Autocomplete
@@ -263,14 +191,7 @@ export default function AddRoom() {
                 },
               });
             }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Occupancy Status"
-                error={!!errors.occupancy_status}
-                helperText={errors.occupancy_status}
-              />
-            )}
+            renderInput={(params) => <TextField {...params} label="Occupancy Status" error={!!errors.occupancy_status} helperText={errors.occupancy_status} />}
           />
 
           <Autocomplete
@@ -285,41 +206,19 @@ export default function AddRoom() {
                 },
               });
             }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Payment Status"
-                error={!!errors.payment_status}
-                helperText={errors.payment_status}
-              />
-            )}
+            renderInput={(params) => <TextField {...params} label="Payment Status" error={!!errors.payment_status} helperText={errors.payment_status} />}
           />
 
           {/* Checkbox for is_reserved */}
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="statusDetails.is_reserved"
-                checked={formData.statusDetails.is_reserved}
-                onChange={handleCheckboxChange}
-              />
-            }
-            label="Is Reserved"
-          />
+          <FormControlLabel control={<Checkbox name="statusDetails.is_reserved" checked={formData.statusDetails.is_reserved} onChange={handleCheckboxChange} />} label="Is Reserved" />
         </Box>
       </form>
 
       {/* Confirmation Dialog */}
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDialog}
-        onClose={handleCloseDialog}
-      >
+      <Dialog fullScreen={fullScreen} open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{`Add Room ${formData.room_number}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to add this room?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to add this room?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" autoFocus onClick={handleCloseDialog}>
@@ -343,11 +242,7 @@ export default function AddRoom() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
           Please enter all fields
         </MuiAlert>
       </Snackbar>
