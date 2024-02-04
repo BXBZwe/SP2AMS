@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import { Card, CardContent, Typography, Box, Button } from "@mui/material";
+import { Card, CardContent, Typography, Box, Button, Select, MenuItem } from "@mui/material";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -10,6 +10,7 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 export default function addtenant() {
+  const paymentOptions = ['EMAIL', 'PAPER', 'BOTH'];
 
   const type = [
     { label: '+93' },
@@ -20,7 +21,7 @@ export default function addtenant() {
     first_name: '',
     last_name: '',
     personal_id: '',
-    room_id: '',
+    payment_option: '',
     addresses: {
       street: '',
       sub_district: '',
@@ -38,28 +39,13 @@ export default function addtenant() {
       eme_relation: ''
     }
   });
-  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/getallrooms');
-        setRooms(response.data.getrooms);
-      } catch (error) {
-        console.error('Error fetching rooms:', error);
-      }
-    };
-
-    fetchRooms();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split('.');
-  
+
     if (keys.length === 1) {
       setTenantData({ ...tenantData, [name]: value });
     } else if (keys.length === 2 && (keys[0] === 'addresses' || keys[0] === 'contacts')) {
@@ -72,7 +58,7 @@ export default function addtenant() {
       });
     }
   };
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,21 +66,21 @@ export default function addtenant() {
     setMessage('');
     try {
       const response = await axios.post('http://localhost:3000/addtenants', tenantData);
-      
+
       if (response.status === 200 || response.status === 201) {
         console.log('Tenant added successfully:', response.data);
-        setMessage('Tenant added successfully'); 
+        setMessage('Tenant added successfully');
       } else {
         throw new Error('An error occurred while adding the tenant');
       }
     } catch (error) {
       console.error('Error adding tenant:', error);
-      setMessage(error.response?.data?.message || error.message || 'An error occurred'); 
+      setMessage(error.response?.data?.message || error.message || 'An error occurred');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-  
+
   return (
     <>
       <Card sx={{ width: '100%', display: 'flex', marginBottom: 1 }}>
@@ -112,14 +98,14 @@ export default function addtenant() {
         </CardContent>
         <CardContent>
 
- 
+
           <Button
             type="submit"
             variant="contained"
             sx={{ width: "110px", marginTop: '15px' }}
-            component="a"  
+            component="a"
             onClick={handleSubmit}
-            disabled={loading} 
+            disabled={loading}
           >
             {loading ? 'Adding...' : 'Save'}
           </Button>
@@ -150,7 +136,7 @@ export default function addtenant() {
 
 
             <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-            <TextField id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+              <TextField id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
               <Autocomplete
                 disablePortal
@@ -162,15 +148,25 @@ export default function addtenant() {
               <TextField id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.phone_number} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             </Box>
 
-            <Autocomplete
+            {/* <Autocomplete
               disablePortal
-              id="room-select"
-              options={rooms}
-              getOptionLabel={(option) => option.room_number}
+              id="payment_option"
               sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
-              renderInput={(params) => <TextField {...params} label="Room Number" />}
-              onChange={(event, value) => setTenantData({ ...tenantData, room_id: value ? value.room_id : '' })}
-            />
+              renderInput={(params) => <TextField {...params} label="Invoice Options" />}
+              value={tenantData.payment_option}
+              onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+            /> */}
+            <Select
+              label="Invoice Option"
+              id="payment_option"
+              value={tenantData.payment_option}
+              onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
+            >
+              {paymentOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
             <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <Typography sx={{ marginBottom: 1, marginTop: '10px' }}>Address</Typography>

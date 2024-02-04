@@ -8,11 +8,12 @@ const getAlltenants = async (req, res) => {
             include: {
                 addresses: true,
                 contacts: true,
-                roomBaseDetails: true
             },
         });
+        //console.log("getAlltenants: Tenants fetched", getTenant);
         res.status(200).json({ message: 'Get all tenants successfully', getTenant });
     } catch (error) {
+        console.error("getAlltenants: Error", error);
         res.status(500).send(error.message);
     }
 };
@@ -28,7 +29,6 @@ const geteachtenant = async (req, res) => {
             include: {
                 addresses: true,
                 contacts: true,
-                roomBaseDetails: true
             }
         });
         console.log("Fetched tenant data:", getaTenant);
@@ -53,7 +53,9 @@ const addnewtenant = async (req, res) => {
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
-                room_id: req.body.room_id,
+                contract_status: 'NEW', 
+                account_status: 'ACTIVE',
+                payment_option: req.body.payment_option,
                 addresses: {
                     create: req.body.addresses,
                 },
@@ -100,7 +102,7 @@ const updatetenant = async (req, res) => {
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
-                room_id: req.body.room_id, 
+                payment_option: req.body.payment_option,
                 addresses: {
                     upsert: {
                         where: { tenant_id: parseInt(tenant_id) }, 

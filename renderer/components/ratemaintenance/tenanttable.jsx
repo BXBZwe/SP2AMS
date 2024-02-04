@@ -7,19 +7,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
-
-
 export default function ratetable() {
-  const [searchText, setSearchText] = React.useState('');
-  const [filterValue, setFilterValue] = React.useState('');
-  const [tenants, setTenants] = React.useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [tenants, setTenants] = useState([]);
   const columns = [
     { field: 'id', headerName: 'Tenant ID', width: 130 },
-    { field: 'roomnumber', headerName: 'Room Number', width: 170 },
+    { field: 'roomnumber', headerName: 'Room Number', width: 170, valueGetter: () => 'N/A' },
     { field: 'fullname', headerName: 'Full Name', width: 140 },
     { field: 'phnumber', headerName: 'Phone Number', width: 140 },
     { field: 'lineid', headerName: 'Line ID', width: 140 },
-    { field: 'floor', headerName: 'Floor', width: 140 },
+    { field: 'floor', headerName: 'Floor', width: 140, valueGetter: () => 'N/A' },
+    { field: 'accountStatus', headerName: 'Account Status', width: 130 },
+    { field: 'contractStatus', headerName: 'Contract Status', width: 130 },
+    { field: 'paymentOption', headerName: 'Payment Option', width: 130 },
   
     {
       field: 'actions',
@@ -59,8 +60,10 @@ export default function ratetable() {
   
   const fetchTenants = async () => {
     try {
+      console.log("fetchTenants: Sending request to backend");
+
       const response = await axios.get('http://localhost:3000/getalltenants');
-      console.log("Raw tenants data:", response.data.getTenant); 
+      console.log("Raw tenants data:", response.data); 
       setTenants(response.data.getTenant);
     } catch (error) {
       console.error('Error fetching tenants:', error);
@@ -79,16 +82,15 @@ export default function ratetable() {
     setFilterValue(event.target.value);
   };
 
-  // console.log('tEansts',tenants)
-  const formattedTenants = tenants.map((tenant) => ({
+  const formattedTenants = tenants && tenants.length > 0 ? tenants.map((tenant) => ({
     id: tenant.tenant_id,
-    roomnumber: tenant.roomBaseDetails.room_number, 
     fullname: `${tenant.first_name} ${tenant.last_name}`,
     phnumber: tenant.contacts?.phone_number || 'N/A', 
     lineid: tenant.contacts?.line_id || 'N/A',
-    floor: tenant.roomBaseDetails?.floor || 'N/A',
-  }));
-
+    accountStatus: tenant.account_status || 'N/A',
+    contractStatus: tenant.contract_status || 'N/A',
+    paymentOption: tenant.payment_option || 'N/A',
+  })) : [] ;
   
 
 
