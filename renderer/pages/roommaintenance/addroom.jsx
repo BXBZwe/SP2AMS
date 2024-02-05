@@ -22,7 +22,6 @@ export default function AddRoom() {
     statusDetails: {
       occupancy_status: "",
       is_reserved: false,
-      payment_status: "",
     },
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -99,7 +98,6 @@ export default function AddRoom() {
           occupancy_status: "",
           is_reserved: false,
           is_available_for_rent: true,
-          payment_status: "",
         },
       });
     } catch (error) {
@@ -130,7 +128,6 @@ export default function AddRoom() {
     tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
     tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
     tempErrors.occupancy_status = formData.statusDetails.occupancy_status ? "" : "Occupancy status is required.";
-    tempErrors.payment_status = formData.statusDetails.payment_status ? "" : "Payment status is required.";
 
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
@@ -192,21 +189,6 @@ export default function AddRoom() {
               });
             }}
             renderInput={(params) => <TextField {...params} label="Occupancy Status" error={!!errors.occupancy_status} helperText={errors.occupancy_status} />}
-          />
-
-          <Autocomplete
-            options={paymentOptions}
-            value={formData.statusDetails.payment_status}
-            onChange={(event, newValue) => {
-              setFormData({
-                ...formData,
-                statusDetails: {
-                  ...formData.statusDetails,
-                  payment_status: newValue || "",
-                },
-              });
-            }}
-            renderInput={(params) => <TextField {...params} label="Payment Status" error={!!errors.payment_status} helperText={errors.payment_status} />}
           />
 
           {/* Checkbox for is_reserved */}

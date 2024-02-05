@@ -104,7 +104,7 @@ export default function CheckIn() {
           move_in_date: moveInDate,
           move_out_date: moveOutDateISO,
           period_of_stay: parseInt(contractMonths, 10),
-          deposit_returned: deposit,
+          deposit: deposit,
         });
         console.log(response.data.message);
       } catch (error) {
