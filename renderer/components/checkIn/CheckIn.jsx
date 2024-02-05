@@ -83,6 +83,88 @@ export default function CheckIn() {
     return !isNaN(floatValue);
   };
 
+  const rooms = [
+    {
+      value: "R102",
+      label: "102",
+    },
+    {
+      value: "R101",
+      label: "101",
+    },
+  ];
+
+  const tenants = [
+    {
+      value: "P1",
+      label: "Yasi",
+    },
+    {
+      value: "P2",
+      label: "Saw",
+    },
+  ];
+
+  const recentActivity = [
+    {
+      id: "R001",
+      room: "101",
+      date: "20 Tue 2022",
+      status: "Move-In",
+    },
+    {
+      id: "R002",
+      room: "105",
+      date: "20 Tue 2022",
+      status: "Move-In",
+    },
+    {
+      id: "R003",
+      room: "102",
+      date: "21 Wed 2022",
+      status: "Move-Out",
+    },
+  ];
+
+  const roomDetails = [
+    {
+      roomId: "R001",
+      room: "101",
+      moveInDate: "20/02/2022",
+      moveOutDate: "20/02/2023",
+      tenantId: "123",
+      tenantName: "Yasi",
+      depositAmount: 3000,
+      monthsLeft: 6,
+      dueDate: "20/02/2023",
+      dayMonth: "Tuesday,March",
+    },
+    {
+      roomId: "R002",
+      room: "102",
+      moveInDate: "19/01/2022",
+      moveOutDate: "19/01/2023",
+      tenantId: "124",
+      tenantName: "Zwe",
+      depositAmount: 5000,
+      monthsLeft: 3,
+      dueDate: "20/02/2023",
+      dayMonth: "Wednesday,May",
+    },
+    {
+      roomId: "R003",
+      room: "203",
+      moveInDate: "20/02/2022",
+      moveOutDate: "20/02/2025",
+      tenantId: "125",
+      tenantName: "Saw",
+      depositAmount: 2500,
+      monthsLeft: 1,
+      dueDate: "20/02/2023",
+      dayMonth: "Friday,December",
+    },
+  ];
+
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>

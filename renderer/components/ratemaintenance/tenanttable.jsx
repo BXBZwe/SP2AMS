@@ -1,34 +1,3 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import Typography from "@mui/material/Typography";
-import {
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  Button,
-  IconButton,
-} from "@mui/material";
-import Link from "next/link";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import axios from "axios";
-
-export default function ratetable() {
-  const [searchText, setSearchText] = React.useState("");
-  const [filterValue, setFilterValue] = React.useState("");
-  const [tenants, setTenants] = React.useState([]);
-  const columns = [
-    { field: "id", headerName: "Tenant ID", flex: 1 },
-    { field: "roomnumber", headerName: "Room Number", flex: 1 },
-    { field: "fullname", headerName: "Full Name", flex: 1 },
-    { field: "phnumber", headerName: "Phone Number", flex: 1 },
-    { field: "lineid", headerName: "Line ID", flex: 1 },
-    { field: "floor", headerName: "Floor", flex: 1 },
-
-=======
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from '@mui/material/Typography';
@@ -43,17 +12,16 @@ export default function ratetable() {
   const [filterValue, setFilterValue] = useState('');
   const [tenants, setTenants] = useState([]);
   const columns = [
-    { field: 'id', headerName: 'Tenant ID', width: 130 },
-    { field: 'roomnumber', headerName: 'Room Number', width: 170, valueGetter: () => 'N/A' },
-    { field: 'fullname', headerName: 'Full Name', width: 140 },
-    { field: 'phnumber', headerName: 'Phone Number', width: 140 },
-    { field: 'lineid', headerName: 'Line ID', width: 140 },
-    { field: 'floor', headerName: 'Floor', width: 140, valueGetter: () => 'N/A' },
-    { field: 'accountStatus', headerName: 'Account Status', width: 130 },
-    { field: 'contractStatus', headerName: 'Contract Status', width: 130 },
-    { field: 'paymentOption', headerName: 'Payment Option', width: 130 },
+    { field: 'id', headerName: 'Tenant ID', flex: 1},
+    { field: 'roomnumber', headerName: 'Room Number', flex: 1, valueGetter: () => 'N/A' },
+    { field: 'fullname', headerName: 'Fullname', flex: 1 },
+    { field: 'phnumber', headerName: 'Phone Number', flex:1 },
+    // { field: 'lineid', headerName: 'Line ID', flex: 1 },
+    // { field: 'floor', headerName: 'Floor', flex: 1, valueGetter: () => 'N/A' },
+    { field: 'accountStatus', headerName: 'Account Status', flex: 1 },
+    { field: 'contractStatus', headerName: 'Contract Status', flex: 1 },
+    { field: 'paymentOption', headerName: 'Payment Option', flex: 1 },
   
->>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
     {
       field: "actions",
       headerName: "Actions",
@@ -93,15 +61,10 @@ export default function ratetable() {
 
   const fetchTenants = async () => {
     try {
-<<<<<<< HEAD
-      const response = await axios.get("http://localhost:3000/getalltenants");
-      console.log("Raw tenants data:", response.data.getTenant);
-=======
       console.log("fetchTenants: Sending request to backend");
 
       const response = await axios.get('http://localhost:3000/getalltenants');
       console.log("Raw tenants data:", response.data); 
->>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
       setTenants(response.data.getTenant);
       console.log("Tenants data:")
     } catch (error) {
@@ -123,24 +86,15 @@ export default function ratetable() {
 
   const formattedTenants = tenants && tenants.length > 0 ? tenants.map((tenant) => ({
     id: tenant.tenant_id,
-<<<<<<< HEAD
-    roomnumber: tenant.roomBaseDetails.room_number,
-    fullname: `${tenant.first_name} ${tenant.last_name}`,
-    phnumber: tenant.contacts?.phone_number || "N/A",
-    lineid: tenant.contacts?.line_id || "N/A",
-    floor: tenant.roomBaseDetails?.floor || "N/A",
-  }));
-=======
     fullname: `${tenant.first_name} ${tenant.last_name}`,
     phnumber: tenant.contacts?.phone_number || 'N/A', 
-    lineid: tenant.contacts?.line_id || 'N/A',
+    // lineid: tenant.contacts?.line_id || 'N/A',
     accountStatus: tenant.account_status || 'N/A',
     contractStatus: tenant.contract_status || 'N/A',
     paymentOption: tenant.payment_option || 'N/A',
   })) : [] ;
   
 
->>>>>>> 0252de347f396ddfd00e7d7e8f85a5a8a00928ae
 
   return (
     <>
@@ -164,7 +118,7 @@ export default function ratetable() {
         </CardContent>
       </Card>
 
-      <Card sx={{ marginTop: "10px", height: "89%", width: "100%" }}>
+      <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
         <CardContent>
           <div
             style={{
@@ -195,7 +149,7 @@ export default function ratetable() {
             </Select>
           </div>
 
-          <div style={{ height: "calc(100% - 40px)", width: "100%" }}>
+          <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
             <DataGrid
               rows={formattedTenants}
               columns={columns}
@@ -207,7 +161,7 @@ export default function ratetable() {
               autoHeight
               density="compact"
             />
-          </div>
+            </Card>
         </CardContent>
       </Card>
     </>

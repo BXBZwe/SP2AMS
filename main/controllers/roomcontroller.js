@@ -41,26 +41,64 @@ const getEachRoom = async (req, res) => {
   
 
 // POST - Create a new room
+// const createRoom = async (req, res) => {
+//     try {
+//         const newRoom = await prisma.roomBaseDetails.create({
+//             data: {
+//                 room_number: req.body.room_number,
+//                 floor: req.body.floor,
+//                 room_type: req.body.room_type,
+//                 base_rent: req.body.base_rent,
+//                 deposit: req.body.deposit,
+//                 statusDetails:{
+//                     create: req.body.statusDetails,
+//                 }
+//             },
+//             include: {
+//                 statusDetails: true,
+//             }
+//         });
+//         res.status(200).json({ message: 'Added a new room successfully', newRoom });
+//     } catch (error) {
+//         console.error('Error creating new room:', error);
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
+// POST - Create a new room with rates
 const createRoom = async (req, res) => {
+    const { room_number, floor, room_type, base_rent, deposit, statusDetails, rates } = req.body;
+
     try {
         const newRoom = await prisma.roomBaseDetails.create({
             data: {
-                room_number: req.body.room_number,
-                floor: req.body.floor,
-                room_type: req.body.room_type,
-                base_rent: req.body.base_rent,
-                deposit: req.body.deposit,
-                statusDetails:{
-                    create: req.body.statusDetails,
-                }
+                room_number,
+                floor,
+                room_type,
+                base_rent,
+                deposit,
+                statusDetails: {
+                    create: statusDetails,
+                },
+                room_rates: {
+                    create: rates.map(rate_id => ({
+                        rate_id,
+                        quantity: 1, // or any other logic for quantity
+                    })),
+                },
             },
             include: {
                 statusDetails: true,
-            }
+                room_rates: {
+                    include: {
+                        rates: true,
+                    },
+                },
+            },
         });
         res.status(200).json({ message: 'Added a new room successfully', newRoom });
     } catch (error) {
-        console.error('Error creating new room:', error);
+        console.error('Error creating new room with rates:', error);
         res.status(500).json({ error: error.message });
     }
 };

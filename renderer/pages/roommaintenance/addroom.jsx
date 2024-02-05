@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   Card,
@@ -17,6 +17,10 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  List,
+  ListContent,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import axios from "axios";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -41,9 +45,34 @@ export default function AddRoom() {
       is_reserved: false,
       payment_status: "",
     },
+    rates: [],
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [rates, setRates] = useState([]);
+  const [selectedRates, setSelectedRates] = useState([]);
+  // console.log('selected Rates',selectedRates)
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getallrates");
+        setRates(response.data.getRate);
+      } catch (error) {
+        console.error("Error fetching rates:", error);
+      }
+    };
+
+    fetchRates();
+  }, []);
+
+  const handleCheck = (rateId) => {
+    setSelectedRates((prevSelectedRates) =>
+      prevSelectedRates.includes(rateId)
+        ? prevSelectedRates.filter((id) => id !== rateId)
+        : [...prevSelectedRates, rateId]
+    );
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -79,10 +108,10 @@ export default function AddRoom() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  if (!validateForm()) {
-    setSnackbarOpen(true);
-    return; // Exit the function if validation fails
-  }
+    if (!validateForm()) {
+      setSnackbarOpen(true);
+      return; // Exit the function if validation fails
+    }
     setOpenDialog(true); // Open the dialog on form submission
   };
 
@@ -96,6 +125,7 @@ export default function AddRoom() {
     const updatedFormData = {
       ...formData,
       floor: parseInt(formData.floor, 10) || 0, // Convert to integer, default to 0 if NaN
+      rates: selectedRates,
     };
     try {
       await axios.post("http://localhost:3000/addrooms", updatedFormData);
@@ -118,6 +148,7 @@ export default function AddRoom() {
           payment_status: "",
         },
       });
+      setSelectedRates([]);
     } catch (error) {
       console.error("Error adding room:", error);
       setSnackbarOpen(true); // Optionally show an error message instead
@@ -157,10 +188,23 @@ export default function AddRoom() {
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
   };
-  
+
+  // Function to render the summary of selected rates
+  const renderSelectedRatesSummary = () => {
+    return rates
+      .filter((rate) => selectedRates.includes(rate.rate_id))
+      .map((rate) => (
+        <ListItem key={rate.rate_id}>
+          <ListItemText
+            primary={`${rate.item_name} - ${rate.item_price}`}
+            secondary={rate.item_description}
+          />
+        </ListItem>
+      ));
+  };
   return (
     <>
-      <Card sx={{ width: "100%", display: "flex", marginBottom: 1 }}>
+      <Card sx={{ width: "100%", display: "flex", marginBottom: "10px" }}>
         <CardContent sx={{ marginRight: "auto", marginBottom: "10px" }}>
           <Typography variant="h4">Add New Room</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
@@ -178,137 +222,208 @@ export default function AddRoom() {
         </CardContent>
       </Card>
 
-      <form onSubmit={handleSubmit}>
-        <Box
-          sx={{ display: "flex", flexDirection: "column", gap: 2, margin: 2 }}
-        >
-          <Box>
-            History
-          </Box>
-          <TextField
-            label="Room Number"
-            name="room_number"
-            value={formData.room_number}
-            onChange={handleInputChange}
-            required
-            error={!!errors.room_number}
-            helperText={errors.room_number}
-          />
-          <TextField
-            label="Floor"
-            name="floor"
-            type="number"
-            value={formData.floor}
-            onChange={handleInputChange}
-            required
-            error={!!errors.floor}
-            helperText={errors.floor}
-          />
-          <TextField
-            label="Room Type"
-            name="room_type"
-            value={formData.room_type}
-            onChange={handleInputChange}
-            required
-            error={!!errors.room_type}
-            helperText={errors.room_type}
-          />
-          <TextField
-            label="Base Rent"
-            name="base_rent"
-            type="number"
-            value={formData.base_rent}
-            onChange={handleInputChange}
-            required
-            error={!!errors.base_rent}
-            helperText={errors.base_rent}
-          />
-          <TextField
-            label="Deposit"
-            name="deposit"
-            type="number"
-            value={formData.deposit}
-            onChange={handleInputChange}
-            required
-            error={!!errors.deposit}
-            helperText={errors.deposit}
-          />
-
-          {/* Autocomplete for occupancy_status */}
-          {/* <Autocomplete
-            options={occupancyOptions}
-            value={formData.statusDetails.occupancy_status}
-            onChange={(event, newValue) => {
-              setFormData({
-                ...formData,
-                statusDetails: {
-                  ...formData.statusDetails,
-                  occupancy_status: newValue,
-                },
-              });
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Occupancy Status" />
-            )}
-          /> */}
-
-          <Autocomplete
-            options={occupancyOptions}
-            value={formData.statusDetails.occupancy_status}
-            onChange={(event, newValue) => {
-              setFormData({
-                ...formData,
-                statusDetails: {
-                  ...formData.statusDetails,
-                  occupancy_status: newValue || "",
-                },
-              });
-            }}
-            renderInput={(params) => (
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Box>
+          <Card sx={{ width: "55vw", marginBottom: "10px", padding: "10px" }}>
+            <Typography variant="h6" sx={{ marginBottom: "16px" }}>
+              Enter Room Details
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
               <TextField
-                {...params}
-                label="Occupancy Status"
-                error={!!errors.occupancy_status}
-                helperText={errors.occupancy_status}
+                label="Room Number"
+                name="room_number"
+                value={formData.room_number}
+                onChange={handleInputChange}
+                required
+                error={!!errors.room_number}
+                helperText={errors.room_number}
               />
-            )}
-          />
-
-          <Autocomplete
-            options={paymentOptions}
-            value={formData.statusDetails.payment_status}
-            onChange={(event, newValue) => {
-              setFormData({
-                ...formData,
-                statusDetails: {
-                  ...formData.statusDetails,
-                  payment_status: newValue || "",
-                },
-              });
-            }}
-            renderInput={(params) => (
               <TextField
-                {...params}
-                label="Payment Status"
-                error={!!errors.payment_status}
-                helperText={errors.payment_status}
+                label="Floor"
+                name="floor"
+                type="number"
+                value={formData.floor}
+                onChange={handleInputChange}
+                required
+                error={!!errors.floor}
+                helperText={errors.floor}
               />
-            )}
-          />
+              <TextField
+                label="Room Type"
+                name="room_type"
+                value={formData.room_type}
+                onChange={handleInputChange}
+                required
+                error={!!errors.room_type}
+                helperText={errors.room_type}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                width: "100%",
+                marginTop: "10px",
+              }}
+            >
+              {" "}
+              <TextField
+                label="Base Rent"
+                name="base_rent"
+                type="number"
+                value={formData.base_rent}
+                onChange={handleInputChange}
+                required
+                error={!!errors.base_rent}
+                helperText={errors.base_rent}
+                sx={{ marginRight: "10px" }}
+              />
+              <TextField
+                label="Deposit"
+                name="deposit"
+                type="number"
+                value={formData.deposit}
+                onChange={handleInputChange}
+                required
+                error={!!errors.deposit}
+                helperText={errors.deposit}
+              />
+            </Box>
 
-          {/* Checkbox for is_reserved */}
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="statusDetails.is_reserved"
-                checked={formData.statusDetails.is_reserved}
-                onChange={handleCheckboxChange}
+            <Box
+              sx={{ marginTop: "10px", display: "flex", flexDirection: "row" }}
+            >
+              {" "}
+              <Autocomplete
+                sx={{ width: "100%", marginRight: "5px" }}
+                options={occupancyOptions}
+                value={formData.statusDetails.occupancy_status}
+                onChange={(event, newValue) => {
+                  setFormData({
+                    ...formData,
+                    statusDetails: {
+                      ...formData.statusDetails,
+                      occupancy_status: newValue || "",
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Occupancy Status"
+                    error={!!errors.occupancy_status}
+                    helperText={errors.occupancy_status}
+                  />
+                )}
               />
-            }
-            label="Is Reserved"
-          />
+              <Autocomplete
+                sx={{ width: "100%", marginLeft: "5px" }}
+                options={paymentOptions}
+                value={formData.statusDetails.payment_status}
+                onChange={(event, newValue) => {
+                  setFormData({
+                    ...formData,
+                    statusDetails: {
+                      ...formData.statusDetails,
+                      payment_status: newValue || "",
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Payment Status"
+                    error={!!errors.payment_status}
+                    helperText={errors.payment_status}
+                  />
+                )}
+              />
+            </Box>
+
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="statusDetails.is_reserved"
+                    checked={formData.statusDetails.is_reserved}
+                    onChange={handleCheckboxChange}
+                  />
+                }
+                label="Is Reserved"
+              />
+            </Box>
+          </Card>
+          <Card sx={{ width: "55vw", marginBottom: "10px", padding: "10px" }}>
+            <Typography variant="h6" sx={{ marginBottom: "16px" }}>
+              Additional Items
+            </Typography>
+            {rates.map((rate) => (
+              <Box
+                key={rate.rate_id}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedRates.includes(rate.rate_id)}
+                      onChange={() => handleCheck(rate.rate_id)}
+                    />
+                  }
+                  label={`${rate.item_name} - ${rate.item_price}`}
+                />
+                <Typography variant="body2" sx={{ marginLeft: "8px" }}>
+                  {rate.item_description}
+                </Typography>
+              </Box>
+            ))}
+          </Card>
         </Box>
-      </form>
+        <Card sx={{ width: "100%", marginLeft: "1vw", marginTop: "10px" }}>
+          <CardContent>
+            <Typography variant="h6">Room Summary</Typography>
+            <List dense>
+              <ListItem>
+                <ListItemText
+                  primary={`Room Number: ${formData.room_number}`}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary={`Base Rent: ${formData.base_rent}`} />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary={`Deposit: ${formData.deposit}`} />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={`Occupancy Status: ${formData.statusDetails.occupancy_status}`}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={`Payment Status: ${formData.statusDetails.payment_status}`}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary={`Is Reserved: ${
+                    formData.statusDetails.is_reserved ? "Yes" : "No"
+                  }`}
+                />
+              </ListItem>
+              {renderSelectedRatesSummary()}
+            </List>
+          </CardContent>
+        </Card>{" "}
+      </Box>
 
       {/* Confirmation Dialog */}
       <Dialog
