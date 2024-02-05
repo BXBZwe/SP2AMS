@@ -19,7 +19,7 @@ export default function EditRoom() {
     statusDetails: {
       occupancy_status: "",
       is_reserved: true,
-      is_available_for_rent: false,
+      payment_status: "",
     },
   });
   const [editable, setEditable] = useState(false);
@@ -70,6 +70,9 @@ export default function EditRoom() {
     }
     if (initialData.statusDetails.occupancy_status !== formData.statusDetails.occupancy_status) {
       changes.push(`Occupancy Status: ${initialData.statusDetails.occupancy_status} -> ${formData.statusDetails.occupancy_status}`);
+    }
+    if (initialData.statusDetails.payment_status !== formData.statusDetails.payment_status) {
+      changes.push(`Payment Status: ${initialData.statusDetails.payment_status} -> ${formData.statusDetails.payment_status}`);
     }
     // Add more fields comparison as needed
 
@@ -165,6 +168,7 @@ export default function EditRoom() {
   };
 
   const status = ["Vacant", "Occupied", "Unavailable"];
+  const paymentStatus = ["PENDING", "OVERDUE", "PARTIAL", "PAID"];
   const is_reserved = ["true", "false"];
   const is_available_for_rent = ["true", "false"];
 
@@ -206,6 +210,7 @@ export default function EditRoom() {
     tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
     tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
     tempErrors.occupancy_status = formData.statusDetails.occupancy_status ? "" : "Occupancy status is required.";
+    tempErrors.payment_status = formData.statusDetails.payment_status ? "" : "Payment status is required.";
 
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
@@ -257,6 +262,16 @@ export default function EditRoom() {
               </Select>
             </FormControl>
 
+            <FormControl fullWidth variant="outlined" margin="dense">
+              <InputLabel>Payment Status</InputLabel>
+              <Select disabled={!editable} value={formData.statusDetails.payment_status} label="Payment Status" onChange={handleSelectChange("statusDetails.payment_status")}>
+                {paymentStatus.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <FormControlLabel control={<Checkbox disabled={!editable} name="statusDetails.is_reserved" checked={formData.statusDetails.is_reserved} onChange={handleCheckboxChange} />} label="Is Reserved" />
           </CardContent>
         </Card>

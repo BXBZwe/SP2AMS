@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography,  Chip,
+import {
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Select,
+  MenuItem,
+  IconButton,
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  Typography,
+  Chip,
+  GridOverlay,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -9,7 +25,8 @@ import axios from "axios";
 import MuiAlert from "@mui/material/Alert";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
- 
+import { ReactComponent as EmptyTableSvg } from "../../public/assets/empty-table.svg";
+
 export default function ratetable() {
   const theme = useTheme();
   const [rooms, setRooms] = useState([]);
@@ -20,14 +37,14 @@ export default function ratetable() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
- 
+
   const paymentStatusColors = {
-    PENDING: 'default', // grey color
-    OVERDUE: 'error',   // red color
-    PARTIAL: 'warning', // yellow color
-    PAID: 'success',    // green color
+    PENDING: "default", // grey color
+    OVERDUE: "error", // red color
+    PARTIAL: "warning", // yellow color
+    PAID: "success", // green color
   };
- 
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -49,38 +66,39 @@ export default function ratetable() {
     };
     fetchRooms();
   }, []);
- 
+
   const columns = [
-    { field: "roomnumber", headerName: "Room Number", flex: 1 },
-    { field: "floor", headerName: "Floor", flex: 1 },
-    { field: "roomtype", headerName: "Room Type", flex: 1 },
-    { field: "occupancystatus", headerName: "Occupancy", flex: 1 },
-    { field: "reservationstatus", headerName: "Reservation", flex: 1 },
+    { field: "roomnumber", headerName: "Room Number", flex: 0.14 },
+    { field: "floor", headerName: "Floor", flex: 0.14 },
+    { field: "roomtype", headerName: "Room Type", flex: 0.14 },
+    { field: "occupancystatus", headerName: "Occupancy", flex: 0.14 },
+    { field: "reservationstatus", headerName: "Reservation", flex: 0.14 },
     // { field: "paymentstatus", headerName: "Payment", flex: 1 },
     {
-      field: 'paymentstatus',
-      headerName: 'Payment',
-      flex: 1,
+      field: "paymentstatus",
+      headerName: "Payment",
+      flex: 0.16,
       renderCell: (params) => {
-        const color = paymentStatusColors[params.row.paymentstatus] || 'default';
+        const color =
+          paymentStatusColors[params.row.paymentstatus] || "default";
         return (
           <Chip
-          label={params.row.paymentstatus}
-          color={color}
-          size="small"
-          variant="outlined"
-          style={{
-            width: '100%', // set the width to 100% to fill the cell
-            justifyContent: 'center' // center the text inside the chip
-          }}
-        />  
+            label={params.row.paymentstatus}
+            color={color}
+            size="small"
+            variant="outlined"
+            style={{
+              width: "100%", // set the width to 100% to fill the cell
+              justifyContent: "center", // center the text inside the chip
+            }}
+          />
         );
       },
     },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
+      flex: 0.14,
       renderCell: (params) => (
         <>
           <Link
@@ -98,7 +116,7 @@ export default function ratetable() {
       ),
     },
   ];
- 
+
   const handleDeleteClick = (roomId) => {
     // Find the room with the given ID
     const room = rooms.find((room) => room.id === roomId);
@@ -108,7 +126,7 @@ export default function ratetable() {
       setOpenDeleteDialog(true);
     }
   };
- 
+
   const handleConfirmDelete = async () => {
     if (deleteRoomId) {
       try {
@@ -122,27 +140,42 @@ export default function ratetable() {
     setOpenDeleteDialog(false);
     setDeleteRoomId(null);
   };
- 
+
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
     setDeleteRoomId(null);
   };
- 
+
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
- 
+
   const filteredRows = rooms.filter((row) => {
     return (
       row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
       (filterValue === "all" || row.occupancystatus === filterValue)
     );
   });
- 
+
+  const CustomNoRowsOverlay = () => (
+    <GridOverlay>
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <EmptyTableSvg />
+        <Typography>No data available</Typography>
+      </div>
+    </GridOverlay>
+  );
+
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
-        {/* CardContent for heading */}
         <CardContent
           sx={{
             marginRight: "auto",
@@ -166,17 +199,28 @@ export default function ratetable() {
           </Link>
         </CardContent>
       </Card>
-      <Card sx={{ marginTop: "10px" }}>
+
+      <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
+        {" "}
+        {/* Ensure the Card allows for internal scrolling if needed */}
         <DataGrid
           rows={filteredRows}
           columns={columns}
           pageSize={5}
-          pageSizeOptions={[5, 10]}
+          rowsPerPageOptions={[5, 10]}
+          sx={{
+            "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+          }}
+          autoHeight
+          density="compact"
+          // slots={{
+          //   noRowsOverlay: CustomNoRowsOverlay, // Use the custom overlay component
+          // }}
         />
       </Card>
- 
+
       {/* Confirmation Dialog */}
- 
+
       <Dialog
         fullScreen={fullScreen}
         open={openDeleteDialog}
@@ -186,8 +230,7 @@ export default function ratetable() {
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Once
-            deleted the process cannot be undone.
+            Once deleted the process cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -208,7 +251,7 @@ export default function ratetable() {
           </Button>
         </DialogActions>
       </Dialog>
- 
+
       {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
@@ -221,11 +264,7 @@ export default function ratetable() {
           severity="success"
           sx={{ width: "100%" }}
         >
-
           Room {roomToDelete} deleted successfully!
-
-          
-
         </MuiAlert>
       </Snackbar>
     </>
