@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import SignIn from "../components/auth/signIn";
 import Dashboard from "../components/dashboard/dashboard";
-
+import { useRouter } from "next/router";
 
 export default function HomePage() {
-  const isLoggedIn =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isLoggedIn") === "true";
+  const router = useRouter();
+  useEffect(() => {
+    // Check if the user is logged in
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-
+    // If not logged in, redirect to the sign-in page
+    if (!isLoggedIn) {
+      router.push("../components/auth/signin"); // Assuming your sign-in page is the root page
+    }
+  }, [router]);
 
   return (
     <React.Fragment>

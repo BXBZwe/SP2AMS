@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+// import bcrypt from 'bcryptjs';
+
 const prisma = new PrismaClient();
 
 // GET - Fetch the manager's details
@@ -18,4 +20,28 @@ const getManager = async (req, res) => {
 };
 
 
-export { getManager};
+// const findManagerByName = async (name) => {
+//     try {
+//         const manager = await prisma.manager.findUnique({
+//             where: { name: name },
+//         });
+//         return manager;
+//     } catch (error) {
+//         console.error('Error finding manager by name:', error);
+//         throw error;
+//     }
+// };
+
+// // Validate the manager's password
+// const validateManagerPassword = async (inputPassword, storedPasswordHash) => {
+//     try {
+//         const isValid = await bcrypt.compare(inputPassword, storedPasswordHash);
+//         return isValid;
+//     } catch (error) {
+//         console.error('Error validating manager password:', error);
+//         throw error;
+//     }
+// };
+
+
+export { getManager };

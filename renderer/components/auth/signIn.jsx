@@ -1,6 +1,5 @@
-// components/auth/signIn.jsx
-
 import * as React from "react";
+import { signIn } from "next-auth/react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -21,40 +20,30 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const defaultTheme = createTheme();
 
-const dummyLoginData = {
-  email: "pspark@gmail.com",
-  password: "pspark123",
-};
-
-export default function SignIn({ onLogin }) {
+export default function SignIn() {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
-  const [rememberMe, setRememberMe] = React.useState(true);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const enteredEmail = data.get("email");
-    const enteredPassword = data.get("password");
+    const name = data.get("name"); // Use 'name' instead of 'email'
+    const password = data.get("password");
 
-    // Check if the entered email and password match the dummy login data
-    if (
-      enteredEmail === dummyLoginData.email &&
-      enteredPassword === dummyLoginData.password
-    ) {
-      // If "Remember me" is checked, set authentication status in local storage
-      if (rememberMe) {
-        localStorage.setItem("isLoggedIn", "true");
-      }
+    // Use signIn from next-auth
+    const result = await signIn("credentials", {
+      redirect: false, // Prevents redirecting to the error page if credentials are invalid
+      name,
+      password,
+    });
 
-      // Call the onLogin prop (which should be a function to handle login)
-      //onLogin();
-
-      // Navigate to the /home
-      router.push("/home");
+    if (result.error) {
+      // Handle error messages here, e.g., show an error alert
+      setErrorMessage(result.error);
     } else {
-      // If not matched, you can show an error message or handle it as needed
-      console.log("Invalid credentials");
+      // Redirect the user after successful login
+      router.push("/home");
     }
   };
 
@@ -76,22 +65,8 @@ export default function SignIn({ onLogin }) {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField margin="normal" required fullWidth id="name" label="Manager Name" name="name" autoComplete="name" autoFocus />
             <TextField
               margin="normal"
               required
@@ -104,33 +79,14 @@ export default function SignIn({ onLogin }) {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
+                    <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} onMouseDown={(e) => e.preventDefault()}>
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
             />
-            {/* <FormControlLabel
-              control={
-                <Checkbox
-                  value="remember"
-                  color="primary"
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              }
-              label="Remember me"
-            /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
             <Grid container>
