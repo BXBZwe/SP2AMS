@@ -44,7 +44,7 @@ model tenancy_records {
   move_in_date     DateTime        @db.Date
   move_out_date    DateTime?       @db.Date
   period_of_stay   Int?
-  deposit_returned Decimal?        @db.Decimal(10, 2)
+  deposit          Decimal?        @db.Decimal(10, 2)
   tenancy_status   TenancyStatus   @default(CHECK_IN)
   RoomBaseDetails  RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
   tenants          tenants         @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
@@ -115,7 +115,6 @@ model RoomStatusDetails {
   status_id        Int              @id @default(autoincrement())
   occupancy_status String           @db.VarChar(50)
   is_reserved      Boolean          @default(false)
-  payment_status   PaymentStatus    @default(PENDING)
   roomBaseDetails  RoomBaseDetails?
 }
 
@@ -126,7 +125,7 @@ enum PaymentStatus {
   PARTIAL
 }
 
-enum PaymentOption {
+enum InvoiceOption {
   EMAIL
   PAPER
   BOTH
@@ -142,6 +141,8 @@ enum ContractStatus {
   ONGOING
   DUE
   WARNING
+  CHECKED_OUT
+  TERMINATED
 }
 
 model tenants {
@@ -150,7 +151,7 @@ model tenants {
   last_name              String            @db.VarChar(100)
   personal_id            String            @unique @db.VarChar(255)
   contract_status        ContractStatus    @default(NEW)
-  payment_option         PaymentOption
+  invoice_option         InvoiceOption     @default(EMAIL)
   account_status         AccountStatus     @default(ACTIVE)
   tenancy_records        tenancy_records[]
   addresses              addresses?

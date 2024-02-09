@@ -1,47 +1,10 @@
 import { React, useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Divider,
-  TextField,
-  MenuItem,
-  InputAdornment,
-} from "@mui/material";
-
-import {
-  MobileDatePicker,
-  LocalizationProvider,
-  DatePicker,
-} from "@mui/x-date-pickers";
+import { Box, Typography, Card, CardContent, CardActions, Button, Divider, TextField, MenuItem, InputAdornment } from "@mui/material";
+import { MobileDatePicker, LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import axios from "axios";
 
 export default function CheckOut() {
-  const rooms = [
-    {
-      value: "R102",
-      label: "102",
-    },
-    {
-      value: "R101",
-      label: "101",
-    },
-  ];
-
-  const tenants = [
-    {
-      value: "P1",
-      label: "Yasi",
-    },
-    {
-      value: "P2",
-      label: "Saw",
-    },
-  ];
-
   const recentActivity = [
     {
       id: "R001",
@@ -63,45 +26,8 @@ export default function CheckOut() {
     },
   ];
 
-  const roomDetails = [
-    {
-      roomId: "R001",
-      room: "101",
-      moveInDate: "20/02/2022",
-      moveOutDate: "20/02/2023",
-      tenantId: "123",
-      tenantName: "Yasi",
-      depositAmount: 3000,
-      monthsLeft: 6,
-      dueDate: "20/02/2023",
-      dayMonth: "Tuesday,March",
-    },
-    {
-      roomId: "R002",
-      room: "102",
-      moveInDate: "19/01/2022",
-      moveOutDate: "19/01/2023",
-      tenantId: "124",
-      tenantName: "Zwe",
-      depositAmount: 5000,
-      monthsLeft: 3,
-      dueDate: "20/02/2023",
-      dayMonth: "Wednesday,May",
-    },
-    {
-      roomId: "R003",
-      room: "203",
-      moveInDate: "20/02/2022",
-      moveOutDate: "20/02/2025",
-      tenantId: "125",
-      tenantName: "Saw",
-      depositAmount: 2500,
-      monthsLeft: 1,
-      dueDate: "20/02/2023",
-      dayMonth: "Friday,December",
-    },
-  ];
-
+  const [tenantDetails, setTenantDetails] = useState(null);
+  const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState("");
   const [selectedTenant, setSelectedTenant] = useState("");
   const [contractMonths, setContractMonths] = useState("");
@@ -109,30 +35,80 @@ export default function CheckOut() {
   const [deposit, setDeposit] = useState("");
   const [moveInDate, setMoveInDate] = useState(null);
   const [moveOutDate, setMoveOutDate] = useState(null);
-  const [tenantMoveInDate, setTenantMoveInDate] = useState("");
-  const [tenantMoveOutDate, setTenantMoveOutDate] = useState("");
-  const [monthsLeft, setMonthsLeft] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [dayMonth, setDayMonth] = useState("");
-
   const [addButtonClicked, setAddButtonClicked] = useState(false);
+  const [availableRooms, setAvailableRooms] = useState([]);
 
-  const handleMoveInDateChange = (date) => {
-    setMoveInDate(date);
-    if (moveOutDate && date > moveOutDate) {
-      setMoveOutDate(date);
+  const handleCheckout = async () => {
+    try {
+      const response = await axios.post("http://localhost:3000/checkouttenant", {
+        roomNumber: selectedRoom,
+        tenant_id: tenantDetails.tenant_id,
+      });
+      console.log(response.data.message);
+      alert("Checkout successful!");
+    } catch (error) {
+      console.error("Checkout failed:", error);
     }
   };
 
-  const handleMoveOutDateChange = (date) => {
-    if (moveInDate && date < moveInDate) {
-      setMoveOutDate(moveInDate);
-    } else {
-      setMoveOutDate(date);
+  useEffect(() => {
+    const fetchOccupiedRooms = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getallrooms");
+        console.log("Response data rooms:", response.data);
+        const rooms = response.data.getrooms;
+
+        if (Array.isArray(rooms)) {
+          const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "OCCUPIED");
+          console.log("filtered rooms:", filteredRooms);
+          setAvailableRooms(filteredRooms);
+        } else {
+          console.error("Expected 'getrooms' to be an array but got:", roomsArray);
+        }
+      } catch (error) {
+        console.error("Failed to fetch rooms:", error);
+      }
+    };
+    fetchOccupiedRooms();
+
+    if (selectedRoom) {
+      fetchTenancyRecord(selectedRoom);
+    }
+  }, [selectedRoom]);
+
+  const fetchTenancyRecord = async (roomId) => {
+    try {
+      console.log("room ID:", roomId);
+
+      const response = await axios.get(`http://localhost:3000/geteachtenancyrecord/${roomId}`);
+      console.log("Tenancy record:", response.data);
+      if (response.data && response.data.tenants) {
+        const tenants = response.data.tenants;
+        const tenantFullName = tenants ? `${tenants.first_name} ${tenants.last_name}` : "";
+        const moveInFormatted = new Date(response.data.move_in_date).toLocaleDateString();
+        const moveOutFormatted = new Date(response.data.move_out_date).toLocaleDateString();
+
+        setTenantDetails(response.data.tenants);
+        setSelectedTenant(tenantFullName);
+        setMoveInDate(moveInFormatted);
+        setMoveOutDate(moveOutFormatted);
+        setDeposit(response.data.deposit_returned);
+        setContractMonths(response.data.period_of_stay);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tenancy record:", error);
     }
   };
 
-  // Clear Button Function
+  const handleRoomSelection = (event) => {
+    const roomID = parseInt(event.target.value, 10);
+    console.log("Selected Room ID:", roomID);
+    const room = availableRooms.find((r) => r.room_id === roomID);
+    setSelectedRoom(room ? room.room_id : null);
+
+    fetchTenancyRecord(roomID);
+  };
+
   const resetForm = () => {
     setSelectedRoom("");
     setSelectedTenant("");
@@ -141,43 +117,35 @@ export default function CheckOut() {
     setDeposit("");
     setMoveInDate(null);
     setMoveOutDate(null);
-    setTenantMoveInDate("");
-    setTenantMoveOutDate("");
     setMonthsLeft("");
     setDueDate("");
     setDayMonth("");
-    setAddButtonClicked(false); // Reset button state
+    setAddButtonClicked(false);
   };
 
-  // Add Button Function
   const handleAddButtonClick = () => {
-    // Set button clicked state to true
+    console.log("Add button clicked");
+
     setAddButtonClicked(true);
 
-    // Validate contractMonths and deposit
-    const isContractMonthsValid =
-      validateFloat(contractMonths) && contractMonths > 0;
+    const isContractMonthsValid = validateFloat(contractMonths) && contractMonths > 0;
     const isDepositValid = validateFloat(deposit) && deposit > 0;
-    const isContractMonthsLeftValid =
-      validateInt(contractMonthsLeft) && contractMonthsLeft >= 0;
 
-    // Validate MoveIn and MoveOut
     const isMoveInValid = moveInDate !== null;
-    const isMoveOutValid = moveOutDate !== null && moveOutDate > moveInDate;
+    const isMoveOutValid = moveOutDate !== null;
 
-    // If any validation fails, highlight the corresponding text field
-    if (
-      !isContractMonthsValid ||
-      !isDepositValid ||
-      !isMoveInValid ||
-      !isMoveOutValid ||
-      !isContractMonthsLeftValid
-    ) {
+    console.log({
+      isContractMonthsValid,
+      isDepositValid,
+      isMoveInValid,
+      isMoveOutValid,
+    });
+
+    if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
       return;
     }
 
-    // If all validations pass, you can proceed with adding the data
-    // Add your logic here
+    handleCheckout();
   };
 
   const validateFloat = (value) => {
@@ -190,31 +158,6 @@ export default function CheckOut() {
     return !isNaN(floatValue);
   };
 
-  useEffect(() => {
-    // Fetch and set the corresponding details when selectedRoom changes
-    const selectedRoomDetails = roomDetails.find(
-      (detail) => detail.room === selectedRoom
-    );
-    if (selectedRoomDetails) {
-      setSelectedTenant(selectedRoomDetails.tenantName);
-      setTenantMoveInDate(selectedRoomDetails.moveInDate);
-      setTenantMoveOutDate(selectedRoomDetails.moveOutDate);
-      setDeposit(selectedRoomDetails.depositAmount);
-      setMonthsLeft(selectedRoomDetails.monthsLeft);
-      setDueDate(selectedRoomDetails.dueDate);
-      setDayMonth(selectedRoomDetails.dayMonth);
-    }
-  }, [selectedRoom]);
-
-  const handleSelectedRoomChange = (e) => {
-    const selectedRoomValue = e.target.value;
-    setSelectedRoom(selectedRoomValue);
-
-    // If you want to reset Move In and Move Out dates when selecting a new room
-    setMoveInDate(null);
-    setMoveOutDate(null);
-  };
-
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -223,7 +166,6 @@ export default function CheckOut() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              // marginBottom: "10px",
             }}
           >
             <Card sx={{ width: "100%", display: "flex", marginBottom: "10px" }}>
@@ -254,33 +196,19 @@ export default function CheckOut() {
                         select
                         label="Room Number"
                         value={selectedRoom}
-                        onChange={(e) => setSelectedRoom(e.target.value)}
+                        onChange={handleRoomSelection}
                         sx={{ width: "40vw", marginBottom: "10px" }}
-                        error={
-                          addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
-                        }
-                        helperText={
-                          addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
+                        error={addButtonClicked && (!selectedRoom || selectedRoom === "")}
+                        helperText={addButtonClicked && (!selectedRoom || selectedRoom === "") ? "The field cannot be empty." : ""}
                       >
-                        {roomDetails.map((option) => (
-                          <MenuItem key={option.roomId} value={option.room}>
-                            {option.room}
+                        {availableRooms.map((room) => (
+                          <MenuItem key={room.room_id} value={room.room_id}>
+                            {room.room_number}
                           </MenuItem>
                         ))}
                       </TextField>
 
-                      <TextField
-                        id="tenantId"
-                        disabled
-                        label="Tenant Name"
-                        value={selectedTenant}
-                        sx={{ width: "40vw" }}
-                      />
+                      <TextField id="tenantId" disabled label="Tenant Name" value={selectedTenant} sx={{ width: "40vw" }} />
                     </Box>
 
                     <Box
@@ -290,25 +218,13 @@ export default function CheckOut() {
                         alignItems: "center",
                       }}
                     >
-                      <TextField
-                        id="moveindateId"
-                        disabled
-                        label="Move In"
-                        value={tenantMoveInDate}
-                        sx={{ width: "40vw" }}
-                      />
+                      <TextField id="moveindateId" disabled label="Move In" value={moveInDate} sx={{ width: "40vw" }} />
 
                       <Typography variant="h6" sx={{ margin: "0 10px" }}>
                         -
                       </Typography>
 
-                      <TextField
-                        id="moveoutdateId"
-                        disabled
-                        label="Move Out"
-                        value={tenantMoveOutDate}
-                        sx={{ width: "40vw" }}
-                      />
+                      <TextField id="moveoutdateId" disabled label="Move Out" value={moveOutDate} sx={{ width: "40vw" }} />
                     </Box>
 
                     <Box
@@ -319,22 +235,14 @@ export default function CheckOut() {
                         marginTop: "10px",
                       }}
                     >
-                      <TextField
-                        id="moveoutdateId"
-                        disabled
-                        label="Deposit"
-                        value={deposit}
-                        sx={{ width: "40vw" }}
-                      />
+                      <TextField id="depositId" disabled label="Deposit" value={deposit} sx={{ width: "40vw" }} />
                     </Box>
                   </CardContent>
                 </Card>
 
                 <Card sx={{ width: "55vw" }}>
                   <CardContent>
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                       <Typography variant="h6" sx={{ marginBottom: "10px" }}>
                         Months left on Contract
                       </Typography>
@@ -353,30 +261,13 @@ export default function CheckOut() {
                         id="contractMonthsLeft"
                         label="Months Left"
                         sx={{ width: "25vw" }}
-                        value={monthsLeft}
+                        value={contractMonths}
                         type="number"
-                        error={
-                          addButtonClicked &&
-                          (!validateFloat(contractMonthsLeft) ||
-                            contractMonthsLeft < 0)
-                        }
-                        helperText={
-                          addButtonClicked &&
-                          (!validateFloat(contractMonthsLeft) ||
-                            contractMonthsLeft < 0)
-                            ? "Months must be a positive number."
-                            : ""
-                        }
                         InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              Months
-                            </InputAdornment>
-                          ),
+                          endAdornment: <InputAdornment position="end">Months</InputAdornment>,
+                          readOnly: true,
                         }}
-                        onChange={(e) => setContractMonthsLeft(e.target.value)}
                       />
-
                     </Box>
                   </CardContent>
                 </Card>
@@ -390,19 +281,11 @@ export default function CheckOut() {
                     justifyContent: "right",
                   }}
                 >
-                  <Button
-                    variant="outlined"
-                    sx={{ width: "20%" }}
-                    onClick={resetForm}
-                  >
+                  <Button variant="outlined" sx={{ width: "20%" }} onClick={resetForm}>
                     Clear
                   </Button>
 
-                  <Button
-                    variant="contained"
-                    sx={{ width: "20%" }}
-                    onClick={handleAddButtonClick}
-                  >
+                  <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
                     Add
                   </Button>
                 </Box>
@@ -424,7 +307,6 @@ export default function CheckOut() {
                       }}
                     >
                       <Box
-                        // key={activity.id}
                         sx={{
                           borderRadius: "2px",
                           border: "1px solid #ccc",
@@ -435,9 +317,7 @@ export default function CheckOut() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.room}
-                        </Typography>
+                        <Typography sx={{ marginRight: "8px" }}>{activity.room}</Typography>
                       </Box>
                       <Box
                         sx={{
@@ -450,9 +330,7 @@ export default function CheckOut() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.status}
-                        </Typography>
+                        <Typography sx={{ marginRight: "8px" }}>{activity.status}</Typography>
                       </Box>
                     </Box>
                   ))}
