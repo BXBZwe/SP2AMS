@@ -164,7 +164,7 @@ export default function AddRoom() {
     setSnackbarOpen(false);
   };
 
-  const occupancyOptions = ["Vacant", "Occupied", "Unavailable"];
+  const occupancyOptions = ["VACANT", "OCCUPIED", "UNAVAILABLE"];
   const paymentOptions = ["PENDING", "OVERDUE", "PARTIAL", "PAID"];
 
   const [errors, setErrors] = useState({});

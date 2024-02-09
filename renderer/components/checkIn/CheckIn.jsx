@@ -16,27 +16,6 @@ export default function CheckIn() {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [newTenants, setNewTenants] = useState([]);
 
-  const recentActivity = [
-    {
-      id: "R001",
-      room: "101",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R002",
-      room: "105",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R003",
-      room: "102",
-      date: "21 Wed 2022",
-      status: "Move-Out",
-    },
-  ];
-
   useEffect(() => {
     const fetchAvailableRooms = async () => {
       try {
