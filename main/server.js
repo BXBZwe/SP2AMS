@@ -10,6 +10,8 @@ import rateroutes from './routes/rateroutes';
 import tenantroutes from './routes/tenantroutes';
 import managerroute from './routes/managerroute';
 import tenancyrecordsroute from './routes/tenancyrecordroute';
+import requestRoute from './routes/requestroute';
+
 const app = express();
 app.use(express.json());
 
@@ -35,6 +37,7 @@ app.use(cors(corsOptions));
  app.use(tenantroutes);
  app.use(managerroute);
  app.use(tenancyrecordsroute);
+ app.use(requestRoute);
 
 
 export default function startServer() {
