@@ -80,10 +80,11 @@ const createRoom = async (req, res) => {
                 statusDetails: {
                     create: statusDetails,
                 },
+                // Adjust here to read rate_id and quantity from each rate object
                 room_rates: {
-                    create: rates.map(rate_id => ({
+                    create: rates.map(({ rate_id, quantity }) => ({
                         rate_id,
-                        quantity: 1, // or any other logic for quantity
+                        quantity, // Use the quantity from the request
                     })),
                 },
             },
@@ -102,6 +103,7 @@ const createRoom = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // PUT - Update a room's details
 const updateRoom = async (req, res) => {

@@ -140,6 +140,7 @@ const navigationItems5 = [
 ];
 const navigationItems6 = [
   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
+  { label: "Login Test", link: "/auth/signIn", icon: <LogoutIcon /> },
   { label: "Logout", link: "/home", icon: <LogoutIcon /> },
 ];
 
