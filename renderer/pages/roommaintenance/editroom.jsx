@@ -291,7 +291,7 @@ export default function EditRoom() {
   
     setRoomNumber(updatedFormData.room_number);
 
-    console.log(updatedFormData)
+    // console.log(updatedFormData)
   
     try {
       await axios.put(
@@ -587,9 +587,9 @@ export default function EditRoom() {
       {/* Confirmation Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>
-          <Typography variant="h5">
+          {/* <Typography variant="h5"> */}
             Update Room {formData.room_number}
-          </Typography>
+          {/* </Typography> */}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>

@@ -57,14 +57,14 @@ export default function RateTable() {
   }, []);
 
   const columns = [
-    { field: "item_name", headerName: "Item Name", width: 200 },
-    { field: "item_price", headerName: "Item Price", width: 200 },
-    { field: "item_description", headerName: "Item Description", width: 200 },
-    { field: "last_updated", headerName: "Last Updated", width: 200 },
+    { field: "item_name", headerName: "Item Name", flex:1 },
+    { field: "item_price", headerName: "Item Price", flex:1 },
+    { field: "item_description", headerName: "Item Description",flex:1 },
+    { field: "last_updated", headerName: "Last Updated",flex:1 },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      flex:1,
       renderCell: (params) => (
         <>
           <Link
@@ -143,7 +143,7 @@ export default function RateTable() {
           <Link href="../ratemaintenance/addrate" passHref>
             <Button
               variant="contained"
-              sx={{ width: "60px", marginTop: "15px" }}
+              sx={{ width: "110px", marginTop: "15px" }}
               component="a"
             >
               Add

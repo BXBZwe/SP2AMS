@@ -221,6 +221,10 @@ export default function AddRoom() {
     setSnackbarOpen(false);
   };
 
+  const handleCancelClick = () => {
+    router.back();
+  };
+
   const occupancyOptions = ["VACANT", "OCCUPIED", "UNAVAILABLE"];
 
   const [errors, setErrors] = useState({});
@@ -266,6 +270,13 @@ export default function AddRoom() {
           </Typography>
         </CardContent>
         <CardContent>
+          <Button
+            variant="outlined"
+            sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
+            onClick={handleCancelClick}
+          >
+            Back
+          </Button>
           <Button
             variant="contained"
             sx={{ width: "110px", marginTop: "15px" }}
