@@ -13,37 +13,32 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useRouter } from "next/router";
 import { InputAdornment, IconButton } from "@mui/material/";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { getSession } from "next-auth/react";
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const name = data.get("name"); // Use 'name' instead of 'email'
+    const name = data.get("name");
     const password = data.get("password");
 
-    // Use signIn from next-auth
     const result = await signIn("credentials", {
-      redirect: false, // Prevents redirecting to the error page if credentials are invalid
+      redirect: true,
       name,
       password,
+      callbackUrl: `${window.location.origin}/home`,
     });
 
     if (result.error) {
-      // Handle error messages here, e.g., show an error alert
       setErrorMessage(result.error);
-    } else {
-      // Redirect the user after successful login
-      router.push("/home");
     }
   };
 

@@ -40,13 +40,8 @@ import Nav from "./components/Nav";
 import { SnackbarProvider } from "./components/snackBar/SnackbarContent";
 
 const Layout = ({ children }) => {
-  const isLoggedIn =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isLoggedIn") === "true";
-
   return (
     <div style={{ display: "flex" }}>
-      {/* {isLoggedIn && <Nav />} */}
       <Nav />
       <SnackbarProvider>
         <main style={{ flex: 1, padding: "20px" }}>
