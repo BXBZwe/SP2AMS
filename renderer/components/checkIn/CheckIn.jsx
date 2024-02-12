@@ -24,7 +24,7 @@ export default function CheckIn() {
         const rooms = response.data.getrooms;
 
         if (Array.isArray(rooms)) {
-          const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "Vacant");
+          const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "VACANT");
           console.log("filtered rooms:", filteredRooms);
           setAvailableRooms(filteredRooms);
         } else {
