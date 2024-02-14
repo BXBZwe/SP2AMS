@@ -10,7 +10,9 @@ import rateroutes from './routes/rateroutes';
 import tenantroutes from './routes/tenantroutes';
 import managerroute from './routes/managerroute';
 import tenancyrecordsroute from './routes/tenancyrecordroute';
-import requestroute from './routes/requestroute';
+
+// import authroute from './routes/authroute';
+
 const app = express();
 app.use(express.json());
 
@@ -36,7 +38,8 @@ app.use(rateroutes);
 app.use(tenantroutes);
 app.use(managerroute);
 app.use(tenancyrecordsroute);
-app.use(requestroute);
+
+// app.use(authroute);
 
 export default function startServer() {
   const port = 3000;

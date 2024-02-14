@@ -1,6 +1,5 @@
-// components/auth/signIn.jsx
-
 import * as React from "react";
+import { signIn } from "next-auth/react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -14,47 +13,32 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useRouter } from "next/router";
 import { InputAdornment, IconButton } from "@mui/material/";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { getSession } from "next-auth/react";
 
 const defaultTheme = createTheme();
 
-const dummyLoginData = {
-  email: "pspark@gmail.com",
-  password: "pspark123",
-};
-
-export default function SignIn({ onLogin }) {
-  const router = useRouter();
+export default function SignIn() {
   const [showPassword, setShowPassword] = React.useState(false);
-  const [rememberMe, setRememberMe] = React.useState(true);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const enteredEmail = data.get("email");
-    const enteredPassword = data.get("password");
+    const name = data.get("name");
+    const password = data.get("password");
 
-    // Check if the entered email and password match the dummy login data
-    if (
-      enteredEmail === dummyLoginData.email &&
-      enteredPassword === dummyLoginData.password
-    ) {
-      // If "Remember me" is checked, set authentication status in local storage
-      if (rememberMe) {
-        localStorage.setItem("isLoggedIn", "true");
-      }
+    const result = await signIn("credentials", {
+      redirect: true,
+      name,
+      password,
+      callbackUrl: `${window.location.origin}/home`,
+    });
 
-      // Call the onLogin prop (which should be a function to handle login)
-      //onLogin();
-
-      // Navigate to the /home
-      router.push("/home");
-    } else {
-      // If not matched, you can show an error message or handle it as needed
-      console.log("Invalid credentials");
+    if (result.error) {
+      setErrorMessage(result.error);
     }
   };
 
@@ -76,22 +60,8 @@ export default function SignIn({ onLogin }) {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField margin="normal" required fullWidth id="name" label="Manager Name" name="name" autoComplete="name" autoFocus />
             <TextField
               margin="normal"
               required
@@ -104,33 +74,14 @@ export default function SignIn({ onLogin }) {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
+                    <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} onMouseDown={(e) => e.preventDefault()}>
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
             />
-            {/* <FormControlLabel
-              control={
-                <Checkbox
-                  value="remember"
-                  color="primary"
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              }
-              label="Remember me"
-            /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
             <Grid container>

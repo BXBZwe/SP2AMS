@@ -57,8 +57,8 @@ enum TenancyStatus {
 
 model manager {
   manager_id       Int                @id @default(autoincrement())
-  name             String             @db.VarChar(255)
-  email            String             @unique @db.VarChar(255)
+  name             String             @unique @db.VarChar(255)
+  email            String             @db.VarChar(255)
   password_hash    String
   phone_number     String?            @db.VarChar(20)
   profile_image    Bytes?
@@ -81,6 +81,11 @@ model rates {
   item_description String?
   last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
   room_rates       room_rates[]
+  VAT              Boolean          @default(false)
+  Payment          Boolean          @default(false)
+  Meter            Boolean          @default(false)
+  Bill             Boolean          @default(false)
+  Usage            Boolean          @default(false)
 }
 
 model room_rates {
@@ -123,6 +128,7 @@ enum PaymentStatus {
   PENDING
   OVERDUE
   PARTIAL
+  Null
 }
 
 enum InvoiceOption {
