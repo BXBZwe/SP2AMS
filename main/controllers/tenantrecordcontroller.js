@@ -11,7 +11,7 @@ const checkIn = async (req, res) => {
         move_in_date: req.body.move_in_date,
         move_out_date: req.body.move_out_date,
         period_of_stay: req.body.period_of_stay,
-        deposit_returned: req.body.deposit
+        deposit: req.body.deposit
       }
     });
 
@@ -37,6 +37,15 @@ const checkIn = async (req, res) => {
         occupancy_status: "OCCUPIED"
       }
     });
+
+    await prisma.tenants.update({
+      where: {
+        tenant_id: req.body.tenant_id
+      },
+      data: {
+        roomBaseDetailsRoom_id: req.body.room_id
+      }
+    })
 
     res.status(200).json({ message: 'Check-in successful', data: tenancyRecord });
   } catch (error) {
@@ -82,7 +91,7 @@ const checkOut = async (req, res) => {
 
     await prisma.roomStatusDetails.update({
       where: { status_id: roomstatus.statusDetailsId },
-      data: { occupancy_status: 'OCCUPIED', is_reserved: false },
+      data: { occupancy_status: 'VACANT', is_reserved: false },
     });
 
     res.status(200).json({ message: 'Checkout successful' });
@@ -102,7 +111,7 @@ const getaTenancyrecord = async (req, res) => {
   try {
     const tenancyRecord = await prisma.tenancy_records.findFirst({
       where: {
-        room_id: room_id, // Directly use room_id here
+        room_id: room_id,
         tenancy_status: 'CHECK_IN',
       },
       include: {

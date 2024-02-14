@@ -3,22 +3,40 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import fs from 'fs';
 import path from 'path';
+import libre from 'libreoffice-convert';
 
 const prisma = new PrismaClient();
 
 const getTemplateFilePath = (language) => {
-    const basePath = 'C:\\Senior_Project2';
+    const basePath = 'C:\\\\Senior_Project2';
+    let filePath;
     try {
         if (language.toLowerCase() === 'english') {
-            return `${basePath}\\english\\english.docx`;
+            filePath = `${basePath}\\\\english\\\\english.docx`;
+        } else if (language.toLowerCase() === 'thai') {
+            filePath = `${basePath}\\\\thai\\\\thai.docx`;
         }
-        else if (language.toLowerCase() === 'thai') {
-            return `${basePath}\\thai\\thai.docx`;
-        }
+        console.log(`Attempting to open file at path: ${filePath}`);
+        return filePath;
     } catch (error) {
+        console.error(`Error while constructing file path: ${error.message}`);
         throw new Error(error.message);
     }
 }
+
+const convertDocxToPdf = async (docxPath, pdfPath) => {
+    const docx = fs.readFileSync(docxPath);
+    return new Promise((resolve, reject) => {
+        libre.convert(docx, '.pdf', undefined, (err, done) => {
+            if (err) {
+                reject(err);
+            } else {
+                fs.writeFileSync(pdfPath, done);
+                resolve(pdfPath);
+            }
+        });
+    });
+};
 
 const fetchContractDetail = async (req, res) => {
     try {
@@ -73,10 +91,7 @@ const fetchTenantData = async (tenantId) => {
             where: {
                 tenant_id: tenantId,
             },
-            select: {
-                first_name: true,
-                last_name: true,
-                personal_id: true,
+            include: {
                 addresses: {
                     select: {
                         street: true,
@@ -92,6 +107,9 @@ const fetchTenantData = async (tenantId) => {
                     },
                 },
                 tenancy_records: {
+                    where: {
+                        tenancy_status: 'CHECK_IN', // Filter for records with CHECK_IN status
+                    },
                     select: {
                         period_of_stay: true,
                         move_in_date: true,
@@ -103,6 +121,7 @@ const fetchTenantData = async (tenantId) => {
 
         tenantData.currentMonth = currentMonth;
         tenantData.currentYear = currentYear;
+        console.log("contract tenantdata:", tenantData);
 
         return tenantData;
     } catch (error) {
@@ -114,7 +133,7 @@ const fetchTenantData = async (tenantId) => {
 const fillDocxTemplate = async (filePath, data, language) => {
     const content = fs.readFileSync(path.resolve(filePath), 'binary');
     const tenantName = `${data.first_name}_${data.last_name}`;
-
+    console.log("The data for inside contract:", data);
     const zip = new PizZip(content);
 
     const doc = new Docxtemplater(zip, {
@@ -123,20 +142,20 @@ const fillDocxTemplate = async (filePath, data, language) => {
     });
 
     doc.setData({
-        first_name: data.first_name,
-        last_name: data.last_name,
-        personal_id: data.personal_id,
-        street: data.addresses.street,
-        sub_district: data.addresses.sub_district,
-        district: data.addresses.district,
-        province: data.addresses.province,
-        room_number: data.RoomBaseDetails.room_number,
-        floor: data.RoomBaseDetails.floor,
-        period_of_stay: data.tenancy_records.period_of_stay,
-        move_in_date: formatDate(data.tenancy_records.move_in_date),
-        move_out_date: formatDate(data.tenancy_records.move_out_date),
-        currentMonth: data.currentMonth,
-        currentYear: data.currentYear
+        First_name: data.first_name,
+        Last_name: data.last_name,
+        Personal_ID: data.personal_id,
+        Street: data.addresses.street,
+        Subdistrict: data.addresses.sub_district,
+        District: data.addresses.district,
+        Province: data.addresses.province,
+        Room_number: data.RoomBaseDetails.room_number,
+        Floor: data.RoomBaseDetails.floor,
+        Period_of_stay: data.tenancy_records[0].period_of_stay,
+        Move_in_date: formatDate(data.tenancy_records[0].move_in_date),
+        Move_out_date: formatDate(data.tenancy_records[0].move_out_date),
+        Month: data.currentMonth,
+        Year: data.currentYear
     });
 
     try {
@@ -158,20 +177,23 @@ const fillDocxTemplate = async (filePath, data, language) => {
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const outputPath = path.join(outputDir, `${tenantName}_contract.docx`);
-
-    const buf = doc.getZip().generate({
-        type: 'nodebuffer',
-        compression: 'DEFLATE',
-    });
-
-    fs.writeFileSync(outputPath, buf);
-    return outputPath;
+    const docxPath = path.join(outputDir, `${tenantName}_contract.docx`);
+    const pdfPath = path.join(outputDir, `${tenantName}_contract.pdf`);
+    const buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+    fs.writeFileSync(docxPath, buf);
+    try {
+        const pdfFilePath = await convertDocxToPdf(docxPath, pdfPath);
+        return pdfFilePath;
+    } catch (error) {
+        console.error('Error converting DOCX to PDF:', error);
+        throw error;
+    }
 };
 
 const formatDate = (date) => {
     if (!date) return '';
-    return date.toLocaleDateString('th-TH');
+    const d = new Date(date);
+    return `${d.getDate()} ${d.toLocaleString('default', { month: 'long' })} ${d.getFullYear()}`;
 };
 
 

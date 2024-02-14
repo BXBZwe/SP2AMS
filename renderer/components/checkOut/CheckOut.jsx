@@ -92,7 +92,7 @@ export default function CheckOut() {
         setSelectedTenant(tenantFullName);
         setMoveInDate(moveInFormatted);
         setMoveOutDate(moveOutFormatted);
-        setDeposit(response.data.deposit_returned);
+        setDeposit(response.data.deposit);
         setContractMonths(response.data.period_of_stay);
       }
     } catch (error) {
