@@ -205,6 +205,7 @@ model Request {
   request_id       Int             @id @default(autoincrement())
   room_id          Int
   issue_date       DateTime        @default(now())
+  resolved_date    DateTime?        
   request_details  String
   Request_priority RequestPriority
   Request_status   RequestStatus   @default(UNRESOLVED)
