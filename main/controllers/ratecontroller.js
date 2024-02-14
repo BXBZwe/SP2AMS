@@ -14,6 +14,28 @@ const getallRateItem = async(req, res) => {
     }
 };
 
+const getRateItemById = async (req, res) => {
+    const { rate_id } = req.params; // Extract the rate ID from the request parameters
+
+    try {
+        const rateItem = await prisma.rates.findUnique({
+            where: {
+                rate_id: parseInt(rate_id), // Use the actual primary key field name
+            },
+        });
+
+        if (rateItem) {
+            res.status(200).json({ message: 'Rate item retrieved successfully', data: rateItem });
+        } else {
+            res.status(404).json({ message: 'Rate item not found' }); // Handle case where rate item is not found
+        }
+    } catch (error) {
+        console.error('Error retrieving rate item:', error);
+        res.status(500).json({ error: error.message }); // Send a 500 response in case of server errors
+    }
+};
+
+
 // Add a new rate item
 const addRateItem = async (req, res) => {
     const { item_name, item_price, item_description } = req.body;
@@ -68,4 +90,4 @@ const deleteRateItem = async (req, res) => {
     }
 };
 
-export { getallRateItem, addRateItem, updateRateItem, deleteRateItem };
+export { getallRateItem, addRateItem, updateRateItem, deleteRateItem,getRateItemById };

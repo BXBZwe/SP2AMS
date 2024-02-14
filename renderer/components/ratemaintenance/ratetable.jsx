@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  IconButton,
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -24,14 +36,14 @@ export default function RateTable() {
     const fetchRates = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getallrates");
-    
+
         if (response.data && Array.isArray(response.data.getRate)) {
           // Add a unique id to each rate if it doesn't have one
           const ratesWithIds = response.data.getRate.map((rate, index) => ({
             ...rate,
             id: index + 1, // You can replace this with a proper unique identifier
           }));
-    
+
           setRates(ratesWithIds);
         } else {
           console.error("Invalid response format:", response.data);
@@ -40,23 +52,25 @@ export default function RateTable() {
         console.error("Error fetching rates:", error.message);
       }
     };
-    
-    
+
     fetchRates();
   }, []);
 
   const columns = [
-    { field: "item_name", headerName: "Item Name", width: 200 },
-    { field: "item_price", headerName: "Item Price", width: 200 },
-    { field: "item_description", headerName: "Item Description", width: 200 },
-    { field: "last_updated", headerName: "Last Updated", width: 200 },
+    { field: "item_name", headerName: "Item Name", flex:1 },
+    { field: "item_price", headerName: "Item Price", flex:1 },
+    { field: "item_description", headerName: "Item Description",flex:1 },
+    { field: "last_updated", headerName: "Last Updated",flex:1 },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      flex:1,
       renderCell: (params) => (
         <>
-          <Link href={`/ratemaintenance/editrate?rateId=${params.row.id}`} passHref>
+          <Link
+            href={`/ratemaintenance/editrate?rateId=${params.row.id}`}
+            passHref
+          >
             <IconButton component="a">
               <EditIcon />
             </IconButton>
@@ -68,7 +82,7 @@ export default function RateTable() {
       ),
     },
   ];
-  
+
   const handleDeleteClick = (rateId) => {
     // Find the rate with the given ID
     const rate = rates.find((rate) => rate.id === rateId);
@@ -93,7 +107,6 @@ export default function RateTable() {
     setOpenDeleteDialog(false);
     setDeleteRateId(null);
   };
-  
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
@@ -105,12 +118,11 @@ export default function RateTable() {
   };
 
   const filteredRows = rates.filter((row) => {
-  return (
-    row.item_name.toLowerCase().includes(searchText.toLowerCase()) &&
-    (filterValue === "all" || row.item_price == filterValue)
-  );
-});
-
+    return (
+      row.item_name.toLowerCase().includes(searchText.toLowerCase()) &&
+      (filterValue === "all" || row.item_price == filterValue)
+    );
+  });
 
   return (
     <>
@@ -131,7 +143,7 @@ export default function RateTable() {
           <Link href="../ratemaintenance/addrate" passHref>
             <Button
               variant="contained"
-              sx={{ width: "60px", marginTop: "15px" }}
+              sx={{ width: "110px", marginTop: "15px" }}
               component="a"
             >
               Add
@@ -139,12 +151,17 @@ export default function RateTable() {
           </Link>
         </CardContent>
       </Card>
-      <Card sx={{ marginTop: "10px" }}>
+      <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
         <DataGrid
           rows={filteredRows}
           columns={columns}
           pageSize={5}
-          pageSizeOptions={[5, 10]}
+          rowsPerPageOptions={[5, 10]}
+          sx={{
+            "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+          }}
+          autoHeight
+          density="compact"
         />
       </Card>
 
@@ -158,7 +175,8 @@ export default function RateTable() {
         <DialogTitle id="delete-confirm">{`Delete Rate for ${rateToDelete}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This process will delete the specified rate you have selected. Once deleted, the process cannot be undone.
+            This process will delete the specified rate you have selected. Once
+            deleted, the process cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

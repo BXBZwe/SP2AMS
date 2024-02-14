@@ -221,6 +221,10 @@ export default function AddRoom() {
     setSnackbarOpen(false);
   };
 
+  const handleCancelClick = () => {
+    router.back();
+  };
+
   const occupancyOptions = ["VACANT", "OCCUPIED", "UNAVAILABLE"];
 
   const [errors, setErrors] = useState({});
@@ -266,6 +270,13 @@ export default function AddRoom() {
           </Typography>
         </CardContent>
         <CardContent>
+          <Button
+            variant="outlined"
+            sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
+            onClick={handleCancelClick}
+          >
+            Back
+          </Button>
           <Button
             variant="contained"
             sx={{ width: "110px", marginTop: "15px" }}
@@ -313,7 +324,8 @@ export default function AddRoom() {
                 sx={{
                   width: "50%",
                   marginLeft: "10px",
-                }}              />
+                }}
+              />
             </Box>
             <Box
               sx={{
@@ -334,7 +346,8 @@ export default function AddRoom() {
                 helperText={errors.base_rent}
                 sx={{
                   width: "50%",
-                }}              />
+                }}
+              />
               <TextField
                 label="Deposit"
                 name="deposit"
@@ -348,7 +361,6 @@ export default function AddRoom() {
                   width: "50%",
                   marginLeft: "10px",
                 }}
-                
               />
             </Box>
 
@@ -357,9 +369,22 @@ export default function AddRoom() {
                 display: "flex",
                 width: "100%",
                 marginTop: "10px",
-              }}            >
+              }}
+            >
+              <TextField
+                label="Room Type"
+                name="room_type"
+                value={formData.room_type}
+                onChange={handleInputChange}
+                required
+                error={!!errors.room_type}
+                helperText={errors.room_type}
+                sx={{
+                  width: "50%",
+                }}
+              />
               <Autocomplete
-                sx={{ width: "50%",}}
+                sx={{ width: "50%", marginLeft: "10px" }}
                 options={occupancyOptions}
                 value={formData.statusDetails.occupancy_status}
                 onChange={(event, newValue) => {
@@ -379,19 +404,6 @@ export default function AddRoom() {
                     helperText={errors.occupancy_status}
                   />
                 )}
-              />
-              <TextField
-                label="Room Type"
-                name="room_type"
-                value={formData.room_type}
-                onChange={handleInputChange}
-                required
-                error={!!errors.room_type}
-                helperText={errors.room_type}
-                sx={{
-                  width: "50%",
-                  marginLeft: "10px",
-                }}
               />
             </Box>
 
@@ -431,10 +443,6 @@ export default function AddRoom() {
                   {showAll ? "Show Less" : "Show All"}
                 </Button>
               )}
-
-              {/* <IconButton onClick={handleFilter}>
-          <SearchIcon />
-        </IconButton> */}
             </Box>
             {filteredItems.map((rate) => (
               <Grid
@@ -490,7 +498,7 @@ export default function AddRoom() {
             ))}
           </Card>
         </Box>
-        <Card sx={{ width: "100%", marginLeft: "1vw"}}>
+        <Card sx={{ width: "100%", marginLeft: "1vw" }}>
           <CardContent>
             <Typography variant="h6">Room Summary</Typography>
             <List dense>

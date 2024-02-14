@@ -38,6 +38,7 @@ export default function ratetable() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
 
+
   const paymentStatusColors = {
     PENDING: "default", // grey color
     OVERDUE: "error", // red color
@@ -50,15 +51,22 @@ export default function ratetable() {
       try {
         const response = await axios.get("http://localhost:3000/getallrooms");
         setRooms(
-          response.data.getrooms.map((room) => ({
-            id: room.room_id,
-            roomnumber: room.room_number,
-            floor: room.floor,
-            roomtype: room.room_type,
-            occupancystatus: room.statusDetails.occupancy_status,
-            reservationstatus: room.statusDetails.is_reserved,
-            paymentstatus: room.statusDetails.payment_status,
-          }))
+          response.data.getrooms.map((room) => {
+            // Check if generatedBillRecords is not empty and assign the payment_status from the latest record
+            const paymentStatus = room.generatedBillRecords.length > 0
+              ? room.generatedBillRecords[0].payment_status
+              : "Not Available"; // Or any default/fallback status you prefer
+  
+            return {
+              id: room.room_id,
+              roomnumber: room.room_number,
+              floor: room.floor,
+              roomtype: room.room_type,
+              occupancystatus: room.statusDetails.occupancy_status,
+              reservationstatus: room.statusDetails.is_reserved,
+              paymentstatus: paymentStatus, // Use the extracted or default payment status
+            };
+          })
         );
       } catch (error) {
         console.error("Error fetching rooms:", error.message);
@@ -67,13 +75,14 @@ export default function ratetable() {
     fetchRooms();
   }, []);
 
+  // console.log("PaymentSTsuts",rooms.paymentStatus);
+
   const columns = [
     { field: "roomnumber", headerName: "Room Number", flex: 0.14 },
     { field: "floor", headerName: "Floor", flex: 0.14 },
     { field: "roomtype", headerName: "Room Type", flex: 0.14 },
     { field: "occupancystatus", headerName: "Occupancy", flex: 0.14 },
     { field: "reservationstatus", headerName: "Reservation", flex: 0.14 },
-    // { field: "paymentstatus", headerName: "Payment", flex: 1 },
     {
       field: "paymentstatus",
       headerName: "Payment",
@@ -213,9 +222,6 @@ export default function ratetable() {
           }}
           autoHeight
           density="compact"
-          // slots={{
-          //   noRowsOverlay: CustomNoRowsOverlay, // Use the custom overlay component
-          // }}
         />
       </Card>
 
