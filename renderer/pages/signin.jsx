@@ -37,9 +37,9 @@ export default function SignIn() {
       callbackUrl: `${window.location.origin}/home`,
     });
 
-    if (result.error) {
-      setErrorMessage(result.error);
-    }
+    // if (result.error) {
+    //   setErrorMessage(result.error);
+    // }
   };
 
   return (

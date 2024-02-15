@@ -7,6 +7,71 @@ import libre from 'libreoffice-convert';
 
 const prisma = new PrismaClient();
 
+const hasCheckInTenancyRecord = async (tenantId) => {
+    const checkInRecords = await prisma.tenancy_records.findMany({
+        where: {
+            tenant_id: tenantId,
+            tenancy_status: 'CHECK_IN',
+        },
+    });
+
+    return checkInRecords.length > 0;
+};
+
+const updateTenantContractStatus = async (tenantId) => {
+    const checkInExists = await hasCheckInTenancyRecord(tenantId);
+
+    if (checkInExists) {
+        await prisma.tenants.update({
+            where: {
+                tenant_id: tenantId,
+            },
+            data: {
+                contract_status: 'ONGOING',
+            },
+        });
+        console.log(`Contract status for tenant ID ${tenantId} updated to ONGOING.`);
+    } else {
+        console.log(`No CHECK_IN tenancy record found for tenant ID ${tenantId}. Contract status not updated.`);
+    }
+};
+
+const updatePeriodOfStay = async (tenantId, newPeriod) => {
+    try {
+        const currentRecord = await prisma.tenancy_records.findFirst({
+            where: {
+                tenant_id: parseInt(tenantId),
+                tenancy_status: 'CHECK_IN',
+            },
+        });
+
+        if (!currentRecord) {
+            console.log(`No CHECK_IN tenancy record found for tenant ID ${tenantId}.`);
+            return;
+        }
+
+        const moveInDate = new Date(currentRecord.move_in_date);
+        const newMoveOutDate = new Date(moveInDate.setMonth(moveInDate.getMonth() + parseInt(newPeriod)));
+
+        await prisma.tenancy_records.updateMany({
+            where: {
+                tenant_id: parseInt(tenantId),
+                tenancy_status: 'CHECK_IN',
+            },
+            data: {
+                period_of_stay: parseInt(newPeriod),
+                move_out_date: newMoveOutDate,
+            },
+        });
+
+        console.log(`Period of stay and move-out date updated for tenant ID ${tenantId}`);
+    } catch (error) {
+        console.error('Failed to update period of stay and move-out date:', error);
+        throw error;
+    }
+};
+
+
 const getTemplateFilePath = (language) => {
     const basePath = 'C:\\\\Senior_Project2';
     let filePath;
@@ -62,9 +127,30 @@ const fetchContractDetail = async (req, res) => {
         });
 
         const currentDate = new Date();
-        const detailedContracts = contractDetails.map((detail) => {
+        const updatePromises = contractDetails.map(async (detail) => {
             const moveOutDate = detail.move_out_date ? new Date(detail.move_out_date) : null;
             const contractDaysLeft = moveOutDate ? Math.ceil((moveOutDate - currentDate) / (1000 * 60 * 60 * 24)) : null;
+
+            let newStatus = detail.tenants.contract_status;
+
+            if (contractDaysLeft <= 0) {
+                newStatus = 'DUE';
+            } else if (contractDaysLeft < 30) {
+                newStatus = 'WARNING';
+            } else if (contractDaysLeft >= 30) {
+                newStatus = 'ONGOING';
+            }
+
+            if (newStatus !== detail.tenants.contract_status) {
+                await prisma.tenants.update({
+                    where: {
+                        tenant_id: detail.tenants.tenant_id,
+                    },
+                    data: {
+                        contract_status: newStatus,
+                    },
+                });
+            }
 
             return {
                 ...detail,
@@ -74,6 +160,7 @@ const fetchContractDetail = async (req, res) => {
             };
         });
 
+        const detailedContracts = await Promise.all(updatePromises);
         res.json(detailedContracts);
     } catch (error) {
         res.status(500).send(error.message);
@@ -108,7 +195,7 @@ const fetchTenantData = async (tenantId) => {
                 },
                 tenancy_records: {
                     where: {
-                        tenancy_status: 'CHECK_IN', // Filter for records with CHECK_IN status
+                        tenancy_status: 'CHECK_IN',
                     },
                     select: {
                         period_of_stay: true,
@@ -131,6 +218,7 @@ const fetchTenantData = async (tenantId) => {
 };
 
 const fillDocxTemplate = async (filePath, data, language) => {
+    await updateTenantContractStatus(data.tenant_id);
     const content = fs.readFileSync(path.resolve(filePath), 'binary');
     const tenantName = `${data.first_name}_${data.last_name}`;
     console.log("The data for inside contract:", data);
@@ -197,4 +285,4 @@ const formatDate = (date) => {
 };
 
 
-export { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail };
+export { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updateTenantContractStatus, updatePeriodOfStay };

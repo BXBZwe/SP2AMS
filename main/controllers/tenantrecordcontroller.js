@@ -102,7 +102,7 @@ const checkOut = async (req, res) => {
 };
 
 const getaTenancyrecord = async (req, res) => {
-  const room_id = parseInt(req.params.roomId, 10); // Make sure to parse the roomId parameter to an integer
+  const room_id = parseInt(req.params.roomId, 10);
   console.log("Passed Room id", room_id);
   if (isNaN(room_id)) {
     return res.status(400).json({ message: 'Room ID must be a valid number.' });

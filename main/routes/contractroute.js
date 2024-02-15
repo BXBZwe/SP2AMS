@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail } from '../controllers/contractcontroller';
+import { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updatePeriodOfStay } from '../controllers/contractcontroller';
 
 const contractroute = express.Router();
 
@@ -20,5 +20,17 @@ contractroute.get('/createfilledcontract/:tenantId/:language', async (req, res) 
 });
 
 contractroute.get('/getcontractdetails', fetchContractDetail);
+
+contractroute.put('/updatePeriodOfStay/:tenantId', async (req, res) => {
+    const { tenantId } = req.params;
+    const { newPeriod } = req.body;
+    try {
+        await updatePeriodOfStay(tenantId, newPeriod);
+        res.json({ message: 'Period of stay updated successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Error updating period of stay', error: error.message });
+    }
+});
+
 
 export default contractroute;
