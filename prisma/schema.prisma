@@ -169,6 +169,7 @@ model tenants {
 model addresses {
   address_id   Int     @id @default(autoincrement())
   tenant_id    Int
+  Number       String  @db.VarChar(5)
   street       String  @db.VarChar(255)
   sub_district String  @db.VarChar(255)
   district     String  @db.VarChar(255)
