@@ -10,7 +10,7 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 export default function addtenant() {
-  const paymentOptions = ['EMAIL', 'PAPER', 'BOTH'];
+  const invoiceOptions = ['EMAIL', 'PAPER', 'BOTH'];
 
   const type = [
     { label: '+93' },
@@ -21,7 +21,7 @@ export default function addtenant() {
     first_name: '',
     last_name: '',
     personal_id: '',
-    payment_option: '',
+    invoice_option: '',
     addresses: {
       street: '',
       sub_district: '',
@@ -158,12 +158,12 @@ export default function addtenant() {
             /> */}
             <Select
               label="Invoice Option"
-              id="payment_option"
-              value={tenantData.payment_option}
-              onChange={(e) => setTenantData({ ...tenantData, payment_option: e.target.value })}
+              id="invoice_option"
+              value={tenantData.invoice_option}
+              onChange={(e) => setTenantData({ ...tenantData, invoice_option: e.target.value })}
               sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
             >
-              {paymentOptions.map((option) => (
+              {invoiceOptions.map((option) => (
                 <MenuItem key={option} value={option}>{option}</MenuItem>
               ))}
             </Select>

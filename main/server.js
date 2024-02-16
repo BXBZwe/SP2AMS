@@ -13,6 +13,8 @@ import tenancyrecordsroute from './routes/tenancyrecordroute';
 import contractroute from './routes/contractroute';
 import requestroute from './routes/requestroute';
 
+import generatebillroute from './routes/generatebillroute';
+
 // import authroute from './routes/authroute';
 
 const app = express();
@@ -43,6 +45,10 @@ app.use(tenancyrecordsroute);
 // app.use(authroute);
 app.use(contractroute);
 app.use(requestroute);
+
+
+app.use(generatebillroute);
+
 
 // app.use(authroute);
 
