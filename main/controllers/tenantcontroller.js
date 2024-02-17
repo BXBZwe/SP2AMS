@@ -110,6 +110,7 @@ const updatetenant = async (req, res) => {
                     upsert: {
                         where: { tenant_id: parseInt(tenant_id) },
                         update: {
+                            Number: req.body.addresses.Number,
                             street: req.body.addresses.street,
                             sub_district: req.body.addresses.sub_district,
                             district: req.body.addresses.district,
@@ -118,6 +119,7 @@ const updatetenant = async (req, res) => {
                         },
                         create: {
                             //tenant_id: parseInt(tenant_id)
+                            Number: req.body.addresses.Number,
                             street: req.body.addresses.street,
                             sub_district: req.body.addresses.sub_district,
                             district: req.body.addresses.district,

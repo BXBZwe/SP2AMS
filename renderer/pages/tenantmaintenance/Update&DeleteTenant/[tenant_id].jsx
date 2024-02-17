@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 export default function updatetenant() {
   const router = useRouter();
   const { tenant_id } = router.query;
-  const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
+  const paymentOptions = ["Select", "EMAIL", "PAPER", "BOTH"];
   const [accountStatus, setAccountStatus] = useState("ACTIVE");
 
   //console.log('Tenant id in front end ',tenant_id);
@@ -26,6 +26,7 @@ export default function updatetenant() {
     personal_id: "",
     invoice_option: "",
     addresses: {
+      Number: "",
       street: "",
       sub_district: "",
       district: "",
@@ -69,7 +70,7 @@ export default function updatetenant() {
           personal_id: tenant.personal_id,
           //room_id: tenant.room_id,
           invoice_option: tenant.invoice_option,
-          addresses: tenant.addresses || { street: "", sub_district: "", district: "", province: "", postal_code: "" },
+          addresses: tenant.addresses || { Number: "", street: "", sub_district: "", district: "", province: "", postal_code: "" },
           contacts: tenant.contacts || { phone_number: "", email: "", line_id: "", eme_name: "", eme_phone: "", eme_line_id: "", eme_relation: "" },
         });
       } catch (error) {
@@ -165,16 +166,6 @@ export default function updatetenant() {
               <TextField id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.contacts.phone_number} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             </Box>
 
-            {/* <Autocomplete
-                            disablePortal
-                            id="room-select"
-                            options={rooms}
-                            getOptionLabel={(option) => option.room_number}
-                            sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
-                            renderInput={(params) => <TextField {...params} label="Room Number" />}
-                            value={rooms.find(room => room.room_id === tenantData.room_id) || null} 
-                            onChange={(event, value) => setTenantData({ ...tenantData, room_id: value ? value.room_id : '' })}
-                        /> */}
             <Select label="Invoice Option" id="invoice_option" value={tenantData.invoice_option} onChange={(e) => setTenantData({ ...tenantData, invoice_option: e.target.value })} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}>
               {paymentOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -185,6 +176,7 @@ export default function updatetenant() {
             <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.contacts.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.contacts.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
+            <TextField id="Number" name="addresses.Number" label="Soi" variant="outlined" value={tenantData.addresses.Number} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
             <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.addresses.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
 
             <TextField id="district" name="addresses.district" label="District" value={tenantData.addresses.district} onChange={handleChange} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />

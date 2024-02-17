@@ -19,6 +19,7 @@ export default function addtenant() {
     personal_id: "",
     invoice_option: "",
     addresses: {
+      Number: "",
       street: "",
       sub_district: "",
       district: "",
@@ -129,6 +130,8 @@ export default function addtenant() {
             <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
+            <TextField id="Number" name="addresses.Number" label="Soi" variant="outlined" value={tenantData.Number} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
+
             <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
 
             <TextField id="district" name="addresses.district" label="District" value={tenantData.district} onChange={handleChange} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
