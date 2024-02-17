@@ -15,6 +15,7 @@ export default function updatetenant() {
   const router = useRouter();
   const { tenant_id } = router.query;
   const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
+  const [accountStatus, setAccountStatus] = useState("ACTIVE");
 
   //console.log('Tenant id in front end ',tenant_id);
 
@@ -100,9 +101,10 @@ export default function updatetenant() {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+    const updatedTenantData = { ...tenantData, account_status: accountStatus };
 
     try {
-      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, tenantData);
+      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, updatedTenantData);
       if (response.status === 200) {
         console.log("Tenant updated successfully:", response.data);
         setMessage("Tenant updated successfully");
@@ -134,6 +136,9 @@ export default function updatetenant() {
         <CardContent>
           <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleUpdateSubmit} disabled={loading}>
             {loading ? "Adding..." : "Save"}
+          </Button>
+          <Button variant="contained" color={accountStatus === "ACTIVE" ? "success" : "secondary"} onClick={() => setAccountStatus(accountStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE")} sx={{ margin: "10px" }}>
+            {accountStatus}
           </Button>
         </CardContent>
       </Card>

@@ -71,6 +71,18 @@ const checkOut = async (req, res) => {
       return res.status(404).json({ message: 'Tenancy record not found.' });
     }
 
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Normalize current date to start of the day for comparison
+    const moveOutDate = new Date(tenancyRecord.move_out_date);
+    moveOutDate.setHours(0, 0, 0, 0); // Normalize move-out date to start of the day for comparison
+
+    let contractStatusUpdate;
+    if (moveOutDate.getTime() === currentDate.getTime()) {
+      contractStatusUpdate = 'CHECKED_OUT';
+    } else if (currentDate.getTime() < moveOutDate.getTime()) {
+      contractStatusUpdate = 'TERMINATED';
+    }
+
     const roomstatus = await prisma.roomBaseDetails.findFirst({
       where: {
         room_id: room_id,
@@ -93,6 +105,13 @@ const checkOut = async (req, res) => {
       where: { status_id: roomstatus.statusDetailsId },
       data: { occupancy_status: 'VACANT', is_reserved: false },
     });
+
+    if (contractStatusUpdate) {
+      await prisma.tenants.update({
+        where: { tenant_id: tenant_id },
+        data: { contract_status: contractStatusUpdate },
+      });
+    }
 
     res.status(200).json({ message: 'Checkout successful' });
   } catch (error) {

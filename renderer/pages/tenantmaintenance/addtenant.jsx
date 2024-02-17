@@ -10,7 +10,7 @@ import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 export default function addtenant() {
-  const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
+  const paymentOptions = ["Select", "EMAIL", "PAPER", "BOTH"];
 
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [tenantData, setTenantData] = useState({

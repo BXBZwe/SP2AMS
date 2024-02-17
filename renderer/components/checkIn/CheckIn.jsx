@@ -40,7 +40,7 @@ export default function CheckIn() {
         const response = await axios.get("http://localhost:3000/getalltenants");
         const tenants = response.data.getTenant;
         if (Array.isArray(tenants)) {
-          const filteredTenants = tenants.filter((tenant) => tenant.contract_status === "NEW");
+          const filteredTenants = tenants.filter((tenant) => tenant.account_status === "ACTIVE");
           console.log("Filtered tenants:", filteredTenants);
           setNewTenants(filteredTenants);
         }
