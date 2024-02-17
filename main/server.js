@@ -14,6 +14,7 @@ import contractroute from './routes/contractroute';
 import requestroute from './routes/requestroute';
 
 import generatebillroute from './routes/generatebillroute';
+import paymentroute from './routes/paymentroute';
 
 // import authroute from './routes/authroute';
 
@@ -46,6 +47,7 @@ app.use(tenancyrecordsroute);
 app.use(contractroute);
 app.use(requestroute);
 app.use(generatebillroute);
+app.use(paymentroute);
 
 
 // app.use(authroute);

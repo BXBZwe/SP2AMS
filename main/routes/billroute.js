@@ -3,6 +3,6 @@ import { calculateAndGenerateBill } from '../controllers/billcontroller';
 
 const billroute = express.Router();
 
-billroute.post("/calculatereadingcost", calculateAndGenerateBill);
+billroute.post("/calculateandgeneratebill", calculateAndGenerateBill);
 
 export default billroute;

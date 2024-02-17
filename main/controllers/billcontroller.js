@@ -12,6 +12,8 @@ const calculateAndGenerateBill = async (req, res) => {
             take: 2,
         });
 
+        console.log("Meter Readings:", meterReadings);
+
         if (meterReadings.length < 2) {
             throw new Error('Insufficient meter readings to calculate bill.');
         }
@@ -20,6 +22,9 @@ const calculateAndGenerateBill = async (req, res) => {
 
         const waterUsage = currentReading.water_reading - previousReading.water_reading;
         const electricityUsage = currentReading.electricity_reading - previousReading.electricity_reading;
+        console.log("water usage:", waterUsage)
+        console.log("electricity usage:", electricityUsage)
+
 
         const waterRateId = 6;
         const electricityRateId = 7;
@@ -37,7 +42,7 @@ const calculateAndGenerateBill = async (req, res) => {
         const waterCost = waterUsage * waterRate;
         const electricityCost = electricityUsage * electricityRate;
 
-        const additionalRates = await prisma.room_rates.findMany({
+        const room_rates = await prisma.room_rates.findMany({
             where: { room_id: parseInt(room_id) },
             include: { rates: true },
         });

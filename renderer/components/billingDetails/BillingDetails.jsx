@@ -19,6 +19,8 @@ export default function BillingDetails() {
   const [costs, setCosts] = useState({});
   const [readingValues, setReadingValues] = useState({});
   const [previousReadings, setPreviousReadings] = useState({});
+  const [waterCost, setWaterCost] = useState({});
+  const [electricityCost, setElectricityCost] = useState({});
 
   const getroomsforbilling = async () => {
     try {
@@ -115,6 +117,30 @@ export default function BillingDetails() {
     await Promise.all(readingPromises);
   };
 
+  const handleGeneratebilling = async () => {
+    const billPromises = selectedRooms.map(async (room) => {
+      try {
+        const roomId = room.RoomBaseDetails.room_id;
+
+        const response = await axios.post("http://localhost:3000/calculateandgeneratebill", { room_id: roomId });
+        setWaterCost((prev) => ({
+          ...prev,
+          [roomId]: response.data.waterCost,
+        }));
+        setElectricityCost((prev) => ({
+          ...prev,
+          [roomId]: response.data.electricityCost,
+        }));
+        console.log(`Bill generated for Room ID ${roomId}`, response.data);
+      } catch (error) {
+        console.error(`Failed to generate bill for room`, error);
+      }
+    });
+    const bills = await Promise.all(billPromises);
+    // Do something with the bills, e.g., update the state, show messages, etc.
+    console.log("All bills generated:", bills);
+  };
+
   return (
     <>
       <Box
@@ -137,6 +163,9 @@ export default function BillingDetails() {
             </Typography>
             <Button variant="contained" color="primary" onClick={saveReadings}>
               Save All {selectedType}s
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleGeneratebilling}>
+              Generate All Bills
             </Button>
           </CardContent>
           <Box
@@ -173,9 +202,9 @@ export default function BillingDetails() {
             }}
           >
             {selectedRooms.map((room) => {
-              const roomId = room.RoomBaseDetails.room_id;
-              const previousWaterReading = previousReadings[roomId]?.water_reading || "N/A";
-              const previousElectricityReading = previousReadings[roomId]?.electricity_reading || "N/A";
+              // const roomId = room.RoomBaseDetails.room_id;
+              // const previousWaterReading = previousReadings[roomId]?.water_reading || "N/A";
+              // const previousElectricityReading = previousReadings[roomId]?.electricity_reading || "N/A";
               const previousReading = previousReadings[room.RoomBaseDetails.room_id];
               return (
                 <Box key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`} sx={{ margin: "10px" }}>
@@ -188,17 +217,17 @@ export default function BillingDetails() {
 
                   {selectedType === "Meter Reading" && (
                     <Box sx={{ display: "flex", gap: "10px" }}>
-                      <TextField type="number" variant="outlined" sx={{ width: "25%" }} label={`Previous ${selectedType}`} value={previousReading?.water_reading || "N/A"} disabled />
-                      <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />{" "}
-                      <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.id] || ""} disabled />
+                      <TextField type="number" variant="outlined" sx={{ width: "25%" }} label={`Previous ${selectedType}`} value={previousReading?.electricity_reading || "N/A"} disabled />
+                      <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />
+                      <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.RoomBaseDetails.room_id] || "N/A"} disabled />
                       <TextField label="Cost" type="number" variant="outlined" sx={{ width: "25%" }} value={costs[room.id] || 0} disabled />
                     </Box>
                   )}
                   {selectedType === "Water Reading" && (
                     <Box sx={{ display: "flex", gap: "10px" }}>
                       <TextField label={`Previous ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={previousReading?.water_reading || "N/A"} disabled />
-                      <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />{" "}
-                      <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.id] || ""} disabled />
+                      <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />
+                      <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.RoomBaseDetails.room_id] || "N/A"} disabled />
                       <TextField label="Cost" type="number" variant="outlined" sx={{ width: "25%" }} value={costs[room.id] || 0} disabled />
                     </Box>
                   )}
