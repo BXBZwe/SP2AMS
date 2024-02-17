@@ -228,41 +228,6 @@ export default function RequestTable() {
     setOpenUpdateDialog(true);
   };
 
-  // const handleUpdateRequest = async () => {
-  //   const updatedData = {
-  //     ...newRequestData,
-  //     Request_status: isResolved ? "RESOLVED" : "UNRESOLVED",
-  //   };
-
-  //   try {
-  //     await axios.put(
-  //       `http://localhost:3000/updaterequest/${newRequestData.request_id}`,
-  //       updatedData
-  //     );
-  //     setOpenUpdateDialog(false);
-  //     setSnackbarInfo({
-  //       open: true,
-  //       message: `Request ID: ${newRequestData.request_id} updated successfully!`,
-  //       severity: "success",
-  //     });
-
-  //     // Refresh the data grid with updated requests list
-  //     const response = await axios.get("http://localhost:3000/getallrequests");
-  //     setRequests(response.data.getRequests);
-
-  //     // Reset the form state
-  //     setNewRequestData({
-  //       room_id: "",
-  //       request_details: "",
-  //       Request_priority: "",
-  //       Request_status: "UNRESOLVED",
-  //     });
-  //     setIsResolved(false); // Ensure isResolved is reset for the next use of the form
-  //   } catch (error) {
-  //     console.error("Error updating request:", error.message);
-  //   }
-  // };
-
   const handleUpdateRequest = async () => {
     const updatedData = {
       ...newRequestData,
