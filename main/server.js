@@ -2,8 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 //import nodemailer from 'nodemailer';
-// import billroute from './routes/billroute';
-// import meterreadingroute from './routes/meterreadingroute';
+import billroute from './routes/billroute';
+import meterreadingroute from './routes/meterreadingroute';
 import roomroutes from './routes/roomroutes';
 import emailroute from './routes/emailroute';
 import rateroutes from './routes/rateroutes';
@@ -34,8 +34,8 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.use(billroute);
-// app.use(meterreadingroute);
+app.use(billroute);
+app.use(meterreadingroute);
 app.use(roomroutes);
 app.use(emailroute);
 app.use(rateroutes);
@@ -45,8 +45,6 @@ app.use(tenancyrecordsroute);
 // app.use(authroute);
 app.use(contractroute);
 app.use(requestroute);
-
-
 app.use(generatebillroute);
 
 
