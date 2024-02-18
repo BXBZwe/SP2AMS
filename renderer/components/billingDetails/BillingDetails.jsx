@@ -14,7 +14,6 @@ export default function BillingDetails() {
 
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [selectedType, setSelectedType] = useState(types[0].value);
-  const [currentReadings, setCurrentReadings] = useState({});
   const [unitsDifference, setUnitsDifference] = useState({});
   const [costs, setCosts] = useState({});
   const [readingValues, setReadingValues] = useState({});
@@ -27,8 +26,18 @@ export default function BillingDetails() {
       const response = await axios.get("http://localhost:3000/generatebill");
       const billedrooms = response.data.billRecords;
       console.log("the rooms for generating bills:", billedrooms);
+
+      const latestBilledRooms = billedrooms.reduce((acc, room) => {
+        const existing = acc.find((r) => r.room_id === room.room_id);
+        if (!existing || new Date(room.generation_date) > new Date(existing.generation_date)) {
+          acc = acc.filter((r) => r.room_id !== room.room_id);
+          acc.push(room);
+        }
+        return acc;
+      }, []);
+
       setSelectedRooms(
-        billedrooms.map((room) => ({
+        latestBilledRooms.map((room) => ({
           ...room,
           generation_date: new Date(room.generation_date).toISOString().split("T")[0],
         }))
@@ -136,9 +145,6 @@ export default function BillingDetails() {
         console.error(`Failed to generate bill for room`, error);
       }
     });
-    const bills = await Promise.all(billPromises);
-    // Do something with the bills, e.g., update the state, show messages, etc.
-    console.log("All bills generated:", bills);
   };
 
   return (
@@ -202,9 +208,6 @@ export default function BillingDetails() {
             }}
           >
             {selectedRooms.map((room) => {
-              // const roomId = room.RoomBaseDetails.room_id;
-              // const previousWaterReading = previousReadings[roomId]?.water_reading || "N/A";
-              // const previousElectricityReading = previousReadings[roomId]?.electricity_reading || "N/A";
               const previousReading = previousReadings[room.RoomBaseDetails.room_id];
               return (
                 <Box key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`} sx={{ margin: "10px" }}>
