@@ -95,6 +95,7 @@ const deletetenant = async (req, res) => {
 
 //update tenant
 const updatetenant = async (req, res) => {
+
     const { tenant_id } = req.params;
     try {
         const updatedTenant = await prisma.tenants.update({
@@ -104,10 +105,12 @@ const updatetenant = async (req, res) => {
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
                 invoice_option: req.body.invoice_option,
+                account_status: req.body.account_status,
                 addresses: {
                     upsert: {
                         where: { tenant_id: parseInt(tenant_id) },
                         update: {
+                            Number: req.body.addresses.Number,
                             street: req.body.addresses.street,
                             sub_district: req.body.addresses.sub_district,
                             district: req.body.addresses.district,
@@ -116,6 +119,7 @@ const updatetenant = async (req, res) => {
                         },
                         create: {
                             //tenant_id: parseInt(tenant_id)
+                            Number: req.body.addresses.Number,
                             street: req.body.addresses.street,
                             sub_district: req.body.addresses.sub_district,
                             district: req.body.addresses.district,

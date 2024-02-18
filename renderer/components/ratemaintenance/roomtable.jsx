@@ -1,23 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  IconButton,
-  Snackbar,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-  Chip,
-  GridOverlay,
-} from "@mui/material";
+import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Chip, GridOverlay } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -38,7 +21,6 @@ export default function ratetable() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [roomToDelete, setRoomToDelete] = useState(null);
 
-
   const paymentStatusColors = {
     PENDING: "default", // grey color
     OVERDUE: "error", // red color
@@ -53,10 +35,8 @@ export default function ratetable() {
         setRooms(
           response.data.getrooms.map((room) => {
             // Check if generatedBillRecords is not empty and assign the payment_status from the latest record
-            const paymentStatus = room.generatedBillRecords.length > 0
-              ? room.generatedBillRecords[0].payment_status
-              : "Not Available"; // Or any default/fallback status you prefer
-  
+            const paymentStatus = room.generatedBillRecords.length > 0 ? room.generatedBillRecords[0].payment_status : "Not Available"; // Or any default/fallback status you prefer
+
             return {
               id: room.room_id,
               roomnumber: room.room_number,
@@ -88,8 +68,7 @@ export default function ratetable() {
       headerName: "Payment",
       flex: 0.16,
       renderCell: (params) => {
-        const color =
-          paymentStatusColors[params.row.paymentstatus] || "default";
+        const color = paymentStatusColors[params.row.paymentstatus] || "default";
         return (
           <Chip
             label={params.row.paymentstatus}
@@ -110,10 +89,7 @@ export default function ratetable() {
       flex: 0.14,
       renderCell: (params) => (
         <>
-          <Link
-            href={`/roommaintenance/editroom?roomId=${params.row.id}`}
-            passHref
-          >
+          <Link href={`/roommaintenance/editroom?roomId=${params.row.id}`} passHref>
             <IconButton component="a">
               <EditIcon />
             </IconButton>
@@ -160,10 +136,7 @@ export default function ratetable() {
   };
 
   const filteredRows = rooms.filter((row) => {
-    return (
-      row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
-      (filterValue === "all" || row.occupancystatus === filterValue)
-    );
+    return row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) && (filterValue === "all" || row.occupancystatus === filterValue);
   });
 
   const CustomNoRowsOverlay = () => (
@@ -198,11 +171,7 @@ export default function ratetable() {
         </CardContent>
         <CardContent>
           <Link href="roommaintenance/addroom" passHref>
-            <Button
-              variant="contained"
-              sx={{ width: "110px", marginTop: "15px" }}
-              component="a"
-            >
+            <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a">
               Add
             </Button>
           </Link>
@@ -227,32 +196,16 @@ export default function ratetable() {
 
       {/* Confirmation Dialog */}
 
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-confirm"
-      >
+      <Dialog fullScreen={fullScreen} open={openDeleteDialog} onClose={handleCloseDeleteDialog} aria-labelledby="delete-confirm">
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Once deleted the process cannot be undone.
-          </DialogContentText>
+          <DialogContentText>Once deleted the process cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="outlined"
-            autoFocus
-            onClick={handleCloseDeleteDialog}
-          >
+          <Button variant="outlined" autoFocus onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleConfirmDelete}
-            autoFocus
-          >
+          <Button variant="contained" color="error" onClick={handleConfirmDelete} autoFocus>
             Confirm Delete
           </Button>
         </DialogActions>
@@ -265,11 +218,7 @@ export default function ratetable() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
           Room {roomToDelete} deleted successfully!
         </MuiAlert>
       </Snackbar>

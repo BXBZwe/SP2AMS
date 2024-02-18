@@ -8,5 +8,7 @@ files:
   - from: .
     filter:
       - package.json
+      - main/**/* 
+      - renderer/**/* 
       - app
 publish: null

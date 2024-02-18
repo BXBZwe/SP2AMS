@@ -40,6 +40,7 @@ export default function addtenant() {
     personal_id: "",
     invoice_option: "",
     addresses: {
+      Number: "",
       street: "",
       sub_district: "",
       district: "",

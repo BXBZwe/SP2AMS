@@ -25,7 +25,7 @@ model bills {
 
 model GeneratedBillRecord {
   bill_record_id  Int             @id @default(autoincrement())
-  generation_date DateTime        
+  generation_date DateTime        @db.Date
   rent_month      String
   room_id         Int
   rent_year       Int
@@ -68,8 +68,8 @@ model manager {
 model meter_readings {
   reading_id          Int             @id @default(autoincrement())
   room_id             Int
-  water_reading       Int
-  electricity_reading Int
+  water_reading       Int?
+  electricity_reading Int?
   reading_date        DateTime        @db.Date
   RoomBaseDetails     RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
 }

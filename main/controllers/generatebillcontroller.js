@@ -11,7 +11,7 @@ const getGeneratedBillRecords = async (req, res) => {
             }
         });
 
-        res.status(200).json({ message: 'Retrieved generated bill records successfully', data: billRecords });
+        res.status(200).json({ message: 'Retrieved generated bill records successfully', billRecords });
     } catch (error) {
         console.error('Error retrieving generated bill records:', error);
         res.status(500).json({ error: error.message });

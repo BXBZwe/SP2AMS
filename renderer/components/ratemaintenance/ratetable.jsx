@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Snackbar,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-} from "@mui/material";
+import { Button, Card, CardContent, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -57,20 +45,17 @@ export default function RateTable() {
   }, []);
 
   const columns = [
-    { field: "item_name", headerName: "Item Name", flex:1 },
-    { field: "item_price", headerName: "Item Price", flex:1 },
-    { field: "item_description", headerName: "Item Description",flex:1 },
-    { field: "last_updated", headerName: "Last Updated",flex:1 },
+    { field: "item_name", headerName: "Item Name", flex: 1 },
+    { field: "item_price", headerName: "Item Price", flex: 1 },
+    { field: "item_description", headerName: "Item Description", flex: 1 },
+    { field: "last_updated", headerName: "Last Updated", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <>
-          <Link
-            href={`/ratemaintenance/editrate?rateId=${params.row.id}`}
-            passHref
-          >
+          <Link href={`/ratemaintenance/editrate?rateId=${params.row.id}`} passHref>
             <IconButton component="a">
               <EditIcon />
             </IconButton>
@@ -118,10 +103,7 @@ export default function RateTable() {
   };
 
   const filteredRows = rates.filter((row) => {
-    return (
-      row.item_name.toLowerCase().includes(searchText.toLowerCase()) &&
-      (filterValue === "all" || row.item_price == filterValue)
-    );
+    return row.item_name.toLowerCase().includes(searchText.toLowerCase()) && (filterValue === "all" || row.item_price == filterValue);
   });
 
   return (
@@ -141,11 +123,7 @@ export default function RateTable() {
         </CardContent>
         <CardContent>
           <Link href="../ratemaintenance/addrate" passHref>
-            <Button
-              variant="contained"
-              sx={{ width: "110px", marginTop: "15px" }}
-              component="a"
-            >
+            <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a">
               Add
             </Button>
           </Link>
@@ -166,33 +144,16 @@ export default function RateTable() {
       </Card>
 
       {/* Confirmation Dialog */}
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-confirm"
-      >
+      <Dialog fullScreen={fullScreen} open={openDeleteDialog} onClose={handleCloseDeleteDialog} aria-labelledby="delete-confirm">
         <DialogTitle id="delete-confirm">{`Delete Rate for ${rateToDelete}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            This process will delete the specified rate you have selected. Once
-            deleted, the process cannot be undone.
-          </DialogContentText>
+          <DialogContentText>This process will delete the specified rate you have selected. Once deleted, the process cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="outlined"
-            autoFocus
-            onClick={handleCloseDeleteDialog}
-          >
+          <Button variant="outlined" autoFocus onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleConfirmDelete}
-            autoFocus
-          >
+          <Button variant="contained" color="error" onClick={handleConfirmDelete} autoFocus>
             Yes, I want to delete
           </Button>
         </DialogActions>
@@ -205,11 +166,7 @@ export default function RateTable() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
           Rate deleted successfully!
         </MuiAlert>
       </Snackbar>

@@ -1,29 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  IconButton,
-  Snackbar,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-  Chip,
-  GridOverlay,
-  FormControl,
-  InputLabel,
-  Box,
-  Autocomplete,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Chip, GridOverlay, FormControl, InputLabel, Box, Autocomplete, FormControlLabel, Checkbox } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -81,9 +58,7 @@ export default function RequestTable() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/getallrequests"
-        );
+        const response = await axios.get("http://localhost:3000/getallrequests");
         // Directly setting the entire response data to state
         // console.log(response.data.getRequests);
         setRequests(response.data.getRequests);
@@ -134,15 +109,10 @@ export default function RequestTable() {
 
   const handleAddRequest = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/addrequest",
-        newRequestData
-      );
+      const response = await axios.post("http://localhost:3000/addrequest", newRequestData);
       setOpenAddDialog(false);
 
-      const roomDetails = availableRooms.find(
-        (room) => room.room_id === newRequestData.room_id
-      );
+      const roomDetails = availableRooms.find((room) => room.room_id === newRequestData.room_id);
 
       setSnackbarInfo({
         open: true,
@@ -217,11 +187,7 @@ export default function RequestTable() {
               alignItems: "center",
             }}
           >
-            {params.value === "RESOLVED" ? (
-              <CheckCircleIcon color="success" />
-            ) : (
-              <CancelIcon color="error" />
-            )}
+            {params.value === "RESOLVED" ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
           </Box>
         );
       },
@@ -271,10 +237,7 @@ export default function RequestTable() {
     };
 
     try {
-      await axios.put(
-        `http://localhost:3000/updaterequest/${newRequestData.request_id}`,
-        updatedData
-      );
+      await axios.put(`http://localhost:3000/updaterequest/${newRequestData.request_id}`, updatedData);
       setOpenUpdateDialog(false);
       setSnackbarInfo({
         open: true,
@@ -300,9 +263,7 @@ export default function RequestTable() {
   };
 
   const handleDeleteClick = (requestId) => {
-    const request = requests.find(
-      (request) => request.request_id === requestId
-    );
+    const request = requests.find((request) => request.request_id === requestId);
     if (request) {
       setRequestToDelete(request.roomBaseDetails.room_number);
       setDeleteRequestId(request.request_id);
@@ -313,24 +274,15 @@ export default function RequestTable() {
   const handleConfirmDelete = async () => {
     if (deleteRequestId) {
       try {
-        await axios.delete(
-          `http://localhost:3000/deleterequest/${deleteRequestId}`
-        );
+        await axios.delete(`http://localhost:3000/deleterequest/${deleteRequestId}`);
         setSnackbarInfo({
           open: true,
           message: `Request ID: ${deleteRequestId} deleted successfully!`,
           severity: "success",
         });
-        setRequests((prevRequests) =>
-          prevRequests.filter(
-            (request) => request.request_id !== deleteRequestId
-          )
-        );
+        setRequests((prevRequests) => prevRequests.filter((request) => request.request_id !== deleteRequestId));
       } catch (error) {
-        console.error(
-          `Error deleting request with ID: ${deleteRequestId}`,
-          error
-        );
+        console.error(`Error deleting request with ID: ${deleteRequestId}`, error);
       } finally {
         // Ensure the dialog is closed and the deleteRequestId is reset regardless of success or failure
         setOpenDeleteDialog(false);
@@ -381,11 +333,7 @@ export default function RequestTable() {
           </Typography>
         </CardContent>
         <CardContent>
-          <Button
-            variant="contained"
-            sx={{ width: "110px", marginTop: "15px" }}
-            onClick={handleOpenAddDialog}
-          >
+          <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleOpenAddDialog}>
             Add
           </Button>
         </CardContent>
@@ -409,32 +357,16 @@ export default function RequestTable() {
 
       {/* Delete Dialog */}
 
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-confirm"
-      >
+      <Dialog fullScreen={fullScreen} open={openDeleteDialog} onClose={handleCloseDeleteDialog} aria-labelledby="delete-confirm">
         <DialogTitle id="delete-confirm">{`Delete Room ${requestToDelete}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Once deleted the process cannot be undone.
-          </DialogContentText>
+          <DialogContentText>Once deleted the process cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="outlined"
-            autoFocus
-            onClick={handleCloseDeleteDialog}
-          >
+          <Button variant="outlined" autoFocus onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleConfirmDelete}
-            autoFocus
-          >
+          <Button variant="contained" color="error" onClick={handleConfirmDelete} autoFocus>
             Confirm Delete
           </Button>
         </DialogActions>
@@ -466,44 +398,28 @@ export default function RequestTable() {
               fullWidth
               options={availableRooms}
               getOptionLabel={(option) => option.room_number}
-              value={
-                availableRooms.find(
-                  (room) => room.room_id === newRequestData.room_id
-                ) || null
-              }
+              value={availableRooms.find((room) => room.room_id === newRequestData.room_id) || null}
               onChange={(event, newValue) => {
                 setNewRequestData({
                   ...newRequestData,
                   room_id: newValue ? newValue.room_id : "",
                 });
               }}
-              renderInput={(params) => (
-                <TextField {...params} label="Select Room" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Select Room" />}
             />
 
             <Autocomplete
               fullWidth
               options={priorityOptions}
               getOptionLabel={(option) => option.label}
-              value={
-                priorityOptions.find(
-                  (option) => option.value === newRequestData.Request_priority
-                ) || null
-              }
+              value={priorityOptions.find((option) => option.value === newRequestData.Request_priority) || null}
               onChange={(event, newValue) => {
                 setNewRequestData({
                   ...newRequestData,
                   Request_priority: newValue ? newValue.value : "",
                 });
               }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Request Priority"
-                  variant="outlined"
-                />
-              )}
+              renderInput={(params) => <TextField {...params} label="Request Priority" variant="outlined" />}
             />
           </Box>
 
@@ -554,44 +470,28 @@ export default function RequestTable() {
               fullWidth
               options={availableRooms}
               getOptionLabel={(option) => option.room_number}
-              value={
-                availableRooms.find(
-                  (room) => room.room_id === newRequestData.room_id
-                ) || null
-              }
+              value={availableRooms.find((room) => room.room_id === newRequestData.room_id) || null}
               onChange={(event, newValue) => {
                 setNewRequestData({
                   ...newRequestData,
                   room_id: newValue ? newValue.room_id : "",
                 });
               }}
-              renderInput={(params) => (
-                <TextField {...params} label="Select Room" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Select Room" />}
             />
 
             <Autocomplete
               fullWidth
               options={priorityOptions}
               getOptionLabel={(option) => option.label}
-              value={
-                priorityOptions.find(
-                  (option) => option.value === newRequestData.Request_priority
-                ) || null
-              }
+              value={priorityOptions.find((option) => option.value === newRequestData.Request_priority) || null}
               onChange={(event, newValue) => {
                 setNewRequestData({
                   ...newRequestData,
                   Request_priority: newValue ? newValue.value : "",
                 });
               }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Request Priority"
-                  variant="outlined"
-                />
-              )}
+              renderInput={(params) => <TextField {...params} label="Request Priority" variant="outlined" />}
             />
           </Box>
 
@@ -609,15 +509,7 @@ export default function RequestTable() {
             }
             variant="outlined" // Optional: for a consistent look
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isResolved}
-                onChange={(e) => setIsResolved(e.target.checked)}
-              />
-            }
-            label="Mark as Resolved"
-          />
+          <FormControlLabel control={<Checkbox checked={isResolved} onChange={(e) => setIsResolved(e.target.checked)} />} label="Mark as Resolved" />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseUpdateDialog}>Cancel</Button>
@@ -631,11 +523,7 @@ export default function RequestTable() {
         onClose={() => setSnackbarInfo({ ...snackbarInfo, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={() => setSnackbarInfo({ ...snackbarInfo, open: false })}
-          severity={snackbarInfo.severity}
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={() => setSnackbarInfo({ ...snackbarInfo, open: false })} severity={snackbarInfo.severity} sx={{ width: "100%" }}>
           {snackbarInfo.message}
         </MuiAlert>
       </Snackbar>

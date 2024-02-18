@@ -1,15 +1,13 @@
-import React from 'react'
-import Head from 'next/head'
-import { Typography } from '@mui/material'
-
+import React from "react";
+import Head from "next/head";
+import PaymentTable from "../components/GeneratePayment/generatepayment";
 export default function printpayment() {
   return (
     <div>
-            <Head>
+      <Head>
         <title>printpayment</title>
       </Head>
-      <Typography>printpayment</Typography>
-      
+      <PaymentTable></PaymentTable>
     </div>
-  )
+  );
 }

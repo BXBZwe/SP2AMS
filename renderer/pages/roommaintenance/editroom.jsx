@@ -1,27 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import {
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Snackbar,
-  DialogContentText,
-  Autocomplete,
-  Grid,
-} from "@mui/material";
+import { Card, CardContent, Typography, TextField, Box, Button, Checkbox, FormControlLabel, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem, Snackbar, DialogContentText, Autocomplete, Grid } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
@@ -52,9 +31,7 @@ export default function EditRoom() {
   const [selectedRates, setSelectedRates] = useState([]);
   const [rates, setRates] = useState([]);
 
-  const filteredRates = rates.filter((rate) =>
-    rate.item_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRates = rates.filter((rate) => rate.item_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const filteredItems = showAll ? filteredRates : filteredRates.slice(0, 3);
 
@@ -70,9 +47,7 @@ export default function EditRoom() {
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/geteachroom/${roomId}`
-        );
+        const response = await axios.get(`http://localhost:3000/geteachroom/${roomId}`);
         const roomData = response.data.room;
 
         // Prepare rates data for the formData state
@@ -116,9 +91,7 @@ export default function EditRoom() {
 
     let changes = [];
     if (initialData.room_number !== formData.room_number) {
-      changes.push(
-        `Room Number: ${initialData.room_number} -> ${formData.room_number}`
-      );
+      changes.push(`Room Number: ${initialData.room_number} -> ${formData.room_number}`);
     }
     if (initialData.deposit !== formData.deposit) {
       changes.push(`Deposit: ${initialData.deposit} -> ${formData.deposit}`);
@@ -129,39 +102,21 @@ export default function EditRoom() {
     }
 
     if (initialData.base_rent !== formData.base_rent) {
-      changes.push(
-        `Base Rent: ${initialData.base_rent} -> ${formData.base_rent}`
-      );
+      changes.push(`Base Rent: ${initialData.base_rent} -> ${formData.base_rent}`);
     }
 
     if (initialData.room_type !== formData.room_type) {
-      changes.push(
-        `Room Type: ${initialData.room_type} -> ${formData.room_type}`
-      );
+      changes.push(`Room Type: ${initialData.room_type} -> ${formData.room_type}`);
     }
-    if (
-      initialData.statusDetails.occupancy_status !==
-      formData.statusDetails.occupancy_status
-    ) {
-      changes.push(
-        `Occupancy Status: ${initialData.statusDetails.occupancy_status} -> ${formData.statusDetails.occupancy_status}`
-      );
+    if (initialData.statusDetails.occupancy_status !== formData.statusDetails.occupancy_status) {
+      changes.push(`Occupancy Status: ${initialData.statusDetails.occupancy_status} -> ${formData.statusDetails.occupancy_status}`);
     }
-    if (
-      initialData.statusDetails.payment_status !==
-      formData.statusDetails.payment_status
-    ) {
-      changes.push(
-        `Payment Status: ${initialData.statusDetails.payment_status} -> ${formData.statusDetails.payment_status}`
-      );
+    if (initialData.statusDetails.payment_status !== formData.statusDetails.payment_status) {
+      changes.push(`Payment Status: ${initialData.statusDetails.payment_status} -> ${formData.statusDetails.payment_status}`);
     }
     // Add more fields comparison as needed
 
-    return changes.length > 0 ? (
-      changes.join(", ")
-    ) : (
-      <Typography>No changes made.</Typography>
-    );
+    return changes.length > 0 ? changes.join(", ") : <Typography>No changes made.</Typography>;
   };
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -190,7 +145,7 @@ export default function EditRoom() {
       return { ...prevFormData, rates: newRates };
     });
   };
-  
+
   const handleQuantityChange = (rateId, newQuantity) => {
     setFormData((prevFormData) => {
       const newRates = prevFormData.rates.map((rate) => {
@@ -202,7 +157,6 @@ export default function EditRoom() {
       return { ...prevFormData, rates: newRates };
     });
   };
-  
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
@@ -231,17 +185,8 @@ export default function EditRoom() {
 
   const handleSave = () => {
     if (!validateForm()) {
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} 
-      >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <MuiAlert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
           Room Addtion Failed
         </MuiAlert>
       </Snackbar>;
@@ -288,16 +233,13 @@ export default function EditRoom() {
           quantity: parseInt(rate.quantity, 10), // Ensure quantity is an integer
         })),
     };
-  
+
     setRoomNumber(updatedFormData.room_number);
 
     // console.log(updatedFormData)
-  
+
     try {
-      await axios.put(
-        `http://localhost:3000/updaterooms/${roomId}`,
-        updatedFormData
-      );
+      await axios.put(`http://localhost:3000/updaterooms/${roomId}`, updatedFormData);
       openSnackbar("Room updated successfully!", "success");
       setTimeout(() => {
         router.push("/roomMaintenance"); // Redirect to the room maintenance page
@@ -311,7 +253,6 @@ export default function EditRoom() {
       setEditable(false);
     }
   };
-  
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -351,16 +292,12 @@ export default function EditRoom() {
 
   const validateForm = () => {
     let tempErrors = {};
-    tempErrors.room_number = formData.room_number
-      ? ""
-      : "Room number is required.";
+    tempErrors.room_number = formData.room_number ? "" : "Room number is required.";
     tempErrors.floor = formData.floor ? "" : "Floor is required.";
     tempErrors.room_type = formData.room_type ? "" : "Room type is required.";
     tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
     tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
-    tempErrors.occupancy_status = formData.statusDetails.occupancy_status
-      ? ""
-      : "Occupancy status is required.";
+    tempErrors.occupancy_status = formData.statusDetails.occupancy_status ? "" : "Occupancy status is required.";
 
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
@@ -377,19 +314,11 @@ export default function EditRoom() {
         </CardContent>
         <CardContent>
           {editable && (
-            <Button
-              variant="outlined"
-              sx={{ width: "110px", marginTop: "15px" }}
-              onClick={toggleEdit}
-            >
+            <Button variant="outlined" sx={{ width: "110px", marginTop: "15px" }} onClick={toggleEdit}>
               Cancel
             </Button>
           )}
-          <Button
-            variant="contained"
-            sx={{ width: "110px", marginTop: "15px", marginLeft: "10px" }}
-            onClick={editable ? handleSave : toggleEdit}
-          >
+          <Button variant="contained" sx={{ width: "110px", marginTop: "15px", marginLeft: "10px" }} onClick={editable ? handleSave : toggleEdit}>
             {editable ? "Save" : "Edit"}
           </Button>
         </CardContent>
@@ -441,32 +370,8 @@ export default function EditRoom() {
                 />
               </Box>
               <Box sx={{ width: "100%", display: "flex" }}>
-                <TextField
-                  disabled={!editable}
-                  label="Base Rent"
-                  variant="outlined"
-                  fullWidth
-                  margin="dense"
-                  name="base_rent"
-                  value={formData.base_rent}
-                  onChange={handleInputChange}
-                  error={!!errors.base_rent}
-                  helperText={errors.base_rent}
-                  sx={{ width: "50%" }}
-                />
-                <TextField
-                  disabled={!editable}
-                  label="Deposit"
-                  variant="outlined"
-                  fullWidth
-                  margin="dense"
-                  name="deposit"
-                  value={formData.deposit}
-                  onChange={handleInputChange}
-                  error={!!errors.deposit}
-                  helperText={errors.deposit}
-                  sx={{ width: "50%", marginLeft: "10px" }}
-                />
+                <TextField disabled={!editable} label="Base Rent" variant="outlined" fullWidth margin="dense" name="base_rent" value={formData.base_rent} onChange={handleInputChange} error={!!errors.base_rent} helperText={errors.base_rent} sx={{ width: "50%" }} />
+                <TextField disabled={!editable} label="Deposit" variant="outlined" fullWidth margin="dense" name="deposit" value={formData.deposit} onChange={handleInputChange} error={!!errors.deposit} helperText={errors.deposit} sx={{ width: "50%", marginLeft: "10px" }} />
               </Box>
               <Box
                 sx={{
@@ -476,18 +381,7 @@ export default function EditRoom() {
                   marginTop: "10px",
                 }}
               >
-                <TextField
-                  disabled={!editable}
-                  label="Room Type"
-                  name="room_type"
-                  sx={{ width: "50%", marginRight: "10px" }}
-                  fullWidth
-                  value={formData.room_type}
-                  onChange={handleInputChange}
-                  required
-                  error={!!errors.room_type}
-                  helperText={errors.room_type}
-                />
+                <TextField disabled={!editable} label="Room Type" name="room_type" sx={{ width: "50%", marginRight: "10px" }} fullWidth value={formData.room_type} onChange={handleInputChange} required error={!!errors.room_type} helperText={errors.room_type} />
 
                 <Autocomplete
                   disabled={!editable}
@@ -508,30 +402,12 @@ export default function EditRoom() {
                       },
                     }));
                   }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Occupancy Status"
-                      variant="outlined"
-                      error={!!errors.occupancy_status}
-                      helperText={errors.occupancy_status}
-                    />
-                  )}
+                  renderInput={(params) => <TextField {...params} label="Occupancy Status" variant="outlined" error={!!errors.occupancy_status} helperText={errors.occupancy_status} />}
                 />
               </Box>
 
               <Box>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      disabled={!editable}
-                      name="statusDetails.is_reserved"
-                      checked={formData.statusDetails.is_reserved}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  label="Is Reserved"
-                />
+                <FormControlLabel control={<Checkbox disabled={!editable} name="statusDetails.is_reserved" checked={formData.statusDetails.is_reserved} onChange={handleCheckboxChange} />} label="Is Reserved" />
               </Box>
             </CardContent>
           </Card>
@@ -540,12 +416,7 @@ export default function EditRoom() {
               Additional Items
             </Typography>
             {formData.rates.map((rate) => (
-              <Grid
-                container
-                key={rate.rateId}
-                alignItems="center"
-                sx={{ marginBottom: "10px" }}
-              >
+              <Grid container key={rate.rateId} alignItems="center" sx={{ marginBottom: "10px" }}>
                 <Grid item xs={8}>
                   <FormControlLabel
                     control={
@@ -560,18 +431,7 @@ export default function EditRoom() {
                   />
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField
-                    label="Quantity"
-                    type="number"
-                    size="small"
-                    sx={{ ml: 2, width: "90px" }}
-                    value={rate.quantity || ""}
-                    onChange={(e) =>
-                      handleQuantityChange(rate.rateId, e.target.value)
-                    }
-                    InputProps={{ inputProps: { min: 1 } }}
-                    disabled={!editable}
-                  />
+                  <TextField label="Quantity" type="number" size="small" sx={{ ml: 2, width: "90px" }} value={rate.quantity || ""} onChange={(e) => handleQuantityChange(rate.rateId, e.target.value)} InputProps={{ inputProps: { min: 1 } }} disabled={!editable} />
                 </Grid>
               </Grid>
             ))}
@@ -588,13 +448,11 @@ export default function EditRoom() {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>
           {/* <Typography variant="h5"> */}
-            Update Room {formData.room_number}
+          Update Room {formData.room_number}
           {/* </Typography> */}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to update this room?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to update this room?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
@@ -605,17 +463,8 @@ export default function EditRoom() {
       </Dialog>
 
       {/* Snackbar for confirmation */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
           Room updated successfully!
         </MuiAlert>
       </Snackbar>
