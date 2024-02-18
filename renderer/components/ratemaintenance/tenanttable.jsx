@@ -27,9 +27,9 @@ export default function ratetable() {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        console.log("params:", params);
+        // console.log("params:", params);
         const tenant_id = params.row.id;
-        console.log("This tenant id ", tenant_id);
+        // console.log("This tenant id ", tenant_id);
         return (
           <>
             <Link href={`/tenantmaintenance/Update&DeleteTenant/${tenant_id}`} passHref>
@@ -49,10 +49,10 @@ export default function ratetable() {
   const handleDelete = async (tenant_id) => {
     try {
       await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
-      console.log(`Tenant with ID: ${tenant_id} deleted successfully`);
+      // console.log(`Tenant with ID: ${tenant_id} deleted successfully`);
       fetchTenants();
     } catch (error) {
-      console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
+      // console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
     }
   };
 
@@ -61,11 +61,11 @@ export default function ratetable() {
       console.log("fetchTenants: Sending request to backend");
 
       const response = await axios.get("http://localhost:3000/getalltenants");
-      console.log("Raw tenants data:", response.data);
+      // console.log("Raw tenants data:", response.data);
       setTenants(response.data.getTenant);
-      console.log("Tenants data:");
+      // console.log("Tenants data:");
     } catch (error) {
-      console.error("Error fetching tenants:", error);
+      // console.error("Error fetching tenants:", error);
     }
   };
 
