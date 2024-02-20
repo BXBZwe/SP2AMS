@@ -1,7 +1,18 @@
 import express from 'express';
+const requestroute = express.Router();
+import {getRequests,getEachRequest,createRequest,deleteRequest,updateRequest} from '../controllers/requestcontroller';
 
-const requestRoute = express.Router();
+requestroute.get('/getallrequests', getRequests);
+// each rate
+requestroute.get('/geteachrequest/:request_id', getEachRequest);
 
-// Route to fetch all feedback requests
+// Route for adding a new rate
+requestroute.post('/addrequest', createRequest);
 
-export default requestRoute;
+// Route for updating an existing rate
+requestroute.put('/updaterequest/:request_id', updateRequest);
+
+// Route for deleting a rate
+requestroute.delete('/deleterequest/:request_id', deleteRequest);
+
+export default requestroute;

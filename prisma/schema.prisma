@@ -25,14 +25,14 @@ model bills {
 
 model GeneratedBillRecord {
   bill_record_id  Int             @id @default(autoincrement())
-  generation_date DateTime        @default(now())
+  generation_date DateTime        @db.Date
   rent_month      String
   room_id         Int
   rent_year       Int
-  bill_id         Int
+  bill_id         Int?
   payment_status  PaymentStatus   @default(PENDING)
   RoomBaseDetails RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
-  Bill            bills           @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade, onUpdate: NoAction)
+  Bill            bills?           @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([generation_date, room_id])
 }
@@ -57,8 +57,8 @@ enum TenancyStatus {
 
 model manager {
   manager_id       Int                @id @default(autoincrement())
-  name             String             @db.VarChar(255)
-  email            String             @unique @db.VarChar(255)
+  name             String             @unique @db.VarChar(255)
+  email            String             @db.VarChar(255)
   password_hash    String
   phone_number     String?            @db.VarChar(20)
   profile_image    Bytes?
@@ -68,8 +68,8 @@ model manager {
 model meter_readings {
   reading_id          Int             @id @default(autoincrement())
   room_id             Int
-  water_reading       Int
-  electricity_reading Int
+  water_reading       Int?
+  electricity_reading Int?
   reading_date        DateTime        @db.Date
   RoomBaseDetails     RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
 }
@@ -81,6 +81,11 @@ model rates {
   item_description String?
   last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
   room_rates       room_rates[]
+  VAT              Boolean          @default(false)
+  Payment          Boolean          @default(false)
+  Meter            Boolean          @default(false)
+  Bill             Boolean          @default(false)
+  Usage            Boolean          @default(false)
 }
 
 model room_rates {
@@ -123,6 +128,7 @@ enum PaymentStatus {
   PENDING
   OVERDUE
   PARTIAL
+  Null
 }
 
 enum InvoiceOption {
@@ -163,6 +169,7 @@ model tenants {
 model addresses {
   address_id   Int     @id @default(autoincrement())
   tenant_id    Int
+  Number       String  @db.VarChar(5)
   street       String  @db.VarChar(255)
   sub_district String  @db.VarChar(255)
   district     String  @db.VarChar(255)
@@ -205,6 +212,7 @@ model Request {
   request_id       Int             @id @default(autoincrement())
   room_id          Int
   issue_date       DateTime        @default(now())
+  resolved_date    DateTime?        
   request_details  String
   Request_priority RequestPriority
   Request_status   RequestStatus   @default(UNRESOLVED)

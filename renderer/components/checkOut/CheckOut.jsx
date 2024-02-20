@@ -45,7 +45,7 @@ export default function CheckOut() {
         tenant_id: tenantDetails.tenant_id,
       });
       console.log(response.data.message);
-      alert("Checkout successful!");
+      // alert("Checkout successful!");
     } catch (error) {
       console.error("Checkout failed:", error);
     }
@@ -92,7 +92,7 @@ export default function CheckOut() {
         setSelectedTenant(tenantFullName);
         setMoveInDate(moveInFormatted);
         setMoveOutDate(moveOutFormatted);
-        setDeposit(response.data.deposit_returned);
+        setDeposit(response.data.deposit);
         setContractMonths(response.data.period_of_stay);
       }
     } catch (error) {
