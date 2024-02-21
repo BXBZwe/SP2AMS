@@ -32,7 +32,7 @@ export default function ratetable() {
         // console.log("This tenant id ", tenant_id);
         return (
           <>
-            <Link href={`/tenantmaintenance/Update&DeleteTenant/${tenant_id}`} passHref>
+            <Link href={`/tenantmaintenance/UpdateTenant/${tenant_id}`} passHref>
               <IconButton component="a">
                 <EditIcon />
               </IconButton>
@@ -138,7 +138,7 @@ export default function ratetable() {
               pageSize={5}
               checkboxSelection
               sx={{
-                "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+                "& .MuiDataGrid-main": { maxHeight: "70vh" },
               }}
               autoHeight
               density="compact"

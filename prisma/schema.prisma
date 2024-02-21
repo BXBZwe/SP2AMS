@@ -61,7 +61,7 @@ model manager {
   email            String             @db.VarChar(255)
   password_hash    String
   phone_number     String?            @db.VarChar(20)
-  profile_image    Bytes?
+  profile_image    String             @db.VarChar(255)
   service_contacts service_contacts[]
 }
 
@@ -159,6 +159,8 @@ model tenants {
   contract_status        ContractStatus    @default(NEW)
   invoice_option         InvoiceOption     @default(EMAIL)
   account_status         AccountStatus     @default(ACTIVE)
+  tenant_image           String            @db.VarChar(255)
+  nationalcard_image     String            @db.VarChar(255)
   tenancy_records        tenancy_records[]
   addresses              addresses?
   contacts               contacts?
@@ -169,7 +171,7 @@ model tenants {
 model addresses {
   address_id   Int     @id @default(autoincrement())
   tenant_id    Int
-  Number       String  @db.VarChar(5)
+  addressnumber       String  @db.VarChar(5)
   street       String  @db.VarChar(255)
   sub_district String  @db.VarChar(255)
   district     String  @db.VarChar(255)
@@ -226,7 +228,7 @@ model service_contacts {
   phone_number       String  @db.VarChar(20)
   occupation         String  @db.VarChar(255)
   line_id            String  @db.VarChar(255)
-  image              Bytes
+  image              String  @db.VarChar(255)
   manager_id         Int
   manager            manager @relation(fields: [manager_id], references: [manager_id], onDelete: Cascade)
 }

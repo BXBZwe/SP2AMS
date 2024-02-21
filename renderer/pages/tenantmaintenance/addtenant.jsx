@@ -13,6 +13,7 @@ import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { PhotoCamera } from "@mui/icons-material";
 
 export default function addtenant() {
   const theme = useTheme();
@@ -27,7 +28,7 @@ export default function addtenant() {
     personal_id: "",
     invoice_option: "",
     addresses: {
-      Number: "",
+      addressnumber: "",
       street: "",
       sub_district: "",
       district: "",
@@ -48,6 +49,8 @@ export default function addtenant() {
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
+  const [tenantImage, settenantImage] = useState(null);
+  const [nationalCardImage, setNationalCardImage] = useState(null);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -65,7 +68,7 @@ export default function addtenant() {
     tempErrors.email = emailRegex.test(tenantData.contacts.email) ? "" : "Invalid email format.";
     const phoneRegex = /^[0-9]{10,12}$/;
     tempErrors.phone_number = phoneRegex.test(tenantData.contacts.phone_number) ? "" : "Invalid phone number format.";
-    tempErrors.Number = tenantData.addresses.Number ? "" : "No. is required.";
+    tempErrors.addressnumber = tenantData.addresses.addressnumber ? "" : "No. is required.";
     tempErrors.street = tenantData.addresses.street ? "" : "Street is required.";
     tempErrors.district = tenantData.addresses.district ? "" : "District is required.";
     tempErrors.province = tenantData.addresses.province ? "" : "Province is required.";
@@ -110,8 +113,25 @@ export default function addtenant() {
 
     // setLoading(true);
     setMessage("");
+    const formdata = new FormData();
+
+    Object.entries(tenantData).forEach(([key, value]) => {
+      if (typeof value === "object") {
+        formdata.append(key, JSON.stringify(value));
+      } else {
+        formdata.append(key, value);
+      }
+    });
+
+    if (tenantImage) formdata.append("tenant_image", tenantImage);
+    if (nationalCardImage) formdata.append("nationalcard_image", nationalCardImage);
+
     try {
-      const response = await axios.post("http://localhost:3000/addtenants", tenantData);
+      const response = await axios.post("http://localhost:3000/addtenants", formdata, {
+        headers: {
+          "Content-Type": "multipart/form-data", // This header tells the server to expect multipart form data
+        },
+      });
 
       if (response.status === 200 || response.status === 201) {
         openSnackbar("Tenant Added successfully!", "success");
@@ -129,6 +149,14 @@ export default function addtenant() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTenantImageChange = (e) => {
+    settenantImage(e.target.files[0]);
+  };
+
+  const handleNationalCardImagechange = (e) => {
+    setNationalCardImage(e.target.files[0]);
   };
 
   return (
@@ -186,7 +214,7 @@ export default function addtenant() {
               renderInput={(params) => <TextField {...params} error={!!errors.invoice_option} helperText={errors.invoice_option} label="Invoice Option" />}
             />
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <TextField id="Number" name="addresses.Number" label="No." variant="outlined" value={tenantData.Number} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.Number} helperText={errors.Number} />
+            <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
 
             <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.street} helperText={errors.street} />
 
@@ -214,55 +242,50 @@ export default function addtenant() {
               width: "28vw",
               marginLeft: 2,
               marginBottom: "10px",
-              height: 300,
+              height: "auto",
             }}
           >
             <CardContent sx={{ textAlign: "center" }}>
-              <Typography
-                sx={{
-                  textAlign: "center",
-                  marginBottom: 0.3,
-                  fontWeight: "bold",
-                  fontSize: "19px",
-                }}
-              >
-                Tenant Image
-              </Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a pciture of tenant </Typography>
+              {/* ... other content */}
               <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <Fab color="secondary" aria-label="add">
-                  <AddIcon />
-                </Fab>
+                {/* Hidden input for tenant image */}
+                <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
+                {/* Label that acts as a button */}
+                <label htmlFor="tenant-image-upload">
+                  <Fab color="secondary" component="span" aria-label="add">
+                    <PhotoCamera />
+                  </Fab>
+                </label>
               </Box>
+              {/* Display uploaded tenant image */}
+              {tenantImage && <img src={URL.createObjectURL(tenantImage)} alt="Tenant" style={{ maxWidth: "100%", height: "auto", marginTop: "10px" }} />}
             </CardContent>
           </Card>
 
+          {/* National ID Image Upload */}
           <Card
             sx={{
               display: "inline-block",
               width: "28vw",
               marginLeft: 2,
               marginBottom: "10px",
-              height: 300,
+              height: "auto", // Make height auto to adjust for image
             }}
           >
             <CardContent sx={{ textAlign: "center" }}>
-              <Typography
-                sx={{
-                  textAlign: "center",
-                  marginBottom: 0.3,
-                  fontWeight: "bold",
-                  fontSize: "19px",
-                }}
-              >
-                National Thai Citizen ID or Passport
-              </Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a a of the tenant Identification </Typography>
+              {/* ... other content */}
               <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <Fab color="secondary" aria-label="add">
-                  <AddIcon />
-                </Fab>
+                {/* Hidden input for national ID image */}
+                <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
+                {/* Label that acts as a button */}
+                <label htmlFor="national-id-image-upload">
+                  <Fab color="secondary" component="span" aria-label="add">
+                    <PhotoCamera />
+                  </Fab>
+                </label>
               </Box>
+              {/* Display uploaded national ID image */}
+              {nationalCardImage && <img src={URL.createObjectURL(nationalCardImage)} alt="National ID" style={{ maxWidth: "100%", height: "auto", marginTop: "10px" }} />}
             </CardContent>
           </Card>
         </Box>
