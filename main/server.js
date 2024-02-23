@@ -14,6 +14,7 @@ import contractroute from './routes/contractroute';
 import requestroute from './routes/requestroute';
 import generatebillroute from './routes/generatebillroute';
 import paymentroute from './routes/paymentroute';
+import utilityroute from './routes/utilityroute';
 
 // import authroute from './routes/authroute';
 
@@ -48,6 +49,7 @@ app.use(requestroute);
 app.use(generatebillroute);
 app.use(paymentroute);
 app.use('/images', express.static('C:\\\\Senior_Project2\\\\PSPark_Images'));
+app.use(utilityroute);
 
 
 
