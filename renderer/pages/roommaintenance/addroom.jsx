@@ -134,18 +134,21 @@ export default function AddRoom() {
   
         // Assuming ratesData is an array of rate objects
         setRates(ratesData);
+        console.log('Rates Data',ratesData)
+
   
-        // Find and set default rates for Water and Electricity using their names
         const defaultRates = ratesData.reduce((acc, rate) => {
+          console.log(rate.item_name); // Debugging: Log the item name to see what's being processed
           if (rate.item_name === 'Water' || rate.item_name === 'Electricity') {
             acc.push({ rateId: rate.rate_id, quantity: 1 });
           }
           return acc;
         }, []);
+                
   
         setSelectedRates(defaultRates);
         // console.log(defaultRates);
-        console.log("Inside Fetch",selectedRates);
+        // console.log("Inside Fetch",selectedRates);
       } catch (error) {
         console.error("Error fetching rates:", error);
       }
@@ -153,7 +156,7 @@ export default function AddRoom() {
   
     fetchRates();
   }, []);
-  console.log("Outside Fetch",selectedRates);
+  // console.log("Outside Fetch",selectedRates);
 
 
   const handleCheck = (rateId) => {

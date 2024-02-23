@@ -29,11 +29,16 @@ import { useTheme } from "@mui/material/styles";
 import { ReactComponent as EmptyTableSvg } from "../../public/assets/empty-table.svg";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-
+import { useAPI } from "./apiContent";
 
 export default function ratetable() {
+  const { rooms, fetchRooms, refreshRooms } = useAPI();
+
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
   const theme = useTheme();
-  const [rooms, setRooms] = useState([]);
+  // const [rooms, setRooms] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filterValue, setFilterValue] = useState("all");
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -49,48 +54,127 @@ export default function ratetable() {
     PAID: "success", // green color
   };
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/getallrooms");
-        setRooms(
-          response.data.getrooms.map((room) => {
-            // Check if generatedBillRecords is not empty and assign the payment_status from the latest record
-            const paymentStatus =
-              room.generatedBillRecords.length > 0
-                ? room.generatedBillRecords[0].payment_status
-                : "Not Available"; // Or any default/fallback status you prefer
+  // useEffect(() => {
+  //   const fetchRooms = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:3000/getallrooms");
+  //       setRooms(
+  //         response.data.getrooms.map((room) => {
+  //           // Check if generatedBillRecords is not empty and assign the payment_status from the latest record
+  //           const paymentStatus =
+  //             room.generatedBillRecords.length > 0
+  //               ? room.generatedBillRecords[0].payment_status
+  //               : "Not Available"; // Or any default/fallback status you prefer
 
-            return {
-              id: room.room_id,
-              roomnumber: room.room_number,
-              floor: room.floor,
-              roomtype: room.room_type,
-              occupancystatus: room.statusDetails.occupancy_status,
-              reservationstatus: room.statusDetails.is_reserved,
-              paymentstatus: paymentStatus, // Use the extracted or default payment status
-            };
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching rooms:", error.message);
-      }
-    };
-    fetchRooms();
-  }, []);
+  //           return {
+  //             id: room.room_id,
+  //             roomnumber: room.room_number,
+  //             floor: room.floor,
+  //             roomtype: room.room_type,
+  //             occupancystatus: room.statusDetails.occupancy_status,
+  //             reservationstatus: room.statusDetails.is_reserved,
+  //             paymentstatus: paymentStatus, // Use the extracted or default payment status
+  //           };
+  //         })
+  //       );
+  //     } catch (error) {
+  //       console.error("Error fetching rooms:", error.message);
+  //     }
+  //   };
+  //   fetchRooms();
+  // }, []);
 
   // console.log("PaymentSTsuts",rooms.paymentStatus);
 
+  // const columns = [
+  //   { field: "roomnumber", headerName: "Room Number", flex: 0.14 },
+  //   { field: "floor", headerName: "Floor", flex: 0.14 },
+  //   { field: "roomtype", headerName: "Room Type", flex: 0.14 },
+  //   { field: "occupancystatus", headerName: "Occupancy", flex: 0.14 },
+  //   {
+  //     field: "reservationstatus",
+  //     headerName: "Reservation",
+  //     flex: 0.14,
+  //     renderCell: (params) => {
+  //       return (
+  //         <Box
+  //           sx={{
+  //             display: "flex",
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //           }}
+  //         >
+  //           {params.value ? (
+  //             <CheckCircleIcon color="success" />
+  //           ) : (
+  //             <CancelIcon color="error" />
+  //           )}
+  //         </Box>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     field: "paymentstatus",
+  //     headerName: "Payment",
+  //     flex: 0.16,
+  //     renderCell: (params) => {
+  //       const color =
+  //         paymentStatusColors[params.row.paymentstatus] || "default";
+  //       return (
+  //         <Chip
+  //           label={params.row.paymentstatus}
+  //           color={color}
+  //           size="small"
+  //           variant="outlined"
+  //           style={{
+  //             width: "100%", // set the width to 100% to fill the cell
+  //             justifyContent: "center", // center the text inside the chip
+  //           }}
+  //         />
+  //       );
+  //     },
+  //   },
+  //   {
+  //     field: "actions",
+  //     headerName: "Actions",
+  //     flex: 0.14,
+  //     renderCell: (params) => (
+  //       <>
+  //         <Link
+  //           href={`/roommaintenance/editroom?roomId=${params.row.id}`}
+  //           passHref
+  //         >
+  //           <IconButton component="a">
+  //             <EditIcon />
+  //           </IconButton>
+  //         </Link>
+  //         <IconButton onClick={() => handleDeleteClick(params.row.id)}>
+  //           <DeleteIcon />
+  //         </IconButton>
+  //       </>
+  //     ),
+  //   },
+  // ];
+
   const columns = [
-    { field: "roomnumber", headerName: "Room Number", flex: 0.14 },
+    { field: "room_number", headerName: "Room Number", flex: 0.14 },
     { field: "floor", headerName: "Floor", flex: 0.14 },
-    { field: "roomtype", headerName: "Room Type", flex: 0.14 },
-    { field: "occupancystatus", headerName: "Occupancy", flex: 0.14 },
+    { field: "room_type", headerName: "Room Type", flex: 0.14 },
     {
-      field: "reservationstatus",
+      field: "occupancy_status",
+      headerName: "Occupancy",
+      flex: 0.14,
+      renderCell: (params) => {
+        // Accessing occupancy_status from the nested statusDetails object
+        return params.row.statusDetails.occupancy_status;
+      },
+    },
+    {
+      field: "is_reserved",
       headerName: "Reservation",
       flex: 0.14,
       renderCell: (params) => {
+        // Accessing is_reserved from the nested statusDetails object
         return (
           <Box
             sx={{
@@ -99,7 +183,7 @@ export default function ratetable() {
               alignItems: "center",
             }}
           >
-            {params.value ? (
+            {params.row.statusDetails.is_reserved ? (
               <CheckCircleIcon color="success" />
             ) : (
               <CancelIcon color="error" />
@@ -114,16 +198,16 @@ export default function ratetable() {
       flex: 0.16,
       renderCell: (params) => {
         const color =
-          paymentStatusColors[params.row.paymentstatus] || "default";
+          paymentStatusColors[params.row.paymentStatus] || "default"; // Assuming paymentStatusColors is a predefined object mapping statuses to colors
         return (
           <Chip
-            label={params.row.paymentstatus}
+            label={params.row.paymentStatus}
             color={color}
             size="small"
             variant="outlined"
             style={{
-              width: "100%", // set the width to 100% to fill the cell
-              justifyContent: "center", // center the text inside the chip
+              width: "100%",
+              justifyContent: "center",
             }}
           />
         );
@@ -133,21 +217,22 @@ export default function ratetable() {
       field: "actions",
       headerName: "Actions",
       flex: 0.14,
-      renderCell: (params) => (
-        <>
-          <Link
-            href={`/roommaintenance/editroom?roomId=${params.row.id}`}
-            passHref
-          >
-            <IconButton component="a">
-              <EditIcon />
+      renderCell: (params) => {
+        // Assuming the room ID is stored in the row data under a property named 'room_id'
+        const roomId = params.row.room_id;
+        return (
+          <>
+            <Link href={`/roommaintenance/editroom?roomId=${roomId}`} passHref>
+              <IconButton component="a">
+                <EditIcon />
+              </IconButton>
+            </Link>
+            <IconButton onClick={() => handleDeleteClick(params.row.id)}>
+              <DeleteIcon />
             </IconButton>
-          </Link>
-          <IconButton onClick={() => handleDeleteClick(params.row.id)}>
-            <DeleteIcon />
-          </IconButton>
-        </>
-      ),
+          </>
+        );
+      },
     },
   ];
 
@@ -155,18 +240,21 @@ export default function ratetable() {
     // Find the room with the given ID
     const room = rooms.find((room) => room.id === roomId);
     if (room) {
-      setRoomToDelete(room.roomnumber); // Set the room number to be displayed in the dialog
-      setDeleteRoomId(roomId);
+      setRoomToDelete(room.room_number); // Set the room number to be displayed in the dialog
+      setDeleteRoomId(room.room_id);
       setOpenDeleteDialog(true);
     }
   };
 
+  // console.log('Fetched Rooms',rooms)
   const handleConfirmDelete = async () => {
+    // console.log('roomId: ',deleteRoomId)
     if (deleteRoomId) {
       try {
         await axios.delete(`http://localhost:3000/deleterooms/${deleteRoomId}`);
         setSnackbarOpen(true);
-        setRooms(rooms.filter((room) => room.id !== deleteRoomId));
+        // setRooms(rooms.filter((room) => room.id !== deleteRoomId));
+        await refreshRooms();
       } catch (error) {
         console.error(`Error deleting room with ID: ${deleteRoomId}`, error);
       }
@@ -184,10 +272,17 @@ export default function ratetable() {
     setSnackbarOpen(false);
   };
 
+  // const filteredRows = rooms.filter((row) => {
+  //   return (
+  //     row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
+  //     (filterValue === "all" || row.occupancystatus === filterValue)
+  //   );
+  // });
+
   const filteredRows = rooms.filter((row) => {
     return (
-      row.roomnumber.toLowerCase().includes(searchText.toLowerCase()) &&
-      (filterValue === "all" || row.occupancystatus === filterValue)
+      row.room_number.toLowerCase().includes(searchText.toLowerCase()) &&
+      (filterValue === "all" || row.occupancy_status === filterValue)
     );
   });
 

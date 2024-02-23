@@ -47,6 +47,7 @@ export default function ratetable() {
   ];
 
   const handleDelete = async (tenant_id) => {
+    console.log(`Delete ${tenant_id}`);
     try {
       await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
       // console.log(`Tenant with ID: ${tenant_id} deleted successfully`);

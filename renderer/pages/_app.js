@@ -39,13 +39,16 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { SnackbarProvider } from "../components/snackBar/SnackbarContent";
 import Layout from '../layout';
+import { APIProvider } from "../components/ratemaintenance/apiContent";
 
 function MyApp({ Component, pageProps }) {
   return (
     <SessionProvider session={pageProps.session}>
       <AuthWrapper>
         <SnackbarProvider>
-          <Component {...pageProps} />
+          <APIProvider>
+            <Component {...pageProps} />
+          </APIProvider>
         </SnackbarProvider>
       </AuthWrapper>
     </SessionProvider>
