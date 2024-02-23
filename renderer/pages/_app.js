@@ -37,13 +37,16 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { SnackbarProvider } from "../components/snackBar/SnackbarContent";
 import Layout from '../layout';
 
 function MyApp({ Component, pageProps }) {
   return (
     <SessionProvider session={pageProps.session}>
       <AuthWrapper>
-        <Component {...pageProps} />
+        <SnackbarProvider>
+          <Component {...pageProps} />
+        </SnackbarProvider>
       </AuthWrapper>
     </SessionProvider>
   );

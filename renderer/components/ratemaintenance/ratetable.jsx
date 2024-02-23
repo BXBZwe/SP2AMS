@@ -26,10 +26,9 @@ export default function RateTable() {
         const response = await axios.get("http://localhost:3000/getallrates");
 
         if (response.data && Array.isArray(response.data.getRate)) {
-          // Add a unique id to each rate if it doesn't have one
           const ratesWithIds = response.data.getRate.map((rate, index) => ({
             ...rate,
-            id: index + 1, // You can replace this with a proper unique identifier
+            id: index + 1, 
           }));
 
           setRates(ratesWithIds);
