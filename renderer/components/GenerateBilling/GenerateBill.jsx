@@ -133,7 +133,6 @@ export default function GenerateBill() {
           };
 
           const response = await axios.post("http://localhost:3000/creategeneratebill", postData);
-          // console.log("Bill generated for room", room.room_number, response.data);
         })
       );
 

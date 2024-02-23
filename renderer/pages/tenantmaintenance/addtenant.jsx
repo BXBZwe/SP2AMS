@@ -17,9 +17,9 @@ import { PhotoCamera } from "@mui/icons-material";
 
 export default function addtenant() {
   const theme = useTheme();
+  const { openSnackbar } = useSnackbarContext();
   const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const { openSnackbar } = useSnackbarContext();
   const router = useRouter();
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [tenantData, setTenantData] = useState({
@@ -112,6 +112,8 @@ export default function addtenant() {
     e.preventDefault();
 
     // setLoading(true);
+
+    console.log(tenantData);
     setMessage("");
     const formdata = new FormData();
 
@@ -211,7 +213,41 @@ export default function addtenant() {
                 setTenantData({ ...tenantData, invoice_option: newValue });
               }}
               sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
-              renderInput={(params) => <TextField {...params} error={!!errors.invoice_option} helperText={errors.invoice_option} label="Invoice Option" />}
+
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  error={!!errors.invoice_option}
+                  helperText={errors.invoice_option}
+                  label="Invoice Option"
+                />
+              )}
+            />
+            <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>
+              Address
+            </Typography>
+            <TextField
+              id="number"
+              name="addresses.Number"
+              label="House Number" 
+              variant="outlined"
+              value={tenantData.Number}
+              onChange={handleChange}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+              error={!!errors.street}
+              helperText={errors.street}
+            />
+            <TextField
+              id="street"
+              name="addresses.street"
+              label="Street"
+              variant="outlined"
+              value={tenantData.street}
+              onChange={handleChange}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+              error={!!errors.street}
+              helperText={errors.street}
+
             />
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
