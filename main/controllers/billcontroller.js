@@ -26,8 +26,8 @@ const calculateAndGenerateBill = async (req, res) => {
         console.log("electricity usage:", electricityUsage)
 
 
-        const waterRateId = 6;
-        const electricityRateId = 7;
+        const waterRateId = 3;
+        const electricityRateId = 4;
         const rates = await prisma.rates.findMany({
             where: {
                 rate_id: {

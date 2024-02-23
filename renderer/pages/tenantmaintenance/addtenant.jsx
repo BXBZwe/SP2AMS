@@ -29,9 +29,9 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function addtenant() {
   const theme = useTheme();
+  const { openSnackbar } = useSnackbarContext();
   const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const { openSnackbar } = useSnackbarContext();
   const router = useRouter();
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [tenantData, setTenantData] = useState({
@@ -154,6 +154,8 @@ export default function addtenant() {
     e.preventDefault();
 
     // setLoading(true);
+
+    console.log(tenantData);
     setMessage("");
     try {
       const response = await axios.post(
@@ -321,6 +323,17 @@ export default function addtenant() {
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>
               Address
             </Typography>
+            <TextField
+              id="number"
+              name="addresses.Number"
+              label="House Number" 
+              variant="outlined"
+              value={tenantData.Number}
+              onChange={handleChange}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+              error={!!errors.street}
+              helperText={errors.street}
+            />
             <TextField
               id="street"
               name="addresses.street"
