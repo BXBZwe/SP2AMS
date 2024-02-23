@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-// import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -20,28 +19,23 @@ const getManager = async (req, res) => {
 };
 
 
-// const findManagerByName = async (name) => {
-//     try {
-//         const manager = await prisma.manager.findUnique({
-//             where: { name: name },
-//         });
-//         return manager;
-//     } catch (error) {
-//         console.error('Error finding manager by name:', error);
-//         throw error;
-//     }
-// };
+const addmanager = async (req, res) => {
+    const manager_image = req.files['profile_image'] ? req.files['profile_image'][0].path : null;
 
-// // Validate the manager's password
-// const validateManagerPassword = async (inputPassword, storedPasswordHash) => {
-//     try {
-//         const isValid = await bcrypt.compare(inputPassword, storedPasswordHash);
-//         return isValid;
-//     } catch (error) {
-//         console.error('Error validating manager password:', error);
-//         throw error;
-//     }
-// };
-
-
-export { getManager };
+    try {
+        const newmanager = await prisma.manager.create({
+            data: {
+                name: req.body.name,
+                email: req.body.email,
+                password_hash: req.body.password_hash,
+                phone_number: req.body.phone_number,
+                profile_image: manager_image
+            },
+        });
+        res.status(200).json({ message: 'Added a new manager successfully', newmanager });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error.message);
+    }
+}
+export { getManager, addmanager };

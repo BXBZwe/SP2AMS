@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { Card, CardContent, Typography, Box, Button, Select, MenuItem } from "@mui/material";
+import { Card, CardContent, Typography, Box, Button, Select, MenuItem, IconButton } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -10,14 +10,17 @@ import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { useRouter } from "next/router";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
 
 export default function updatetenant() {
   const router = useRouter();
   const { tenant_id } = router.query;
   const paymentOptions = ["Select", "EMAIL", "PAPER", "BOTH"];
   const [accountStatus, setAccountStatus] = useState("ACTIVE");
-
-  //console.log('Tenant id in front end ',tenant_id);
+  // const [tenantImagePreview, setTenantImagePreview] = useState(null);
+  // const [nationalIDImagePreview, setNationalIDImagePreview] = useState(null);
+  const [tenantImage, settenantImage] = useState(null);
+  const [NationalCardImage, setNationalCardImage] = useState(null);
 
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [tenantData, setTenantData] = useState({
@@ -26,7 +29,7 @@ export default function updatetenant() {
     personal_id: "",
     invoice_option: "",
     addresses: {
-      Number: "",
+      addressnumber: "",
       street: "",
       sub_district: "",
       district: "",
@@ -48,15 +51,6 @@ export default function updatetenant() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // const fetchRooms = async () => {
-    //     try {
-    //         const response = await axios.get('http://localhost:3000/getallrooms');
-    //         setRooms(response.data.getrooms);
-    //     } catch (error) {
-    //         console.error('Error fetching rooms:', error);
-    //     }
-    // };
-
     const fetchTenantData = async () => {
       try {
         console.log("Tenant ID:", tenant_id);
@@ -64,13 +58,17 @@ export default function updatetenant() {
         console.log("Received tenant data:", response.data);
 
         const tenant = response.data.getaTenant;
+        const tenantImageUrl = tenant.tenant_image ? tenant.tenant_image : null;
+        const nationalCardImageUrl = tenant.nationalcard_image ? tenant.nationalcard_image : null;
+
         setTenantData({
           first_name: tenant.first_name,
           last_name: tenant.last_name,
           personal_id: tenant.personal_id,
-          //room_id: tenant.room_id,
+          tenant_image: tenantImageUrl,
+          nationalcard_image: nationalCardImageUrl,
           invoice_option: tenant.invoice_option,
-          addresses: tenant.addresses || { Number: "", street: "", sub_district: "", district: "", province: "", postal_code: "" },
+          addresses: tenant.addresses || { addressnumber: "", street: "", sub_district: "", district: "", province: "", postal_code: "" },
           contacts: tenant.contacts || { phone_number: "", email: "", line_id: "", eme_name: "", eme_phone: "", eme_line_id: "", eme_relation: "" },
         });
       } catch (error) {
@@ -78,7 +76,6 @@ export default function updatetenant() {
       }
     };
     fetchTenantData();
-    //fetchRooms();
   }, [tenant_id]);
 
   const handleChange = (e) => {
@@ -104,8 +101,29 @@ export default function updatetenant() {
     setMessage("");
     const updatedTenantData = { ...tenantData, account_status: accountStatus };
 
+    const formdata = new FormData();
+    Object.keys(updatedTenantData).forEach((key) => {
+      if (key === "addresses" || key === "contacts") {
+        Object.keys(updatedTenantData[key]).forEach((subKey) => {
+          formdata.append(`${key}[${subKey}]`, updatedTenantData[key][subKey]);
+        });
+      } else if (typeof updatedTenantData[key] === "object") {
+        formdata.append(key, JSON.stringify(updatedTenantData[key]));
+      } else {
+        formdata.append(key, updatedTenantData[key]);
+      }
+    });
+
+    if (tenantImage) formdata.append("tenant_image", tenantImage);
+    if (NationalCardImage) formdata.append("nationalcard_image", NationalCardImage);
+
     try {
-      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, updatedTenantData);
+      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, formdata, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (response.status === 200) {
         console.log("Tenant updated successfully:", response.data);
         setMessage("Tenant updated successfully");
@@ -118,6 +136,14 @@ export default function updatetenant() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTenantImageChange = (e) => {
+    settenantImage(e.target.files[0]);
+  };
+
+  const handleNationalIDImageChange = (e) => {
+    setNationalCardImage(e.target.files[0]);
   };
 
   return (
@@ -176,7 +202,7 @@ export default function updatetenant() {
             <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.contacts.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.contacts.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <TextField id="Number" name="addresses.Number" label="Soi" variant="outlined" value={tenantData.addresses.Number} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
+            <TextField id="addressnumber" name="addresses.addressnumber" label="Soi" variant="outlined" value={tenantData.addresses.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
             <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.addresses.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
 
             <TextField id="district" name="addresses.district" label="District" value={tenantData.addresses.district} onChange={handleChange} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
@@ -198,26 +224,35 @@ export default function updatetenant() {
           </Box>
         </Card>
         <Box sx={{ display: "flex", flexDirection: "column", height: "90%" }}>
-          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: 300 }}>
+          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
             <CardContent sx={{ textAlign: "center" }}>
               <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a pciture of tenant </Typography>
+              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
               <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <Fab color="secondary" aria-label="add">
-                  <AddIcon />
-                </Fab>
+                <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
+                <label htmlFor="tenant-image">
+                  <IconButton color="primary" aria-label="upload picture" component="span">
+                    <img src={tenantData.tenant_image} alt="Tenant" width="200" height="auto" />
+                    <PhotoCamera />
+                  </IconButton>
+                </label>
               </Box>
             </CardContent>
           </Card>
 
-          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: 300 }}>
+          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
             <CardContent sx={{ textAlign: "center" }}>
               <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a a of the tenant Identification </Typography>
+              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
               <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <Fab color="secondary" aria-label="add">
-                  <AddIcon />
-                </Fab>
+                <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
+                <label htmlFor="national-id-image">
+                  <IconButton color="primary" aria-label="upload ID picture" component="span">
+                    <img src={tenantData.nationalcard_image} alt="National Card" width="200" height="auto" />
+
+                    <PhotoCamera />
+                  </IconButton>
+                </label>
               </Box>
             </CardContent>
           </Card>
