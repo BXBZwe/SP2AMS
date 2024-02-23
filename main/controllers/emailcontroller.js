@@ -5,8 +5,6 @@ require('dotenv').config();
 const prisma = new PrismaClient();
 
 const Emailsender = async (req, res) => {
-    //console.log("Emailsender function called");
-    //console.log("Request body:", req.body);
 
     const { subject, room_id } = req.body;
     console.log("Body for email:", req.body);
@@ -36,6 +34,7 @@ const Emailsender = async (req, res) => {
                 },
             },
         });
+        console.log("Room Details to send email: ", roomDetails);
 
         if (!roomDetails || roomDetails.tenants.length === 0 || roomDetails.bills.length === 0) {
             return res.status(404).send('Room details or bill not found.');
@@ -44,7 +43,13 @@ const Emailsender = async (req, res) => {
         const activeTenant = roomDetails.tenants[0];
         console.log("Active Tenant:", activeTenant);
         const tenantName = `${activeTenant.first_name} ${activeTenant.last_name}`;
-        const tenantAddress = activeTenant.addresses;
+        const tenantAddressNumber = activeTenant.addresses.Number;
+        const tenantAddressStreet = activeTenant.addresses.street;
+        const tenantAddressDistrict = activeTenant.addresses.district;
+        const tenantAddressSubdistrict = activeTenant.addresses.sub_district;
+        const tenantAddressprovince = activeTenant.addresses.province;
+        const tenantAddresspostal_code = activeTenant.addresses.postal_code;
+
         const tenantEmail = activeTenant.contacts.email;
         console.log("Tenant Email:", tenantEmail);
 
@@ -67,7 +72,8 @@ const Emailsender = async (req, res) => {
 P.S. Part General Partnership
 ${apartmentAddress}
 Name: ${tenantName} (Room ${roomNumber})
-Address: ${tenantAddress}
+Address: ${tenantAddressNumber} ${tenantAddressStreet} ${tenantAddressDistrict} ${tenantAddressSubdistrict}
+${tenantAddressprovince} ${tenantAddresspostal_code}
 
 List
 ${ratesList}

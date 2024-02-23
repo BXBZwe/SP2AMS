@@ -11,7 +11,7 @@ const addMeterReading = async (req, res) => {
 
         const newData = {
             room_id: parsedRoomId,
-            reading_date: parsedReadingDate
+            reading_date: parsedReadingDate,
         };
 
         if (water_reading !== undefined) {
