@@ -109,7 +109,7 @@ const calculateAndGenerateBill = async (req, res) => {
                 electricity_cost: electricityCost,
                 additional_rates_cost: additionalRatesCost,
                 total_amount: Number(waterCost) + Number(electricityCost) + Number(additionalRatesCost) + Number(roombaserent),
-                billing_date: new Date(),
+                billing_date: generatedBill.generation_date,
                 baserent_month: generatedBill.rent_month,
                 baserent_year: generatedBill.rent_year,
             },

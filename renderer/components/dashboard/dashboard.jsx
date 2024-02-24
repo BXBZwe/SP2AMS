@@ -1,26 +1,105 @@
-import * as React from 'react';
-import Typography from '@mui/material/Typography';
+import React, { useEffect, useState, useRef } from "react";
+import Typography from "@mui/material/Typography";
 import { Card, CardContent, Button, Grid, Stack, Box } from "@mui/material";
-import TextField from '@mui/material/TextField';
-import Link from 'next/link';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
+import axios from "axios";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = React.useState('management');
-  const [slot, setSlot] = React.useState('month');
+  const [activeTab, setActiveTab] = useState("management");
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
-  
+
+  const [selectedUtilityType, setSelectedUtilityType] = useState("water");
+  const [selectedGranularity, setSelectedGranularity] = useState("building");
+
+  const [trends, setTrends] = useState(null);
+  const chartRef = useRef(null);
+
+  const fetchTrends = async (utilityType, granularity) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/get_utitliy_trends/${utilityType.toLowerCase()}/${granularity.toLowerCase()}`);
+      setTrends(response.data.data);
+      console.log("Utility trends ", response.data.data);
+    } catch (error) {
+      console.error("Error Fetching utility trends", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrends(selectedUtilityType, selectedGranularity);
+  }, [selectedUtilityType, selectedGranularity]);
+
+  useEffect(() => {
+    if (trends && activeTab === "analysis" && chartRef.current) {
+      import("danfojs")
+        .then((dfd) => {
+          const df = new dfd.DataFrame(trends);
+          df["year"] = df["year"].apply((val) => parseInt(val));
+          df["month"] = df["month"].apply((val) => parseInt(val));
+
+          let traces = [];
+          if (selectedGranularity.toLowerCase() === "room") {
+            const roomIds = df["room_id"].unique().values;
+            roomIds.forEach((roomId) => {
+              const roomDf = df.loc({ rows: df["room_id"].eq(roomId) });
+              const grouped = roomDf.groupby(["year", "month"]);
+              const sumDf = grouped.sum();
+              const trace = {
+                x: sumDf["month"].values,
+                y: sumDf["total_usage_sum"].values,
+                type: "scatter",
+                mode: "lines+markers",
+                name: `Room ${roomId}`,
+              };
+              traces.push(trace);
+            });
+          } else {
+            const grouped = df.groupby(["year", "month"]);
+            const sumDf = grouped.sum();
+            const trace = {
+              x: sumDf["month"].values,
+              y: sumDf["total_usage_sum"].values,
+              type: "scatter",
+              mode: "lines+markers",
+              name: "Total Building Usage",
+            };
+            traces.push(trace);
+          }
+
+          const layout = {
+            title: "Utility Usage Trends",
+            xaxis: { title: "Month/Year" },
+            yaxis: { title: "Usage" },
+            autosize: false,
+            width: 800,
+            height: 500,
+            margin: {
+              l: 50,
+              r: 50,
+              b: 100,
+              t: 100,
+              pad: 4,
+            },
+          };
+
+          import("plotly.js-dist-min")
+            .then((plotly) => {
+              plotly.newPlot(chartRef.current, traces, layout);
+            })
+            .catch((err) => console.error("Error loading Plotly:", err));
+        })
+        .catch((err) => console.error("Error loading Danfojs:", err));
+    }
+  }, [trends, activeTab, selectedUtilityType, selectedGranularity]);
+
   return (
     <>
-      <Card sx={{ width: '100%', display: 'flex' }}>
+      <Card sx={{ width: "100%", display: "flex" }}>
         <CardContent
           sx={{
-            marginRight: 'auto',
-            marginBottom: '10px',
+            marginRight: "auto",
+            marginBottom: "10px",
           }}
         >
           <Typography variant="h4">Dashboard</Typography>
@@ -30,136 +109,40 @@ export default function Dashboard() {
         </CardContent>
         <CardContent>
           <div>
-            <Button
-              variant={activeTab === 'management' ? 'contained' : 'outlined'}
-              onClick={() => handleTabChange('management')}
-              sx={{ marginRight: '10px' }}
-            >
+            <Button variant={activeTab === "management" ? "contained" : "outlined"} onClick={() => handleTabChange("management")} sx={{ marginRight: "10px" }}>
               Management
             </Button>
-            <Button
-              variant={activeTab === 'analysis' ? 'contained' : 'outlined'}
-              onClick={() => handleTabChange('analysis')}
-            >
+            <Button variant={activeTab === "analysis" ? "contained" : "outlined"} onClick={() => handleTabChange("analysis")}>
               Analysis
             </Button>
           </div>
-          
-          
         </CardContent>
-        
       </Card>
-          {activeTab === 'management' && (
-            // Render content for the 'Management' tab
-            <div>
-              <Card sx={{marginTop: '10px', height: '89%', width: '100%' }}>
-                <CardContent >
-                  <Typography variant="h5">Management Content</Typography>
-                </CardContent>
-              </Card>
-              
-            </div>
-          )}
+      {activeTab === "management" && (
+        <div>
+          <Card sx={{ marginTop: "10px", height: "89%", width: "100%" }}>
+            <CardContent>
+              <Typography variant="h5">Management Content</Typography>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-
-
-          {activeTab === 'analysis' && (
-            // Render content for the 'Analysis' tab
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', marginBottom: '10px' }}>
-              <Card sx={{ marginTop: '10px', height: '110px', width: '20%', marginRight: '2%' }}>
-                <CardContent>
-                  <Typography sx={{ textAlign: 'right', opacity: '60%', fontSize: '15px' }} variant="h6">Revenue</Typography>
-                  <Typography sx={{ textAlign: 'center' }} variant="h5">$ 560,900</Typography>
-                  <Typography sx={{ textAlign: 'center', color: 'green', marginTop: '5px' }} variant="h6">
-                    +15% <ArrowUpwardIcon fontSize="small" />
-                  </Typography>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ marginTop: '10px', height: '110px', width: '20%', marginRight: '2%' }}>
-                <CardContent>
-                  <Typography sx={{ textAlign: 'right', opacity: '60%', fontSize: '15px' }} variant="h6">Cost</Typography>
-                  <Typography sx={{ textAlign: 'center' }} variant="h5">$ 330,900</Typography>
-                  <Typography sx={{ textAlign: 'center', color: 'red', marginTop: '5px' }} variant="h6">
-                    -10% <ArrowDownwardIcon fontSize="small" />
-                  </Typography>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ marginTop: '10px', height: '110px', width: '20%' }}>
-                <CardContent>
-                  <Typography sx={{ textAlign: 'right', opacity: '60%', fontSize: '15px' }} variant="h6">Profit</Typography>
-                  <Typography sx={{ textAlign: 'center' }} variant="h5">$ 229,900</Typography>
-                  <Typography sx={{ textAlign: 'center', color: 'green', marginTop: '5px' }} variant="h6">
-                    +8% <ArrowUpwardIcon fontSize="small" />
-                  </Typography>
-                </CardContent>
-              </Card>
-              </div>
-
-              <div style={{ display: 'flex', marginBottom: '10px', width: '100%' }}>
-              <Card sx={{ marginTop: 'auto', height: '110px', width: '64%' }}>
-              <Grid item xs={12} md={7} lg={8}>
-              <Grid container alignItems="center" justifyContent="space-between" sx={{ padding: '10px' }}>
-                <Grid item >
-                  <Typography variant="h6">Unique Visitor</Typography>
-                </Grid>
-                <Grid item>
-                  <Stack direction="row" alignItems="center" spacing={0}>
-                    <Button
-                      size="small"
-                      onClick={() => setSlot('month')}
-                      color={slot === 'month' ? 'primary' : 'secondary'}
-                      variant={slot === 'month' ? 'outlined' : 'text'}
-                    >
-                      Month
-                    </Button>
-                    <Button
-                      size="small"
-                      onClick={() => setSlot('week')}
-                      color={slot === 'week' ? 'primary' : 'secondary'}
-                      variant={slot === 'week' ? 'outlined' : 'text'}
-                    >
-                      Week
-                    </Button>
-                  </Stack>
-                </Grid>
-              </Grid>
-              
-              </Grid>
-              </Card>
-              <Card sx={{ marginTop: 'auto', height: '110px', width: '35%', marginLeft: '1%'}}>
-              <Grid item xs={12} md={5} lg={4}>
-              <Grid container alignItems="center" justifyContent="space-between">
-                <Grid item sx={{ padding: '10px' }}>
-                  <Typography variant="h6">Income Overview</Typography>
-                </Grid>
-                <Grid item />
-              </Grid>
-              
-              </Grid>
-              </Card>
-              </div>
-              <Card sx={{ marginTop: 'auto', height: '110px', width: '100%'}}>
-              <Grid item xs={12} md={7} lg={8}>
-              <Grid container alignItems="center" justifyContent="space-between" sx={{ padding: '10px' }}>
-                <Grid item>
-                  <Typography variant="h6">Sales Report</Typography>
-                </Grid>
-                <Grid item>
-                  
-                </Grid>
-              </Grid>
-              
-            </Grid>
-            </Card>
-            </div>
-            
-
-          )}
-          
-      
+      {activeTab === "analysis" && (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <select value={selectedUtilityType} onChange={(e) => setSelectedUtilityType(e.target.value)}>
+            <option value="water">Water</option>
+            <option value="electricity">Electricity</option>
+          </select>
+          <select value={selectedGranularity} onChange={(e) => setSelectedGranularity(e.target.value)}>
+            <option value="building">Building</option>
+            <option value="room">Room</option>
+          </select>
+          <Card sx={{ marginTop: "10px", padding: "20px" }}>
+            <div ref={chartRef} style={{ height: "500px", width: "100%" }} />
+          </Card>
+        </div>
+      )}
     </>
   );
 }
