@@ -21,10 +21,15 @@ import {
   DialogContentText,
   Autocomplete,
   Grid,
+  Fab,
+  List,
+  ListItem,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
+import AddIcon from "@mui/icons-material/Add";
+import { useAPI } from "../../components/ratemaintenance/apiContent";
 
 export default function EditRoom() {
   const router = useRouter();
@@ -50,8 +55,14 @@ export default function EditRoom() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [selectedRates, setSelectedRates] = useState([]);
-  const [rates, setRates] = useState([]);
+  const [remainingRates, setRemainingRates] = useState([]);
   const roomTypes = ["Studio", "Deluxe", "Other"];
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const { rates, fetchRates } = useAPI();
+  // console.log(rates)
+  useEffect(() => {
+    fetchRates();
+  }, [fetchRates]);
 
   const filteredRates = rates.filter((rate) =>
     rate.item_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -114,15 +125,36 @@ export default function EditRoom() {
           last_updated: rate.rates.last_updated,
         }));
 
+        // Separate rates into selected and remaining
+        const selected = ratesData;
+        const selectedRateIds = roomData.room_rates.map((rate) => rate.rate_id);
+        const filterRates = rates.filter(
+          (rate) => !selectedRateIds.includes(rate.rate_id)
+        );
+        const remaining = filterRates.map((rate) => ({
+          item_description: rate.item_description,
+          item_name: rate.item_name,
+          item_price: rate.item_price,
+          last_updated: rate.last_updated,
+          quantity: 1,
+          rateId: rate.rate_id,
+        }));
+
+        // console.log("Selected", selected);
+        // console.log("Remaining", remaining);
+
+        setSelectedRates(selected);
+        setRemainingRates(remaining);
+
         // Set the fetched room details and rates into the formData state
         setFormData({
           ...roomData,
           statusDetails: {
             occupancy_status: roomData.statusDetails.occupancy_status,
             is_reserved: roomData.statusDetails.is_reserved,
-            payment_status: roomData.statusDetails.payment_status, // Assuming the payment_status is included in the statusDetails
+            payment_status: roomData.statusDetails.payment_status,
           },
-          rates: ratesData, // Set the prepared rates data
+          rates: ratesData,
         });
 
         setRoomNumber(roomData.room_number);
@@ -208,6 +240,18 @@ export default function EditRoom() {
     }
   };
 
+  // const handleRateChange = (rateId) => {
+  //   setFormData((prevFormData) => {
+  //     const newRates = prevFormData.rates.map((rate) => {
+  //       if (rate.rateId === rateId) {
+  //         return { ...rate, quantity: rate.quantity > 0 ? 0 : 1 }; // Toggle quantity between 0 and 1
+  //       }
+  //       return rate;
+  //     });
+  //     return { ...prevFormData, rates: newRates };
+  //   });
+  // };
+
   const handleRateChange = (rateId) => {
     setFormData((prevFormData) => {
       const newRates = prevFormData.rates.map((rate) => {
@@ -218,6 +262,22 @@ export default function EditRoom() {
       });
       return { ...prevFormData, rates: newRates };
     });
+  };
+
+  const handleAddNewItem = (item) => {
+    setRemainingRates((prevRemainingRates) => {
+      return prevRemainingRates.filter((rate) => rate.rateId !== item.rateId);
+    });
+    setFormData((prevFormData) => {
+      return {
+        ...prevFormData,
+        rates: [...prevFormData.rates, item], // Add the new item to the rates array
+      };
+    });
+  };
+
+  const handleBack = () => {
+    router.back();
   };
 
   const handleQuantityChange = (rateId, newQuantity) => {
@@ -236,15 +296,15 @@ export default function EditRoom() {
     const { name, checked } = event.target;
 
     if (name === "statusDetails.is_reserved") {
+      // Determine the new occupancy status based on the checked state of the "Is Reserved" checkbox
+      const newOccupancyStatus = checked ? "UNAVAILABLE" : "VACANT";
+
       setFormData({
         ...formData,
         statusDetails: {
           ...formData.statusDetails,
           is_reserved: checked,
-          // Set occupancy status to "Unavailable" if checked, or clear it if unchecked
-          occupancy_status: checked
-            ? "UNAVAILABLE"
-            : formData.statusDetails.occupancy_status,
+          occupancy_status: newOccupancyStatus,
         },
       });
     } else {
@@ -296,32 +356,6 @@ export default function EditRoom() {
     setOpenDialog(true);
   };
 
-  // const handleConfirmSave = async () => {
-  //   // Convert 'floor' to an integer
-  //   const updatedFormData = {
-  //     ...formData,
-  //     floor: parseInt(formData.floor, 10) || 0, // Convert to integer, default to 0 if NaN
-  //   };
-  //   setRoomNumber(updatedFormData.room_number);
-
-  //   try {
-  //     await axios.put(
-  //       `http://localhost:3000/updaterooms/${roomId}`,
-  //       updatedFormData
-  //     );
-  //     // setSnackbarOpen(true);
-  //     openSnackbar("Room updated successfully!", "success");
-  //     setTimeout(() => {
-  //       router.push("/roomMaintenance"); // Redirect to the room maintenance page
-  //     }, 500);
-  //   } catch (error) {
-  //     console.error("Error updating room details:", error.message);
-  //   } finally {
-  //     setOpenDialog(false);
-  //     setEditable(false);
-  //   }
-  // };
-
   const handleConfirmSave = async () => {
     // Convert 'floor' to an integer and prepare rates data
     const updatedFormData = {
@@ -358,8 +392,13 @@ export default function EditRoom() {
     }
   };
 
+  const handleOpenAddDialog = () => {
+    setAddDialogOpen(true);
+  };
+
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setAddDialogOpen(false);
   };
 
   const handleCloseSnackbar = () => {
@@ -421,22 +460,42 @@ export default function EditRoom() {
           </Typography>
         </CardContent>
         <CardContent>
-          {editable && (
-            <Button
-              variant="outlined"
-              sx={{ width: "110px", marginTop: "15px" }}
-              onClick={toggleEdit}
-            >
-              Cancel
-            </Button>
+          {!editable ? (
+            <>
+                          <Button
+                variant="outlined"
+                sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ width: "110px", marginTop: "15px" }}
+                onClick={toggleEdit}
+              >
+                Edit
+              </Button>
+
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outlined"
+                sx={{ width: "110px", marginTop: "15px" }}
+                onClick={toggleEdit}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ width: "110px", marginTop: "15px", marginLeft: "10px" }}
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </>
           )}
-          <Button
-            variant="contained"
-            sx={{ width: "110px", marginTop: "15px", marginLeft: "10px" }}
-            onClick={editable ? handleSave : toggleEdit}
-          >
-            {editable ? "Save" : "Edit"}
-          </Button>
         </CardContent>
       </Card>
 
@@ -520,19 +579,6 @@ export default function EditRoom() {
                   marginTop: "10px",
                 }}
               >
-                {/* <TextField
-                  disabled={!editable}
-                  label="Room Type"
-                  name="room_type"
-                  sx={{ width: "50%", marginRight: "10px" }}
-                  fullWidth
-                  value={formData.room_type}
-                  onChange={handleInputChange}
-                  required
-                  error={!!errors.room_type}
-                  helperText={errors.room_type}
-                /> */}
-
                 <Box sx={{ width: "50%" }}>
                   <Autocomplete
                     disabled={!editable}
@@ -552,7 +598,7 @@ export default function EditRoom() {
                   />
                   {isOtherSelected && (
                     <TextField
-                    disabled={!editable}
+                      disabled={!editable}
                       label="Custom Room Type"
                       value={formData.room_type}
                       onChange={handleCustomInputChange}
@@ -563,7 +609,7 @@ export default function EditRoom() {
                   )}
                 </Box>
 
-                <Autocomplete
+                {/* <Autocomplete
                   // disabled={!editable}
                   disabled
                   sx={{
@@ -593,6 +639,37 @@ export default function EditRoom() {
                       helperText={errors.occupancy_status}
                     />
                   )}
+                /> */}
+
+                <Autocomplete
+                  sx={{
+                    width: "50%",
+                    marginLeft: "10px",
+                    ".MuiAutocomplete-root": {
+                      marginTop: 0,
+                    },
+                  }}
+                  options={occupancyOptions}
+                  value={formData.statusDetails.occupancy_status}
+                  onChange={(event, newValue) => {
+                    setFormData((prevFormData) => ({
+                      ...prevFormData,
+                      statusDetails: {
+                        ...prevFormData.statusDetails,
+                        occupancy_status: newValue || "",
+                      },
+                    }));
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Occupancy Status"
+                      variant="outlined"
+                      error={!!errors.occupancy_status}
+                      helperText={errors.occupancy_status}
+                    />
+                  )}
+                  disabled
                 />
               </Box>
 
@@ -618,6 +695,17 @@ export default function EditRoom() {
             <Typography variant="h6" sx={{ marginBottom: "16px" }}>
               Additional Items
             </Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Fab
+              disabled={!editable}
+                size="small"
+                color="primary"
+                onClick={handleOpenAddDialog}
+                aria-label="add item"
+              >
+                <AddIcon />
+              </Fab>
+            </Box>
             {formData.rates.map((rate) => (
               <Grid
                 container
@@ -629,7 +717,6 @@ export default function EditRoom() {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        // checked={!!rate.quantity}
                         checked={rate.quantity > 0}
                         onChange={() => handleRateChange(rate.rateId)}
                         disabled={!editable}
@@ -698,6 +785,37 @@ export default function EditRoom() {
           Room updated successfully!
         </MuiAlert>
       </Snackbar>
+      {/* Add Dialog */}
+      <Dialog open={addDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Select Items</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Search"
+            value={searchTerm}
+            onChange={handleSearch}
+            size="small"
+            sx={{ mt: 2 }}
+          />
+          <List>
+            {remainingRates.map((item) => (
+              <ListItem key={item.rateId}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={false} // Since these are remaining rates, they are not selected
+                      onChange={() => handleAddNewItem(item)}
+                    />
+                  }
+                  label={`${item.item_name} - ${item.item_price}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Done</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
