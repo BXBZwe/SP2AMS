@@ -8,8 +8,7 @@ export default function HomePage() {
       <Head>
         <title>Dashboard</title>
       </Head>
-      <>Hello DashBoard</>
-      {/* <Dashboard /> */}
+      <Dashboard />
     </React.Fragment>
   );
 }

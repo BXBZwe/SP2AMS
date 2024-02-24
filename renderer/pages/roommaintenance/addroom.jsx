@@ -38,16 +38,14 @@ export default function AddRoom() {
   const router = useRouter();
   const { openSnackbar } = useSnackbarContext();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const roomTypes = ["Studio", "Deluxe", "Other"];
-  const occupancyOptions = ["VACANT", "OCCUPIED", "UNAVAILABLE"];
   const [formData, setFormData] = useState({
     room_number: "",
     floor: "",
-    room_type:roomTypes[0],
+    room_type: "",
     base_rent: "",
     deposit: "",
     statusDetails: {
-      occupancy_status: occupancyOptions[0],
+      occupancy_status: "",
       is_reserved: false,
     },
     rates: [],
@@ -65,6 +63,7 @@ export default function AddRoom() {
 
   const filteredItems = showAll ? filteredRates : filteredRates.slice(0, 3);
 
+  const roomTypes = ["Studio", "Deluxe", "Other"];
   const [customRoomType, setCustomRoomType] = useState("");
   const [inputValue, setInputValue] = useState("");
   const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
@@ -132,19 +131,21 @@ export default function AddRoom() {
       try {
         const response = await axios.get("http://localhost:3000/getallrates");
         const ratesData = response.data.getRate;
-
+  
         // Assuming ratesData is an array of rate objects
         setRates(ratesData);
-        console.log("Rates Data", ratesData);
+        console.log('Rates Data',ratesData)
 
+  
         const defaultRates = ratesData.reduce((acc, rate) => {
           console.log(rate.item_name); // Debugging: Log the item name to see what's being processed
-          if (rate.item_name === "Water" || rate.item_name === "Electricity") {
+          if (rate.item_name === 'Water' || rate.item_name === 'Electricity') {
             acc.push({ rateId: rate.rate_id, quantity: 1 });
           }
           return acc;
         }, []);
-
+                
+  
         setSelectedRates(defaultRates);
         // console.log(defaultRates);
         // console.log("Inside Fetch",selectedRates);
@@ -152,10 +153,11 @@ export default function AddRoom() {
         console.error("Error fetching rates:", error);
       }
     };
-
+  
     fetchRates();
   }, []);
   // console.log("Outside Fetch",selectedRates);
+
 
   const handleCheck = (rateId) => {
     setSelectedRates((prevSelectedRates) =>
@@ -165,40 +167,18 @@ export default function AddRoom() {
     );
   };
 
-  // const handleRateChange = (rateId) => {
-  //   setSelectedRates((currentSelectedRates) => {
-  //     const isRateSelected = currentSelectedRates.some(
-  //       (rate) => rate.rateId === rateId
-  //     );
-  //     if (isRateSelected) {
-  //       return currentSelectedRates.filter((rate) => rate.rateId !== rateId);
-  //     } else {
-  //       return [...currentSelectedRates, { rateId, quantity: null }];
-  //     }
-  //   });
-  // };
-
   const handleRateChange = (rateId) => {
-    const index = selectedRates.findIndex(
-      (selectedRate) => selectedRate.rateId === rateId
-    );
-  
-    if (index !== -1) {
-
-      const updatedSelectedRates = [...selectedRates];
-      updatedSelectedRates.splice(index, 1);
-      setSelectedRates(updatedSelectedRates);
-    } else {
-
-      const rateToAdd = {
-        rateId: rateId,
-        quantity: 1, 
-      };
-      setSelectedRates([...selectedRates, rateToAdd]);
-    }
+    setSelectedRates((currentSelectedRates) => {
+      const isRateSelected = currentSelectedRates.some(
+        (rate) => rate.rateId === rateId
+      );
+      if (isRateSelected) {
+        return currentSelectedRates.filter((rate) => rate.rateId !== rateId);
+      } else {
+        return [...currentSelectedRates, { rateId, quantity: null }];
+      }
+    });
   };
-  
-  
 
   const handleQuantityChange = (rateId, quantity) => {
     setSelectedRates((currentSelectedRates) => {
@@ -256,29 +236,28 @@ export default function AddRoom() {
     event.preventDefault();
     if (!validateForm()) {
       setSnackbarOpen(true);
-      return;
+      return; 
     }
-    setOpenDialog(true);
+    setOpenDialog(true); 
   };
 
   const handleConfirmAdd = async () => {
     const updatedFormData = {
       ...formData,
-      floor: parseInt(formData.floor, 10) || 0,
+      floor: parseInt(formData.floor, 10) || 0, 
       rates: selectedRates.map((rate) => ({
-        rate_id: rate.rateId,
-        quantity: rate.quantity,
+        rate_id: rate.rateId, 
+        quantity: rate.quantity, 
       })),
     };
 
     try {
       await axios.post("http://localhost:3000/addrooms", updatedFormData);
       openSnackbar("Room Added successfully!", "success");
-      // router.push("/roomMaintenance");
       setTimeout(() => {
-        router.push("/roomMaintenance");
+        router.push("/roomMaintenance"); 
       }, 500);
-      setOpenDialog(false);
+      setOpenDialog(false); 
 
       setFormData({
         room_number: "",
@@ -294,8 +273,8 @@ export default function AddRoom() {
       setSelectedRates([]);
     } catch (error) {
       console.error("Error adding room:", error);
-      setSnackbarOpen(true);
-      setOpenDialog(false);
+      setSnackbarOpen(true); 
+      setOpenDialog(false); 
     }
   };
   const handleOpenDialog = () => {
@@ -315,6 +294,7 @@ export default function AddRoom() {
     router.back();
   };
 
+  const occupancyOptions = ["VACANT", "OCCUPIED", "UNAVAILABLE"];
 
   const [errors, setErrors] = useState({});
 
@@ -637,7 +617,8 @@ export default function AddRoom() {
                   primary={`Occupancy Status: ${formData.statusDetails.occupancy_status}`}
                 />
               </ListItem>
-              <ListItem></ListItem>
+              <ListItem>
+              </ListItem>
               <ListItem>
                 <ListItemText
                   primary={`Is Reserved: ${
@@ -706,29 +687,21 @@ export default function AddRoom() {
             sx={{ mt: 2 }}
           />
           <List>
-            {filteredRates.map((item) => {
-              // Check if the item is already selected
-              const isSelected = selectedRates.some(
-                (selectedRate) => selectedRate.rateId === item.rate_id
-              );
-              // If the item is already selected, don't render it
-              if (isSelected) {
-                return null;
-              }
-              return (
-                <ListItem key={item.rate_id}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleRateChange(item.rate_id)}
-                      />
-                    }
-                    label={`${item.item_name} - ${item.item_price}`}
-                  />
-                </ListItem>
-              );
-            })}
+            {filteredRates.map((item) => (
+              <ListItem key={item.rate_id}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedRates.some(
+                        (selectedRate) => selectedRate.rateId === item.rate_id
+                      )}
+                      onChange={() => handleRateChange(item.rate_id)}
+                    />
+                  }
+                  label={`${item.item_name} - ${item.item_price}`}
+                />
+              </ListItem>
+            ))}
           </List>
         </DialogContent>
         <DialogActions>
