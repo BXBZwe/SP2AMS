@@ -94,77 +94,7 @@ const createRoom = async (req, res) => {
 };
 
 
-// // PUT - Update a room's details
-
-// const updateRoom = async (req, res) => {
-//     const { room_id } = req.params;
-//     const { room_number, floor, room_type, base_rent, deposit, statusDetails, rates } = req.body;
-
-//     try {
-//         // Begin a transaction to ensure atomicity
-//         const updatedRoom = await prisma.$transaction(async (prisma) => {
-//             // First, update the basic details of the room
-//             const roomUpdate = await prisma.roomBaseDetails.update({
-//                 where: { room_id: parseInt(room_id) },
-//                 data: {
-//                     room_number,
-//                     floor,
-//                     room_type,
-//                     base_rent,
-//                     deposit,
-//                     statusDetails: {
-//                         update: statusDetails,
-//                     },
-//                 },
-//                 include: {
-//                     statusDetails: true,
-//                     room_rates: true,
-//                 },
-//             });
-
-//             // Handle each rate update, creation, or deletion
-//             const ratePromises = rates.map(async ({ rate_id, quantity, disabled }) => {
-//                 // Check if the rate should be removed (quantity is 0 or disabled is true)
-//                 if (quantity === 0 || disabled) {
-//                     return prisma.room_rates.deleteMany({
-//                         where: {
-//                             room_id: parseInt(room_id),
-//                             rate_id,
-//                         },
-//                     });
-//                 } else {
-//                     // Otherwise, upsert the rate
-//                     return prisma.room_rates.upsert({
-//                         where: {
-//                             room_id_rate_id: {
-//                                 room_id: parseInt(room_id),
-//                                 rate_id,
-//                             },
-//                         },
-//                         update: {
-//                             quantity,
-//                         },
-//                         create: {
-//                             room_id: parseInt(room_id),
-//                             rate_id,
-//                             quantity,
-//                         },
-//                     });
-//                 }
-//             });
-
-//             await Promise.all(ratePromises);
-
-//             return roomUpdate; // Return the updated room details
-//         });
-
-//         res.status(200).json({ message: 'Room updated successfully', data: updatedRoom });
-//     } catch (error) {
-//         console.error('Error updating room:', error);
-//         res.status(500).json({ error: error.message });
-//     }
-// };
-
+// Put Update Room
 const updateRoom = async (req, res) => {
     const { room_id } = req.params;
     const { room_number, floor, room_type, base_rent, deposit, statusDetails, rates } = req.body;
@@ -191,29 +121,43 @@ const updateRoom = async (req, res) => {
                 },
             });
 
-            // Handle each rate update, creation, or deletion
-            const ratePromises = rates.map(async ({ rate_id, quantity, disabled }) => {
-                // Check if the rate should be removed (quantity is 0 or disabled is true)
-                if (quantity === 0 || disabled) {
-                    return prisma.room_rates.deleteMany({
+            // Get the existing rates for the room
+            const existingRates = roomUpdate.room_rates.map((rate) => rate.rate_id);
+
+            // Iterate over existing rates and check if any should be removed
+            const deletePromises = roomUpdate.room_rates
+                .filter((rate) => !rates.some(({ rate_id }) => rate.rate_id === rate_id))
+                .map((rate) =>
+                    prisma.room_rates.deleteMany({
                         where: {
                             room_id: parseInt(room_id),
-                            rate_id,
+                            rate_id: rate.rate_id,
                         },
-                    });
-                } else {
-                    // Otherwise, upsert the rate
-                    return prisma.room_rates.upsert({
+                    })
+                );
+
+            await Promise.all(deletePromises);
+
+            // Handle each rate in the request
+            const ratePromises = rates.map(async ({ rate_id, quantity, disabled }) => {
+                // Update or create the rate
+                if (existingRates.includes(rate_id)) {
+                    // Update the existing rate
+                    await prisma.room_rates.update({
                         where: {
                             room_id_rate_id: {
                                 room_id: parseInt(room_id),
                                 rate_id,
                             },
                         },
-                        update: {
+                        data: {
                             quantity,
                         },
-                        create: {
+                    });
+                } else {
+                    // Create a new rate
+                    await prisma.room_rates.create({
+                        data: {
                             room_id: parseInt(room_id),
                             rate_id,
                             quantity,
@@ -233,7 +177,6 @@ const updateRoom = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 
 // DELETE - Remove a room
