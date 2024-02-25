@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Box, Card, CardContent, Typography, Select, MenuItem, TextField, Button } from "@mui/material";
+import {
+  Box, Card, CardContent, Typography, Select, MenuItem, TextField, Button,
+  Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+} from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
+
 
 export default function BillingDetails() {
   const types = [
@@ -11,7 +15,11 @@ export default function BillingDetails() {
     },
     { id: "2", value: "Meter Reading" },
   ];
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false); // New state for the second dialog
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [selectedType, setSelectedType] = useState(types[0].value);
   const [unitsDifference, setUnitsDifference] = useState({});
@@ -46,7 +54,26 @@ export default function BillingDetails() {
       console.error("Failed to fetch rooms:", error);
     }
   };
-
+  const checkAllFieldsFilledAndPositive = () => {
+    for (const roomId of selectedRooms.map(room => room.RoomBaseDetails.room_id)) {
+      const value = readingValues[roomId];
+      if (value === undefined || value === '' || Number(value) < 0) {
+        // Either a field is missing, empty, or contains a negative number
+        return false;
+      }
+    }
+    return true; // All fields are filled and contain non-negative numbers
+  };
+  const checkAllFieldsFilled = () => {
+    // This function checks if all text fields have been filled
+    for (const roomId of selectedRooms.map(room => room.RoomBaseDetails.room_id)) {
+      if (!readingValues[roomId]) {
+        return false; // A field is missing
+      }
+    }
+    return true; // All fields are filled
+  };
+  
   const getPreviousMeterReading = async (roomId, generationDate) => {
     try {
       const response = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}`, {
@@ -63,7 +90,9 @@ export default function BillingDetails() {
       return { water_reading: 0, electricity_reading: 0 };
     }
   };
-
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
   const fetchPreviousReadings = async () => {
     const promises = selectedRooms.map(async (room) => {
       const prevReading = await getPreviousMeterReading(room.RoomBaseDetails.room_id, room.generation_date);
@@ -89,21 +118,36 @@ export default function BillingDetails() {
       fetchPreviousReadings();
     }
   }, [selectedRooms, selectedType]);
-
+  
   const handleReadingValueChange = (roomId, value) => {
     setReadingValues((prevValues) => ({
       ...prevValues,
       [roomId]: value,
     }));
   };
-
+  const handleOpenDialog = () => {
+    if (!checkAllFieldsFilledAndPositive()) {
+      setSnackbarMessage("Please fill in all the readings with non-negative values before saving.");
+      setSnackbarOpen(true);
+    } else {
+      // All fields are filled and non-negative, open the confirmation dialog
+      setDialogOpen(true);
+    }
+  };
   const saveReadings = async () => {
+    setDialogOpen(false);
     const readingPromises = selectedRooms.map(async (room) => {
       const roomId = room.RoomBaseDetails.room_id;
       const readingValue = readingValues[roomId];
 
-      if (readingValue === undefined) {
-        console.error(`No reading value provided for room ID: ${roomId}`);
+      if (!checkAllFieldsFilled()) {
+        setSnackbarMessage("Please fill in all the readings before saving.");
+        setSnackbarOpen(true);
+        return;
+      }
+      if (!checkAllFieldsFilledAndPositive()) {
+        setSnackbarMessage("Please fill in all the readings with non-negative values before saving.");
+        setSnackbarOpen(true);
         return;
       }
 
@@ -125,8 +169,31 @@ export default function BillingDetails() {
 
     await Promise.all(readingPromises);
   };
+  const handleOpenGenerateDialog = () => {
+    if (!checkAllFieldsFilledAndPositive()) {
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
+      setSnackbarOpen(true);
+    } else {
+      setGenerateDialogOpen(true); // Open the generate bills confirmation dialog
+    }
+  };
 
+  // Function to close the "Generate All Bills" dialog
+  const handleCloseGenerateDialog = () => {
+    setGenerateDialogOpen(false);
+  };
   const handleGeneratebilling = async () => {
+    setGenerateDialogOpen(false);
+    if (!checkAllFieldsFilled()) {
+      setSnackbarMessage("Please fill in all the readings before generating bills.");
+      setSnackbarOpen(true);
+      return;
+    }
+    if (!checkAllFieldsFilledAndPositive()) {
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
+      setSnackbarOpen(true);
+      return;
+    }
     const billPromises = selectedRooms.map(async (room) => {
       try {
         const roomId = room.RoomBaseDetails.room_id;
@@ -146,7 +213,12 @@ export default function BillingDetails() {
       }
     });
   };
-
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   return (
     <>
       <Box
@@ -164,15 +236,16 @@ export default function BillingDetails() {
             }}
           >
             <Typography variant="h4">Billing Details</Typography>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
+            <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
               Enter billing details for specific rooms
             </Typography>
-            <Button variant="contained" color="primary" onClick={saveReadings}>
-              Save All {selectedType}s
+            <Button variant="contained" color="primary"  onClick={handleOpenDialog}>
+              Save All {selectedType}
             </Button>
-            <Button variant="contained" color="primary" onClick={handleGeneratebilling}>
+            <Button variant="contained" color="primary" onClick={handleOpenGenerateDialog} sx={{ ml: 2 }}>
               Generate All Bills
             </Button>
+
           </CardContent>
           <Box
             sx={{
@@ -239,7 +312,58 @@ export default function BillingDetails() {
             })}
           </Card>
         </Box>
+        <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Confirm Save"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to save all readings?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseDialog}>Cancel</Button>
+          <Button variant="contained"  onClick={saveReadings} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={generateDialogOpen}
+        onClose={handleCloseGenerateDialog}
+        aria-labelledby="generate-dialog-title"
+        aria-describedby="generate-dialog-description"
+      >
+        <DialogTitle id="generate-dialog-title">{"Confirm Bill Generation"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="generate-dialog-description">
+            Are you sure you want to generate bills for all readings?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseGenerateDialog}>Cancel</Button>
+          <Button variant="contained" onClick={handleGeneratebilling} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
       </Box>
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position Snackbar at the top-right corner
+      >
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

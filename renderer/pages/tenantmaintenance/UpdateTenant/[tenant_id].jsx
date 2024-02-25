@@ -11,6 +11,7 @@ import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import { Snackbar, Alert } from '@mui/material';
 
 export default function updatetenant() {
   const router = useRouter();
@@ -19,9 +20,21 @@ export default function updatetenant() {
   const [accountStatus, setAccountStatus] = useState("ACTIVE");
   // const [tenantImagePreview, setTenantImagePreview] = useState(null);
   // const [nationalIDImagePreview, setNationalIDImagePreview] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
   const [tenantImage, settenantImage] = useState(null);
   const [NationalCardImage, setNationalCardImage] = useState(null);
+  const [errors, setErrors] = useState({
+    first_name: false,
+    last_name: false,
+    personal_id: false,
+    invoice_option: false,
+    addresses: false,
+    contacts: false,
 
+    // Add other fields as necessary
+  })
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [tenantData, setTenantData] = useState({
     first_name: "",
@@ -79,6 +92,9 @@ export default function updatetenant() {
   }, [tenant_id]);
 
   const handleChange = (e) => {
+    
+    // Clear error on change
+    
     const { name, value } = e.target;
     const keys = name.split(".");
 
@@ -93,9 +109,130 @@ export default function updatetenant() {
         },
       });
     }
+    setErrors({ ...errors, [name]: false });
+  };
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+  
+    // Validate first_name
+    if (!tenantData.first_name.trim()) {
+      newErrors.first_name = "First name is required";
+      isValid = false;
+    }
+  
+    // Validate last_name
+    if (!tenantData.last_name.trim()) {
+      newErrors.last_name = "Last name is required";
+      isValid = false;
+    }
+  
+    // Validate personal_id
+    if (!tenantData.personal_id.trim()) {
+      newErrors.personal_id = "Personal ID is required";
+      isValid = false;
+    }
+  
+    // Validate invoice_option
+    if (!tenantData.invoice_option || tenantData.invoice_option === "Select") {
+      newErrors.invoice_option = "Invoice option is required";
+      isValid = false;
+    }
+  
+    // Validate contacts.phone_number
+    if (!tenantData.contacts.phone_number.trim()) {
+      newErrors.phone_number = "Phone number is required";
+      isValid = false;
+    }
+  
+    // Validate contacts.email
+    if (!tenantData.contacts.email.trim()) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    }
+  
+    // Validate contacts.line_id
+    if (!tenantData.contacts.line_id.trim()) {
+      newErrors.line_id = "Line ID is required";
+      isValid = false;
+    }
+  
+    // Validate addresses.street
+    if (!tenantData.addresses.street.trim()) {
+      newErrors.street = "Street is required";
+      isValid = false;
+    }
+  
+    // Validate addresses.district
+    if (!tenantData.addresses.district.trim()) {
+      newErrors.district = "District is required";
+      isValid = false;
+    }
+  
+    // Validate addresses.province
+    if (!tenantData.addresses.province.trim()) {
+      newErrors.province = "Province is required";
+      isValid = false;
+    }
+  
+    // Validate addresses.postal_code
+    if (!tenantData.addresses.postal_code.trim()) {
+      newErrors.postal_code = "Postal code is required";
+      isValid = false;
+    }
+  
+    // Validate addresses.sub_district
+    if (!tenantData.addresses.sub_district.trim()) {
+      newErrors.sub_district = "Sub district is required";
+      isValid = false;
+    }
+  
+    // Validate emergency contact fields if necessary
+    // For example, validate eme_name
+    if (!tenantData.contacts.eme_name.trim()) {
+      newErrors.eme_name = "Emergency contact name is required";
+      isValid = false;
+    }
+  
+      // Validate emergency contact phone number
+  if (!tenantData.contacts.eme_phone.trim()) {
+    newErrors.eme_phone = "Emergency contact phone number is required";
+    isValid = false;
+  }
+
+  // Validate emergency contact Line ID
+  if (!tenantData.contacts.eme_line_id.trim()) {
+    newErrors.eme_line_id = "Emergency contact Line ID is required";
+    isValid = false;
+  }
+
+  // Validate emergency contact relationship
+  if (!tenantData.contacts.eme_relation.trim()) {
+    newErrors.eme_relation = "Emergency contact relationship is required";
+    isValid = false;
+  }
+  
+    setErrors(newErrors);
+
+    if (!isValid) {
+      setSnackbarMessage('Please fill out all required fields.');
+      setSnackbarOpen(true);
+    }
+  
+    return isValid;
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+  
+ 
   const handleUpdateSubmit = async (e) => {
+    
+
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -136,6 +273,12 @@ export default function updatetenant() {
     } finally {
       setLoading(false);
     }
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      // Prevent form submission if validation fails
+      return;
+    }
   };
 
   const handleTenantImageChange = (e) => {
@@ -161,13 +304,16 @@ export default function updatetenant() {
           </Typography>
         </CardContent>
         <CardContent>
-          <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleUpdateSubmit} disabled={loading}>
-            {loading ? "Adding..." : "Save"}
-          </Button>
-          <Button variant="contained" color={accountStatus === "ACTIVE" ? "success" : "secondary"} onClick={() => setAccountStatus(accountStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE")} sx={{ margin: "10px" }}>
-            {accountStatus}
-          </Button>
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+            <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleUpdateSubmit} disabled={loading}>
+              {loading ? "Adding..." : "Save"}
+            </Button>
+            <Button variant="contained" color={accountStatus === "ACTIVE" ? "success" : "secondary"} onClick={() => setAccountStatus(accountStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE")} sx={{ marginTop: "15px" }}>
+              {accountStatus}
+            </Button>
+          </Box>
         </CardContent>
+
       </Card>
       <Box sx={{ display: "flex", height: "90%" }}>
         <Card sx={{ width: "100%", marginBottom: "10px" }}>
@@ -176,20 +322,58 @@ export default function updatetenant() {
               Tenant Details
             </Typography>
 
-            <TextField id="first_name" name="first_name" label="First Name" value={tenantData.first_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <TextField id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <br></br>
+            <TextField 
+              id="first_name"
+              name="first_name"
+              label="First Name"
+              value={tenantData.first_name}
+              onChange={handleChange}
+              error={!!errors.first_name}
+              helperText={errors.first_name || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+              <TextField 
+                id="last_name"
+                name="last_name"
+                label="Last Name"
+                value={tenantData.last_name}
+                onChange={handleChange}
+                error={!!errors.last_name}
+                helperText={errors.last_name || ''}
+                variant="outlined"
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />         
 
-            <RadioGroup aria-labelledby="demo-radio-buttons-group-label" defaultValue="Male" name="radio-buttons-group" sx={{ display: "inline" }}>
+            <RadioGroup aria-labelledby="demo-radio-buttons-group-label" defaultValue="Male" name="radio-buttons-group" sx={{ display: "inline", marginLeft: 2 }}>
               <FormControlLabel value="Male" control={<Radio />} label="Male" />
               <FormControlLabel value="Female" control={<Radio />} label="Female" />
             </RadioGroup>
 
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-              <TextField id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-
+            <TextField 
+              id="personal_id"
+              name="personal_id"
+              label="Personal ID"
+              value={tenantData.personal_id}
+              onChange={handleChange}
+              error={!!errors.personal_id}
+              helperText={errors.personal_id || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
               <Autocomplete disablePortal id="combo-box-demo" options={type} sx={{ width: 90, marginBottom: 1.5, marginRight: 0.5 }} renderInput={(params) => <TextField {...params} label="Code" />} />
-              <TextField id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.contacts.phone_number} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+              <TextField 
+                id="phone_number"
+                name="contacts.phone_number"
+                label="Phone Number"
+                value={tenantData.contacts.phone_number}
+                onChange={handleChange}
+                error={!!errors.phone_number}
+                helperText={errors.phone_number || ''}
+                variant="outlined"
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />
             </Box>
 
             <Select label="Invoice Option" id="invoice_option" value={tenantData.invoice_option} onChange={(e) => setTenantData({ ...tenantData, invoice_option: e.target.value })} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}>
@@ -199,65 +383,204 @@ export default function updatetenant() {
                 </MenuItem>
               ))}
             </Select>
-            <TextField id="email" name="contacts.email" label="Email" variant="outlined" value={tenantData.contacts.email} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
-            <TextField id="line_id" name="contacts.line_id" label="Line ID" variant="outlined" value={tenantData.contacts.line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            <TextField 
+              id="email"
+              name="contacts.email"
+              label="Email"
+              value={tenantData.contacts.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            <TextField 
+              id="line_id"
+              name="contacts.line_id"
+              label="Line ID"
+              value={tenantData.contacts.line_id}
+              onChange={handleChange}
+              error={!!errors.line_id}
+              helperText={errors.line_id || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <TextField id="addressnumber" name="addresses.addressnumber" label="Soi" variant="outlined" value={tenantData.addresses.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
-            <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.addresses.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
-
-            <TextField id="district" name="addresses.district" label="District" value={tenantData.addresses.district} onChange={handleChange} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            
+            <TextField 
+                id="street"
+                name="addresses.street"
+                label="Street"
+                value={tenantData.addresses.street}
+                onChange={handleChange}
+                error={!!errors.street}
+                helperText={errors.street || ''}
+                variant="outlined"
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />
+            <TextField 
+              id="district"
+              name="addresses.district"
+              label="District"
+              value={tenantData.addresses.district}
+              onChange={handleChange}
+              error={!!errors.district}
+              helperText={errors.district || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            
             <br></br>
-            <TextField id="province" name="addresses.province" label="Province" variant="outlined" value={tenantData.addresses.province} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
-
-            <TextField id="postal_code" name="addresses.postal_code" label="Postal Code" value={tenantData.addresses.postal_code} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            <TextField 
+                id="province"
+                name="addresses.province"
+                label="Province"
+                value={tenantData.addresses.province}
+                onChange={handleChange}
+                error={!!errors.province}
+                helperText={errors.province || ''}
+                variant="outlined"
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />
+            <TextField 
+              id="postal_code"
+              name="addresses.postal_code"
+              label="Postal Code"
+              value={tenantData.addresses.postal_code}
+              onChange={handleChange}
+              error={!!errors.postal_code}
+              helperText={errors.postal_code || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            
             <br></br>
-            <TextField id="sub_district" name="addresses.sub_district" label="Sub District" variant="outlined" value={tenantData.addresses.sub_district} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 5 }} />
-          </CardContent>
+            <TextField 
+              id="sub_district"
+              name="addresses.sub_district"
+              label="Sub District"
+              value={tenantData.addresses.sub_district}
+              onChange={handleChange}
+              error={!!errors.sub_district}
+              helperText={errors.sub_district || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+        </CardContent>
           <Box sx={{ marginBottom: 2, marginLeft: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
               Emergency Contact
             </Typography>
-            <TextField id="eme_name" name="contacts.eme_name" label="Full Name" variant="outlined" value={tenantData.contacts.eme_name} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
-            <TextField id="eme_phone" name="contacts.eme_phone" label="Phone Number" variant="outlined" value={tenantData.contacts.eme_phone} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
-            <TextField id="eme_line_id" name="contacts.eme_line_id" label="Line ID" variant="outlined" value={tenantData.contacts.eme_line_id} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }} />
-            <TextField id="eme_relation" name="contacts.eme_relation" label="Relationship" variant="outlined" value={tenantData.contacts.eme_relation} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
-          </Box>
+            <TextField 
+              id="eme_name"
+              name="contacts.eme_name"
+              label="Emergency Contact Name"
+              value={tenantData.contacts.eme_name}
+              onChange={handleChange}
+              error={!!errors.eme_name}
+              helperText={errors.eme_name || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            
+            <TextField 
+              id="eme_phone"
+              name="contacts.eme_phone"
+              label="Emergency Phone"
+              value={tenantData.contacts.eme_phone}
+              onChange={handleChange}
+              error={!!errors.eme_phone}
+              helperText={errors.eme_phone || ''}
+              variant="outlined"
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            />
+            <TextField 
+            id="eme_line_id"
+            name="contacts.eme_line_id"
+            label="Emergency Line ID"
+            value={tenantData.contacts.eme_line_id}
+            onChange={handleChange}
+            error={!!errors.eme_line_id}
+            helperText={errors.eme_line_id || ''}
+            variant="outlined"
+            sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+          />
+
+          <TextField 
+            id="eme_relation"
+            name="contacts.eme_relation"
+            label="Emergency Relationship"
+            value={tenantData.contacts.eme_relation}
+            onChange={handleChange}
+            error={!!errors.eme_relation}
+            helperText={errors.eme_relation || ''}
+            variant="outlined"
+            sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+          />
+             
+             
+            </Box>
         </Card>
         <Box sx={{ display: "flex", flexDirection: "column", height: "90%" }}>
-          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
-            <CardContent sx={{ textAlign: "center" }}>
-              <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
-              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
-                <label htmlFor="tenant-image">
-                  <IconButton color="primary" aria-label="upload picture" component="span">
-                    <img src={tenantData.tenant_image} alt="Tenant" width="200" height="auto" />
-                    <PhotoCamera />
-                  </IconButton>
-                </label>
-              </Box>
-            </CardContent>
-          </Card>
-
-          <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
-            <CardContent sx={{ textAlign: "center" }}>
-              <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
-              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
-              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
-                <label htmlFor="national-id-image">
-                  <IconButton color="primary" aria-label="upload ID picture" component="span">
-                    <img src={tenantData.nationalcard_image} alt="National Card" width="200" height="auto" />
-
-                    <PhotoCamera />
-                  </IconButton>
-                </label>
-              </Box>
-            </CardContent>
-          </Card>
+  <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
+    <CardContent sx={{ textAlign: "center", marginBottom: 2 }}>
+      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
+      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5}}>
+        <img src={tenantData.tenant_image} alt="Tenant" style={{ 
+            width: "200px", // Fixed width
+            height: "200px", // Fixed height
+            objectFit: "contain", // Keep aspect ratio
+            marginTop: "10px" 
+        }} />
+        <Box >
+          <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
+          <label htmlFor="tenant-image">
+          <Fab color="secondary" component="span" aria-label="upload picture" marginBottom="10px" >
+              <PhotoCamera />
+            </Fab>
+          </label>
         </Box>
       </Box>
+    </CardContent>
+  </Card>
+
+  <Card sx={{ display: "inline-block", width: "28vw", marginLeft: 2, marginBottom: "10px", height: "auto" }}>
+    <CardContent sx={{ textAlign: "center", marginBottom: 2 }}>
+      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
+      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
+        <img src={tenantData.nationalcard_image} alt="National Card" style={{ 
+            width: "200px", // Fixed width
+            height: "200px", // Fixed height
+            objectFit: "contain", // Keep aspect ratio
+            marginTop: "10px" 
+        }} />
+        <Box>
+          <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
+          <label htmlFor="national-id-image">
+          <Fab color="secondary" component="span"  aria-label="upload ID picture" >
+              <PhotoCamera />
+            </Fab>
+          </label>
+        </Box>
+      </Box>
+    </CardContent>
+  </Card>
+</Box>
+
+      </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
