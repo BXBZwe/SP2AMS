@@ -15,7 +15,7 @@ export default function CheckIn() {
   const [addButtonClicked, setAddButtonClicked] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [newTenants, setNewTenants] = useState([]);
-
+  
   useEffect(() => {
     const fetchAvailableRooms = async () => {
       try {
