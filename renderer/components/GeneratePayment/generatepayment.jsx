@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle } from "@mui/material";
+import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
 
 export default function PaymentTable() {
+  const [openPdfDialog, setOpenPdfDialog] = useState(false);
+
   const theme = useTheme();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generationDates, setGenerationDates] = useState([]);
   const [selectedGenerationDate, setSelectedGenerationDate] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  
+ 
+
 
   const columns = [
     { field: "room_number", headerName: "Room Number", width: 200 },
@@ -47,7 +53,15 @@ export default function PaymentTable() {
       setLoading(false);
     }
   };
-
+  const handleOpenPdfDialog = () => {
+    setOpenPdfDialog(true);
+  };
+  const handleGeneratePdfAndClose = async () => {
+    console.log("Generating PDF for selected rows:", selectedRows);
+    // Add your PDF generation logic here
+    setOpenPdfDialog(false);
+  };
+  
   const fetchGenerationDates = async () => {
     try {
       const response = await axios.get("http://localhost:3000/getgenerationdate");
@@ -88,8 +102,12 @@ export default function PaymentTable() {
       }
     });
   };
-
+  const handleSendEmailAndClose = async () => {
+    await handleSendEmail(); // Make sure this is awaited if it's asynchronous
+    setOpenDialog(false);
+  };
   const handleSendEmail = async () => {
+    console.log("Sending emails to selected rows:", selectedRows);
     for (const rowId of selectedRows) {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
       if (!paymentDetail) {
@@ -109,37 +127,81 @@ export default function PaymentTable() {
       }
     }
   };
-
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
   return (
     <>
-      <Card sx={{ width: "100%", display: "flex" }}>
+       <Card sx={{ width: "100%", display: "flex" }}>
         <CardContent
           sx={{
-            marginRight: "auto",
-            marginBottom: "10px",
+            display: 'flex',
+            justifyContent: 'space-between', // Adjust layout to space content
+            alignItems: 'center', // Align items vertically
+            width: '100%', // Ensure the CardContent takes full width
           }}
         >
-          <Typography variant="h4">Payment Generation</Typography>
-          <Typography variant="body2" sx={{ opacity: 0.7 }}>
-            Send an E-payment slip or print a pdf
-          </Typography>
+          <Box sx={{ width: '70%' }}>
+            <Typography variant="h4">Payment Generation</Typography>
+            <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
+              Send an E-payment slip or print a pdf
+            </Typography>
+            <Button variant="contained" color="primary" onClick={handleOpenDialog} disabled={selectedRows.length === 0 || loading}>
+              Send Emails
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleOpenPdfDialog} disabled={selectedRows.length === 0 || loading} sx={{ ml: 2 }}>
+              Generate PDF
+            </Button>
 
-          <select value={selectedGenerationDate} onChange={handleGenerationDateChange}>
-            <option value="">Select Generation Date</option>
-            {generationDates.map((date, index) => (
-              <option key={index} value={date}>
-                {new Date(date).toLocaleDateString()}
-              </option>
-            ))}
-          </select>
+          </Box>
+
+          <Box sx={{ width: '30%' }}> {/* Adjusted for select component */}
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Select Generation Date</InputLabel>
+              <Select
+                value={selectedGenerationDate}
+                onChange={handleGenerationDateChange}
+                label="Select Generation Date"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {generationDates.map((date, index) => (
+                  <MenuItem key={index} value={date}>
+                    {new Date(date).toLocaleDateString()}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </CardContent>
       </Card>
       <Card sx={{ marginTop: "10px" }}>
         <DataGrid rows={payments} getRowId={(row) => row.id} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} onSelectionModelChange={handleRowSelection} selectionModel={selectedRows} />
       </Card>
-      <Button variant="contained" color="primary" onClick={handleSendEmail} disabled={selectedRows.length === 0 || loading}>
-        Send Emails
+      <Dialog  open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
+  <DialogTitle id="dialog-title">Choose Your Option</DialogTitle>
+  <DialogActions >
+      <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
+        Payment
       </Button>
+      <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+        Receipt
+      </Button>
+    </DialogActions>
+  </Dialog>
+  <Dialog open={openPdfDialog} onClose={() => setOpenPdfDialog(false)} aria-labelledby="pdf-dialog-title">
+  <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
+  <DialogActions sx={{ justifyContent: 'center' }}>
+    <Button variant="contained" onClick={handleGeneratePdfAndClose} color="primary">
+      Generate PDF
+    </Button>
+    <Button variant="contained" onClick={() => setOpenPdfDialog(false)} color="primary">
+      Cancel
+    </Button>
+  </DialogActions>
+</Dialog>
+          
     </>
   );
 }

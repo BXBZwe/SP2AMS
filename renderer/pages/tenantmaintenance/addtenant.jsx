@@ -14,8 +14,11 @@ import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { PhotoCamera } from "@mui/icons-material";
+import { Snackbar, Alert } from '@mui/material';
 
 export default function addtenant() {
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  const [errorSnackbarMessage, setErrorSnackbarMessage] = useState('');
   const theme = useTheme();
   const { openSnackbar } = useSnackbarContext();
   const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
@@ -58,8 +61,6 @@ export default function addtenant() {
 
   const validateForm = () => {
     let tempErrors = {};
-    tempErrors.line_id = tenantData.contacts.line_id ? "" : "Line ID is required.";
-    tempErrors.eme_line_id = tenantData.contacts.eme_line_id ? "" : "Emergency contact Line ID is required.";
     tempErrors.first_name = tenantData.first_name ? "" : "First name is required.";
     tempErrors.last_name = tenantData.last_name ? "" : "Last name is required.";
     tempErrors.personal_id = tenantData.personal_id ? "" : "Personal ID is required.";
@@ -68,19 +69,29 @@ export default function addtenant() {
     tempErrors.email = emailRegex.test(tenantData.contacts.email) ? "" : "Invalid email format.";
     const phoneRegex = /^[0-9]{10,12}$/;
     tempErrors.phone_number = phoneRegex.test(tenantData.contacts.phone_number) ? "" : "Invalid phone number format.";
-    tempErrors.addressnumber = tenantData.addresses.addressnumber ? "" : "No. is required.";
+    tempErrors.eme_name = tenantData.contacts.eme_name ? "" : "Emergency contact name is required.";
+    tempErrors.eme_phone = phoneRegex.test(tenantData.contacts.eme_phone) ? "" : "Invalid emergency contact phone number format.";
+    tempErrors.eme_line_id = tenantData.contacts.eme_line_id ? "" : "Emergency contact Line ID is required.";
+    tempErrors.eme_relation = tenantData.contacts.eme_relation ? "" : "Emergency contact relationship is required.";
+    tempErrors.addressnumber = tenantData.addresses.addressnumber ? "" : "Address number is required.";
     tempErrors.street = tenantData.addresses.street ? "" : "Street is required.";
     tempErrors.district = tenantData.addresses.district ? "" : "District is required.";
     tempErrors.province = tenantData.addresses.province ? "" : "Province is required.";
     tempErrors.postal_code = tenantData.addresses.postal_code ? "" : "Postal code is required.";
     tempErrors.sub_district = tenantData.addresses.sub_district ? "" : "Sub district is required.";
-    tempErrors.eme_name = tenantData.contacts.eme_name ? "" : "Emergency contact name is required.";
-    tempErrors.eme_phone = phoneRegex.test(tenantData.contacts.eme_phone) ? "" : "Emergency contact phone is required.";
-    tempErrors.eme_relation = tenantData.contacts.eme_relation ? "" : "Emergency contact relationship is required.";
+
+    let isFormValid = Object.values(tempErrors).every(x => x === "");
+
+    if (!isFormValid) {
+        setErrorSnackbarMessage('Please correct the errors before submitting.');
+        setErrorSnackbarOpen(true);
+    }
 
     setErrors(tempErrors);
-    return Object.values(tempErrors).every((x) => x === "");
-  };
+
+    return isFormValid;
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,10 +114,12 @@ export default function addtenant() {
     event.preventDefault();
     const isValid = validateForm();
     if (!isValid) {
+      
       return;
     }
     setOpenDialog(true);
   };
+  
 
   const handleConfirmAdd = async (e) => {
     e.preventDefault();
@@ -176,6 +189,7 @@ export default function addtenant() {
           </Typography>
         </CardContent>
         <CardContent>
+          
           <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleSubmit} disabled={loading}>
             {loading ? "Adding..." : "Add"}
           </Button>
@@ -191,7 +205,7 @@ export default function addtenant() {
             <TextField id="first_name" name="first_name" label="First Name" value={tenantData.first_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} error={!!errors.first_name} helperText={errors.first_name} />
             <TextField id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} error={!!errors.last_name} helperText={errors.last_name} />
 
-            <RadioGroup aria-labelledby="demo-radio-buttons-group-label" defaultValue="Male" name="radio-buttons-group" sx={{ display: "inline" }}>
+            <RadioGroup aria-labelledby="demo-radio-buttons-group-label" defaultValue="Male" name="radio-buttons-group" sx={{ display: "inline", marginLeft: 2 }}>
               <FormControlLabel value="Male" control={<Radio />} label="Male" />
               <FormControlLabel value="Female" control={<Radio />} label="Female" />
             </RadioGroup>
@@ -223,32 +237,7 @@ export default function addtenant() {
                 />
               )}
             />
-            <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>
-              Address
-            </Typography>
-            <TextField
-              id="number"
-              name="addresses.Number"
-              label="House Number" 
-              variant="outlined"
-              value={tenantData.Number}
-              onChange={handleChange}
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
-              error={!!errors.street}
-              helperText={errors.street}
-            />
-            <TextField
-              id="street"
-              name="addresses.street"
-              label="Street"
-              variant="outlined"
-              value={tenantData.street}
-              onChange={handleChange}
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
-              error={!!errors.street}
-              helperText={errors.street}
-
-            />
+            
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
 
@@ -272,59 +261,84 @@ export default function addtenant() {
           </Box>
         </Card>
         <Box sx={{ display: "flex", flexDirection: "column", height: "90%" }}>
-          <Card
-            sx={{
-              display: "inline-block",
-              width: "28vw",
-              marginLeft: 2,
-              marginBottom: "10px",
-              height: "auto",
-            }}
-          >
-            <CardContent sx={{ textAlign: "center" }}>
-              {/* ... other content */}
-              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                {/* Hidden input for tenant image */}
-                <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
-                {/* Label that acts as a button */}
-                <label htmlFor="tenant-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
-                    <PhotoCamera />
-                  </Fab>
-                </label>
-              </Box>
-              {/* Display uploaded tenant image */}
-              {tenantImage && <img src={URL.createObjectURL(tenantImage)} alt="Tenant" style={{ maxWidth: "100%", height: "auto", marginTop: "10px" }} />}
-            </CardContent>
-          </Card>
+  <Card
+    sx={{
+      display: "inline-block",
+      width: "28vw",
+      marginLeft: 2,
+      marginBottom: "10px",
+      height: "auto",
+    }}
+  >
+    <CardContent sx={{ textAlign: "center" }}>
+      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
+      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
+      {/* Display uploaded tenant image with fixed size */}
+      {tenantImage && (
+        <img 
+          src={URL.createObjectURL(tenantImage)} 
+          alt="Tenant" 
+          style={{ 
+            width: "200px", // Fixed width
+            height: "200px", // Fixed height
+            objectFit: "contain", // Keep aspect ratio
+            marginTop: "10px"
+          }} 
+        />
+      )}
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
+        {/* Hidden input for tenant image */}
+        <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
+        {/* Label that acts as a button */}
+        <label htmlFor="tenant-image-upload">
+          <Fab color="secondary" component="span" aria-label="add">
+            <PhotoCamera />
+          </Fab>
+        </label>
+      </Box>
+    </CardContent>
+  </Card>
 
-          {/* National ID Image Upload */}
-          <Card
-            sx={{
-              display: "inline-block",
-              width: "28vw",
-              marginLeft: 2,
-              marginBottom: "10px",
-              height: "auto", // Make height auto to adjust for image
-            }}
-          >
-            <CardContent sx={{ textAlign: "center" }}>
-              {/* ... other content */}
-              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
-                {/* Hidden input for national ID image */}
-                <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
-                {/* Label that acts as a button */}
-                <label htmlFor="national-id-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
-                    <PhotoCamera />
-                  </Fab>
-                </label>
-              </Box>
-              {/* Display uploaded national ID image */}
-              {nationalCardImage && <img src={URL.createObjectURL(nationalCardImage)} alt="National ID" style={{ maxWidth: "100%", height: "auto", marginTop: "10px" }} />}
-            </CardContent>
-          </Card>
-        </Box>
+  {/* National ID Image Upload */}
+  <Card
+    sx={{
+      display: "inline-block",
+      width: "28vw",
+      marginLeft: 2,
+      marginBottom: "10px",
+      height: "auto",
+    }}
+  >
+    <CardContent sx={{ textAlign: "center" }}>
+      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
+      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
+      {/* Display uploaded national ID image with fixed size */}
+      {nationalCardImage && (
+        <img 
+          src={URL.createObjectURL(nationalCardImage)} 
+          alt="National ID" 
+          style={{ 
+            width: "200px", // Fixed width
+            height: "200px", // Fixed height
+            objectFit: "contain", // Keep aspect ratio
+            marginTop: "10px"
+          }} 
+        />
+      )}
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
+        {/* Hidden input for national ID image */}
+        <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
+        {/* Label that acts as a button */}
+        <label htmlFor="national-id-image-upload">
+          <Fab color="secondary" component="span" aria-label="add">
+            <PhotoCamera />
+          </Fab>
+        </label>
+      </Box>
+    </CardContent>
+  </Card>
+</Box>
+
         <Dialog fullScreen={fullScreen} open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>{`Add Tenant ${tenantData.first_name} - ${tenantData.last_name}`}</DialogTitle>
           <DialogContent>
@@ -345,6 +359,12 @@ export default function addtenant() {
           </DialogActions>
         </Dialog>
       </Box>
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={6000} onClose={() => setErrorSnackbarOpen(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <Alert onClose={() => setErrorSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
+              {errorSnackbarMessage}
+          </Alert>
+      </Snackbar>
+
     </>
   );
 }
