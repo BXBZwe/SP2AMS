@@ -197,7 +197,14 @@ export default function BillingDetails() {
     const billPromises = selectedRooms.map(async (room) => {
       try {
         const roomId = room.RoomBaseDetails.room_id;
-
+        const payload = {
+          room_id: roomId,
+          // Include both meter and water readings in the payload
+          // For simplicity, assuming readingValues holds values for both types
+          // You might need to adjust this based on how you're storing meter and water readings
+          electricity_reading: readingValues[roomId].electricity || 0, // Adjust this based on your actual data structure
+          water_reading: readingValues[roomId].water || 0, // Adjust this based on your actual data structure
+        };
         const response = await axios.post("http://localhost:3000/calculateandgeneratebill", { room_id: roomId });
         setWaterCost((prev) => ({
           ...prev,
@@ -206,6 +213,13 @@ export default function BillingDetails() {
         setElectricityCost((prev) => ({
           ...prev,
           [roomId]: response.data.electricityCost,
+        }));
+        setCosts((prev) => ({
+          ...prev,
+          [roomId]: {
+            waterCost: response.data.waterCost,
+            electricityCost: response.data.electricityCost,
+          },
         }));
         console.log(`Bill generated for Room ID ${roomId}`, response.data);
       } catch (error) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { Card, CardContent, Typography, Box, Button, Select, MenuItem, IconButton } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Card, CardContent, Typography, Box, Button, Select, MenuItem, IconButton } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -14,6 +14,8 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { Snackbar, Alert } from '@mui/material';
 
 export default function updatetenant() {
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const router = useRouter();
   const { tenant_id } = router.query;
   const paymentOptions = ["Select", "EMAIL", "PAPER", "BOTH"];
@@ -22,7 +24,14 @@ export default function updatetenant() {
   // const [nationalIDImagePreview, setNationalIDImagePreview] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // can be 'error', 'warning', 'info', 'success'
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
 
+    setSnackbarOpen(false);
+  };
   const [tenantImage, settenantImage] = useState(null);
   const [NationalCardImage, setNationalCardImage] = useState(null);
   const [errors, setErrors] = useState({
@@ -62,7 +71,19 @@ export default function updatetenant() {
   //const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      // If form is valid, open the confirmation dialog
+      setConfirmDialogOpen(true);
+    } else {
+      // If form is not valid, show an error message or perform other actions as needed
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Please fill out all required fields.");
+      setSnackbarOpen(true);
+    }
+  };
+  
   useEffect(() => {
     const fetchTenantData = async () => {
       try {
@@ -222,23 +243,27 @@ export default function updatetenant() {
     return isValid;
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
+  
   
  
   const handleUpdateSubmit = async (e) => {
     
 
     e.preventDefault();
+
+    if (!validateForm()) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Please fill out all required fields.");
+      setSnackbarOpen(true);
+      return; // Stop the function if validation fails
+    }
     setLoading(true);
     setMessage("");
+    setConfirmDialogOpen(false);
     const updatedTenantData = { ...tenantData, account_status: accountStatus };
 
     const formdata = new FormData();
+    
     Object.keys(updatedTenantData).forEach((key) => {
       if (key === "addresses" || key === "contacts") {
         Object.keys(updatedTenantData[key]).forEach((subKey) => {
@@ -275,10 +300,34 @@ export default function updatetenant() {
     }
     
     // Validate form before submitting
-    if (!validateForm()) {
-      // Prevent form submission if validation fails
-      return;
+    try {
+      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, formdata, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      if (response.status === 200) {
+        // On success, show a success snackbar
+        setSnackbarSeverity("success");
+        setSnackbarMessage("Tenant updated successfully.");
+        setSnackbarOpen(true);
+      } else {
+        // If the response is not successful, show an error snackbar
+        setSnackbarSeverity("error");
+        setSnackbarMessage("An error occurred while updating the tenant.");
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      // On catch, show an error snackbar
+      setSnackbarSeverity("error");
+      setSnackbarMessage(error.response?.data?.message || error.message || "An error occurred");
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
     }
+ 
+  
   };
 
   const handleTenantImageChange = (e) => {
@@ -305,9 +354,17 @@ export default function updatetenant() {
         </CardContent>
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
-            <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleUpdateSubmit} disabled={loading}>
-              {loading ? "Adding..." : "Save"}
+          <Button
+              type="submit"
+              variant="contained"
+              sx={{ width: "110px", marginTop: "15px" }}
+              component="a"
+              onClick={handleSaveClick} // Updated to use handleSaveClick
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save"}
             </Button>
+
             <Button variant="contained" color={accountStatus === "ACTIVE" ? "success" : "secondary"} onClick={() => setAccountStatus(accountStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE")} sx={{ marginTop: "15px" }}>
               {accountStatus}
             </Button>
@@ -571,13 +628,35 @@ export default function updatetenant() {
 </Box>
 
       </Box>
+      <Dialog
+  open={confirmDialogOpen}
+  onClose={() => setConfirmDialogOpen(false)}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+>
+  <DialogTitle id="alert-dialog-title">
+    {"Confirm Update"}
+  </DialogTitle>
+  <DialogContent>
+    <DialogContentText id="alert-dialog-description">
+      Are you sure you want to save these changes?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button variant="outlined" onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+    <Button variant="contained" onClick={handleUpdateSubmit} autoFocus>
+      Confirm
+    </Button>
+  </DialogActions>
+</Dialog>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -145,6 +145,7 @@ export default function GenerateBill() {
       setSnackbarSeverity("success");
       setSnackbarMessage("Bills generated successfully for selected rooms.");
       setSnackbarOpen(true);
+      resetForm();
     } catch (error) {
       console.error("Error generating bills:", error);
       setSnackbarSeverity("error");

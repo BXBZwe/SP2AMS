@@ -25,17 +25,35 @@ export default function ContractTable() {
       headerName: "Contract Status",
       width: 200,
       renderCell: (params) => {
+        let color;
+        switch (params.value.toLowerCase()) {
+          case "ongoing":
+            color = "primary"; // MUI blue color
+            break;
+          case "due":
+            color = "warning"; // MUI orange color
+            break;
+          case "warning":
+            color = "error"; // MUI yellow color, but as MUI does not directly provide a yellow, using error as an alternative
+            break;
+          case "new":
+            color = "default"; // MUI default color, typically grey
+            break;
+          default:
+            color = "inherit"; // Inherit the color from the parent
+        }
+    
         const handleClick = () => {
           setSelectedTenantId(params.row.id);
           if (params.value.toLowerCase() === "new") {
             setOpenDialog(true);
-          } else if (params.value.toLowerCase() === "ongoing" || "due" || "warning") {
+          } else if (["ongoing", "due", "warning"].includes(params.value.toLowerCase())) {
             setOpenUpdateDialog(true);
           }
         };
-
+    
         return (
-          <Button variant="outlined" color="primary" onClick={handleClick}>
+          <Button variant="outlined" color={color} onClick={handleClick}>
             {params.value}
           </Button>
         );

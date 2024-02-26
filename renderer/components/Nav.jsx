@@ -112,7 +112,12 @@ const navigationItems3 = [
 ];
 const navigationItems4 = [
   {
-    label: "Generate Billing",
+    label: "Generate Contract",
+    link: "/generatecontract",
+    icon: <GavelIcon />,
+  },
+  {
+    label: "Generate Billing Date",
     link: "/generatebilling",
     icon: <ReceiptIcon />,
   },
@@ -122,11 +127,7 @@ const navigationItems4 = [
     icon: <ReceiptLongIcon />,
   },
   { label: "Printing/payment", link: "/printpayment", icon: <PrintIcon /> },
-  {
-    label: "Generate Contract",
-    link: "/generatecontract",
-    icon: <GavelIcon />,
-  },
+  
 ];
 const navigationItems5 = [
   {

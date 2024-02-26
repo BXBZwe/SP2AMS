@@ -3,11 +3,14 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
+import { Snackbar, Alert } from '@mui/material';
 
 export default function PaymentTable() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const theme = useTheme();
+  
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generationDates, setGenerationDates] = useState([]);
@@ -103,9 +106,16 @@ export default function PaymentTable() {
     });
   };
   const handleSendEmailAndClose = async () => {
-    await handleSendEmail(); // Make sure this is awaited if it's asynchronous
-    setOpenDialog(false);
-  };
+    await handleSendEmail(); // This is where you send the emails
+    setOpenSnackbar(true); // Open the Snackbar with the success message
+    setOpenDialog(false); // Close the dialog
+    const success = await handleSendEmail(); // Assume this function now returns true on success, false otherwise
+    if (success) {
+        setOpenSnackbar(true); // Show success message only if emails were sent successfully
+        setOpenDialog(false); // Close the dialog
+    }
+};
+
   const handleSendEmail = async () => {
     console.log("Sending emails to selected rows:", selectedRows);
     for (const rowId of selectedRows) {
@@ -127,6 +137,8 @@ export default function PaymentTable() {
       }
     }
   };
+  
+
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
@@ -180,13 +192,16 @@ export default function PaymentTable() {
         <DataGrid rows={payments} getRowId={(row) => row.id} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} onSelectionModelChange={handleRowSelection} selectionModel={selectedRows} />
       </Card>
       <Dialog  open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
-  <DialogTitle id="dialog-title">Choose Your Option</DialogTitle>
+  <DialogTitle id="dialog-title" sx={{textAlign: 'center'}}>Choose Your Option</DialogTitle>
   <DialogActions >
       <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
         Payment
       </Button>
       <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
         Receipt
+      </Button>
+      <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+        Cancel
       </Button>
     </DialogActions>
   </Dialog>
@@ -201,7 +216,18 @@ export default function PaymentTable() {
     </Button>
   </DialogActions>
 </Dialog>
-          
+    <Snackbar
+      open={openSnackbar}
+      autoHideDuration={6000}
+      onClose={() => setOpenSnackbar(false)}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+            Email sent successfully!
+        </Alert>
+    </Snackbar>
+
+    
     </>
   );
 }
