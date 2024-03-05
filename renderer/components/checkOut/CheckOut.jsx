@@ -1,8 +1,9 @@
 import { React, useState, useEffect } from "react";
-import { Box, Typography, Card, CardContent, CardActions, Button, Divider, TextField, MenuItem, InputAdornment } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Box, Typography, Card, CardContent, CardActions, Button, Divider, TextField, MenuItem, InputAdornment } from "@mui/material";
 import { MobileDatePicker, LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
+import { Snackbar, Alert } from '@mui/material';
 
 export default function CheckOut() {
   const recentActivity = [
@@ -25,7 +26,14 @@ export default function CheckOut() {
       status: "Move-Out",
     },
   ];
+  const [monthsLeft, setMonthsLeft] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [dayMonth, setDayMonth] = useState("");
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [openDialog, setOpenDialog] = useState(false);
   const [tenantDetails, setTenantDetails] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState("");
@@ -37,7 +45,13 @@ export default function CheckOut() {
   const [moveOutDate, setMoveOutDate] = useState(null);
   const [addButtonClicked, setAddButtonClicked] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
 
+    setSnackbarOpen(false);
+  };
   const handleCheckout = async () => {
     try {
       const response = await axios.post("http://localhost:3000/checkouttenant", {
@@ -46,8 +60,14 @@ export default function CheckOut() {
       });
       console.log(response.data.message);
       // alert("Checkout successful!");
+      setSnackbarMessage(response.data.message || 'Tenant checked out successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error("Checkout failed:", error);
+      setSnackbarMessage('No room or tenant selected. Please select both and try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -142,10 +162,15 @@ export default function CheckOut() {
     });
 
     if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
+      setSnackbarMessage('Please fill in all required fields correctly.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       return;
+    } else {
+      setOpenDialog(true);
     }
 
-    handleCheckout();
+    
   };
 
   const validateFloat = (value) => {
@@ -161,6 +186,16 @@ export default function CheckOut() {
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position the Snackbar at the top right
+        >
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <div>
           <Box
             sx={{
@@ -218,14 +253,25 @@ export default function CheckOut() {
                         alignItems: "center",
                       }}
                     >
-                      <TextField id="moveindateId" disabled label="Move In" value={moveInDate} sx={{ width: "40vw" }} />
-
+                      <TextField
+                        id="moveindateId"
+                        disabled
+                        label="Move In"
+                        value={moveInDate || ''} // Fallback to an empty string if moveInDate is null
+                        sx={{ width: "40vw" }}
+                      />
                       <Typography variant="h6" sx={{ margin: "0 10px" }}>
                         -
                       </Typography>
 
-                      <TextField id="moveoutdateId" disabled label="Move Out" value={moveOutDate} sx={{ width: "40vw" }} />
-                    </Box>
+                      <TextField
+                        id="moveoutdateId"
+                        disabled
+                        label="Move Out"
+                        value={moveOutDate || ''} // Fallback to an empty string if moveOutDate is null
+                        sx={{ width: "40vw" }}
+                      />
+                      </Box>
 
                     <Box
                       sx={{
@@ -340,6 +386,25 @@ export default function CheckOut() {
           </Box>
         </div>
       </LocalizationProvider>
+      <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Do you want to proceed with adding the new tenant?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={() => setOpenDialog(false)}>Cancel</Button>
+            <Button variant="contained" onClick={() => { setOpenDialog(false); handleCheckout(); }} autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
     </>
   );
 }
