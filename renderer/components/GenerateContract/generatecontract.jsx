@@ -94,7 +94,8 @@ export default function ContractTable() {
         responseType: "blob",
       });
 
-      const pdfUrl = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, "_blank");
     } catch (error) {
       console.error("Error generating document:", error);

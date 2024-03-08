@@ -6,8 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import libre from 'libreoffice-convert';
 
-const { dialog } = require('electron');
-
 
 const prisma = new PrismaClient();
 
@@ -102,15 +100,12 @@ const updatePeriodOfStay = async (tenantId, newPeriod) => {
 const getTemplateFilePath = (language) => {
     let basePath;
 
-    // Check if we are in production mode, i.e., the app is packaged
     if (process.env.NODE_ENV === 'production') {
-        // Use process.resourcesPath to access files in the resources directory
         logMessage(`Resources path: ${process.resourcesPath}`);
         basePath = path.join(process.resourcesPath, 'resources');
         logMessage(`Production base path: ${basePath}`);
 
     } else {
-        // This is your development base path
         checkDirectories();
         basePath = 'C:\\Senior_Project2';
     }
@@ -137,27 +132,20 @@ const getTemplateFilePath = (language) => {
 };
 
 
-const convertDocxToPdf = async (docxPath, pdfPath) => {
-    logMessage(`Starting DOCX to PDF conversion for file: ${docxPath}`);
-    try {
-        const docx = fs.readFileSync(docxPath);
-        return new Promise((resolve, reject) => {
-            libre.convert(docx, '.pdf', undefined, (err, done) => {
-                if (err) {
-                    logMessage(`Error during DOCX to PDF conversion: ${err.message}`);
-                    reject(err);
-                } else {
-                    fs.writeFileSync(pdfPath, done);
-                    logMessage(`DOCX to PDF conversion successful, file written to: ${pdfPath}`);
-                    resolve(pdfPath);
-                }
-            });
+const convertDocxToPdf = (docxBuffer) => {
+    return new Promise((resolve, reject) => {
+        libre.convert(docxBuffer, '.pdf', undefined, (err, done) => {
+            if (err) {
+                logMessage(`Error during DOCX to PDF conversion: ${err}`);
+                reject(err);
+            } else {
+                logMessage(`DOCX to PDF conversion successful.`);
+                resolve(done);
+            }
         });
-    } catch (error) {
-        logMessage(`Error reading DOCX for conversion: ${error.message}`);
-        throw error; // Re-throw the error to be handled by the caller
-    }
+    });
 };
+
 
 const fetchContractDetail = async (req, res) => {
     try {
@@ -315,22 +303,25 @@ const fillDocxTemplate = async (filePath, data, language) => {
         doc.render();
         logMessage('fillDocxTemplate: DOCX template rendered successfully.');
 
-        const outputDir = path.join(__dirname, language, tenantName);
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-        logMessage(`fillDocxTemplate: Output directory verified/created at ${outputDir}.`);
+        // const outputDir = path.join(__dirname, language, tenantName);
+        // logMessage(`fillDocxTemplate: Expected output directory is ${outputDir}`);
+        // if (!fs.existsSync(outputDir)) {
+        //     logMessage('fillDocxTemplate: Output directory does not exist. Attempting to create it.');
+        //     fs.mkdirSync(outputDir, { recursive: true });
+        //     logMessage('fillDocxTemplate: Output directory created.');
+        // }
+        // logMessage(`fillDocxTemplate: Output directory verified/created at ${outputDir}.`);
 
-        const docxPath = path.join(outputDir, `${tenantName}_contract.docx`);
-        const pdfPath = path.join(outputDir, `${tenantName}_contract.pdf`);
+        // const docxPath = path.join(outputDir, `${tenantName}_contract.docx`);
+        // const pdfPath = path.join(outputDir, `${tenantName}_contract.pdf`);
         const buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
-        fs.writeFileSync(docxPath, buf);
-        logMessage(`fillDocxTemplate: DOCX template filled and written to path: ${docxPath}.`);
+        // fs.writeFileSync(docxPath, buf);
+        // logMessage(`fillDocxTemplate: DOCX template filled and written to path: ${docxPath}.`);
 
         try {
-            const pdfFilePath = await convertDocxToPdf(docxPath, pdfPath);
-            logMessage(`fillDocxTemplate: PDF generated at path: ${pdfFilePath}.`);
-            return pdfFilePath;
+            const pdfBuffer = await convertDocxToPdf(buf);
+            logMessage(`fillDocxTemplate: PDF conversion successful.`);
+            return pdfBuffer;
         } catch (error) {
             logMessage(`fillDocxTemplate: Error converting DOCX to PDF: ${error.message}`);
             throw error;
@@ -340,7 +331,6 @@ const fillDocxTemplate = async (filePath, data, language) => {
         throw error;
     }
 };
-
 
 const formatDate = (date) => {
     if (!date) return '';
