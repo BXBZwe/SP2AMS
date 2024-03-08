@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+
 import {
   Card,
   CardContent,
@@ -24,6 +25,7 @@ import {
   Fab,
   List,
   ListItem,
+  ListItemText,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import axios from "axios";
@@ -106,7 +108,18 @@ export default function EditRoom() {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
+  const renderSelectedRatesSummary = () => {
+    return formData.rates
+      .filter(rate => rate.quantity > 0) // Assuming quantity indicates selection
+      .map((rate) => (
+        <ListItem key={rate.rateId}>
+          <ListItemText
+            primary={`${rate.item_name} - ${rate.item_price}`}
+            secondary={rate.item_description}
+          />
+        </ListItem>
+      ));
+  };
   useEffect(() => {
     const fetchRoom = async () => {
       try {
@@ -744,10 +757,32 @@ export default function EditRoom() {
           </Card>
         </Box>
         <Card sx={{ width: "100%", marginLeft: "1vw" }}>
-          <CardContent>
-            <Typography variant="h6">Room Summary</Typography>
-          </CardContent>
-        </Card>
+  <CardContent>
+    <Typography variant="h6">Room Summary</Typography>
+    <List dense>
+      <ListItem>
+        <ListItemText primary={`Room Number: ${formData.room_number}`} />
+      </ListItem>
+      <ListItem>
+        <ListItemText primary={`Base Rent: ${formData.base_rent}`} />
+      </ListItem>
+      <ListItem>
+        <ListItemText primary={`Deposit: ${formData.deposit}`} />
+      </ListItem>
+      <ListItem>
+        <ListItemText
+          primary={`Occupancy Status: ${formData.statusDetails.occupancy_status}`}
+        />
+      </ListItem>
+      <ListItem>
+        <ListItemText
+          primary={`Is Reserved: ${formData.statusDetails.is_reserved ? "Yes" : "No"}`}
+        />
+      </ListItem>
+      {renderSelectedRatesSummary()}
+    </List>
+  </CardContent>
+</Card>
       </Box>
 
       {/* Confirmation Dialog */}

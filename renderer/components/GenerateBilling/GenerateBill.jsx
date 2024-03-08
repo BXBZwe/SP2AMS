@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Divider, Card, CardContent, TextField, MenuItem, Button, IconButton, Checkbox, Select } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  MenuItem,
+  Button,
+  IconButton,
+  Checkbox,
+  Select,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import { MobileDatePicker, LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
+
+
 export default function GenerateBill() {
   const [rooms, setRooms] = useState([]);
   const [selectedOccupancyFilter, setSelectedOccupancyFilter] = useState("all");
@@ -14,6 +29,9 @@ export default function GenerateBill() {
     { label: "Unavailable", value: "UNAVAILABLE" },
     { label: "Occupied", value: "OCCUPIED" },
   ];
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Can be "error", "warning", "info", "success"
 
   const filteredRooms = rooms.filter((room) => (selectedOccupancyFilter === "all" ? true : room.statusDetails.occupancy_status === selectedOccupancyFilter));
 
@@ -99,29 +117,17 @@ export default function GenerateBill() {
 
   const handleGenerateButtonClick = async () => {
     setGenerateButtonClicked(true);
-    console.log("Generate button clicked");
 
-    if (selectedRoomList.length === 0) {
-      alert("Please select at least one room.");
+    if (selectedRoomList.length === 0 || billingDate === null) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Please select at least one room and fill in the generation date.");
+      setSnackbarOpen(true);
       return;
     }
-
-    // const isYearValid = validateInt(year) && year > 0;
-    // const isBillingDateValid = billingDate !== null;
-
-    // if (!isYearValid || !isBillingDateValid) {
-    //   return;
-    // }
-
-    // Formatting billingDate to the required format
-    // const formattedGenerationDate = billingDate.toISOString();
-
-    // Extract the month and year from the billing date for rent_month and rent_year
 
     const rentMonth = selectedMonth;
     const rentYear = parseInt(year, 10);
 
-    console.log("month", selectedMonth);
     try {
       await Promise.all(
         selectedRoomList.map(async (room) => {
@@ -132,13 +138,19 @@ export default function GenerateBill() {
             rent_year: rentYear,
           };
 
-          const response = await axios.post("http://localhost:3000/creategeneratebill", postData);
+          await axios.post("http://localhost:3000/creategeneratebill", postData);
         })
       );
 
-      alert("Bills generated successfully for selected rooms.");
+      setSnackbarSeverity("success");
+      setSnackbarMessage("Bills generated successfully for selected rooms.");
+      setSnackbarOpen(true);
+      resetForm();
     } catch (error) {
       console.error("Error generating bills:", error);
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Error generating bills.");
+      setSnackbarOpen(true);
     }
   };
 
@@ -146,7 +158,12 @@ export default function GenerateBill() {
     const floatValue = parseInt(value);
     return !isNaN(floatValue);
   };
-
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   const resetForm = () => {
     setBillingDate(null);
     setSelectedMonth("");
@@ -191,23 +208,36 @@ export default function GenerateBill() {
                 <Card sx={{ width: "50vw" }}>
                   <CardContent>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
-                      <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                        Select Rooms
-                      </Typography>
+                    <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                      Select Rooms
+                    </Typography>
 
-                      <Select value={selectedOccupancyFilter} onChange={(e) => setSelectedOccupancyFilter(e.target.value)} sx={{ width: "80px" }}>
-                        {occupancyFilterOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
+                    <Select
+                      value={selectedOccupancyFilter}
+                      onChange={(e) => setSelectedOccupancyFilter(e.target.value)}
+                      sx={{ 
+                        height: "40px", // Adjusted height
+                        width: "120px", // Adjusted width for a bit wider appearance
+                        fontSize: "0.875rem", // Adjust font size if needed
+                        marginLeft: "8px", // Adds margin to the left of the select input for spacing from the label
+                        '& .MuiSelect-select': {
+                          paddingTop: '6px', // Reducing padding to make the select input appear smaller in height
+                          paddingBottom: '6px',
+                        }
+                      }}
+                    >
+                      {occupancyFilterOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
                     </Box>
-
+                      <br></br>
                     <Box
                       sx={{
                         display: "flex",
-                        gap: "30px",
+                        gap: "20px",
                         justifyContent: "center",
                       }}
                     >
@@ -337,6 +367,16 @@ export default function GenerateBill() {
                 </Card>
               </Box>
             </Box>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={handleCloseSnackbar}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </Box>
         </div>
       </LocalizationProvider>

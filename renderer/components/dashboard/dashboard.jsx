@@ -42,12 +42,13 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-      {activeTab === "analysis" ? (
+      {activeTab === "management" ? (
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Analysis />
+          <Management />
         </div>
       ) : (
-        <Management />
+        <Analysis />
+        
       )}
     </>
   );

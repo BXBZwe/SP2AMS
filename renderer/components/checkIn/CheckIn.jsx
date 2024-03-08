@@ -1,11 +1,13 @@
 import { React, useState, useEffect } from "react";
-import { Box, Typography, Card, CardContent, Button, TextField, MenuItem, InputAdornment } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Box, Typography, Card, CardContent, Button, TextField, MenuItem, InputAdornment } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
 import dayjs from "dayjs";
+import { Snackbar, Alert } from '@mui/material';
 
 export default function CheckIn() {
+  const [openDialog, setOpenDialog] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState("");
   const [selectedTenant, setSelectedTenant] = useState("");
   const [contractMonths, setContractMonths] = useState("");
@@ -15,6 +17,16 @@ export default function CheckIn() {
   const [addButtonClicked, setAddButtonClicked] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [newTenants, setNewTenants] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // can be 'error', 'warning', 'info', 'success'
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
 
   useEffect(() => {
     const fetchAvailableRooms = async () => {
@@ -34,7 +46,8 @@ export default function CheckIn() {
         console.error("Failed to fetch rooms:", error);
       }
     };
-
+    
+    
     const fetchNewTenants = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getalltenants");
@@ -86,8 +99,16 @@ export default function CheckIn() {
           deposit: deposit,
         });
         console.log(response.data.message);
+        // Display success Snackbar
+        setSnackbarMessage(response.data.message || 'Tenant checked in successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
       } catch (error) {
         console.error("Check-in failed:", error);
+        // Display error Snackbar for missing information
+        setSnackbarMessage('No room or tenant selected. Please select both and try again.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     } else {
       console.error("No room or tenant selected.");
@@ -126,9 +147,14 @@ export default function CheckIn() {
     const isMoveOutValid = moveOutDate !== null && moveOutDate > moveInDate;
 
     if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
+      setSnackbarMessage('Please fill in all required fields correctly.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       return;
+    } else {
+      setOpenDialog(true);
     }
-    checkInTenant();
+    
   };
 
   const validateFloat = (value) => {
@@ -160,6 +186,17 @@ export default function CheckIn() {
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position the Snackbar at the top right
+        >
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+
         <div>
           <Box
             sx={{
@@ -348,7 +385,30 @@ export default function CheckIn() {
             </Box>
           </Box>
         </div>
+        
+                   
       </LocalizationProvider>
+      <Dialog
+  open={openDialog}
+  onClose={() => setOpenDialog(false)}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+>
+  <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
+  <DialogContent>
+    <DialogContentText id="alert-dialog-description">
+      Do you want to proceed with adding the new tenant?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button variant="outlined" onClick={() => setOpenDialog(false)}>Cancel</Button>
+    <Button variant="contained" onClick={() => { setOpenDialog(false); checkInTenant(); }} autoFocus>
+      Confirm
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
     </>
   );
 }
