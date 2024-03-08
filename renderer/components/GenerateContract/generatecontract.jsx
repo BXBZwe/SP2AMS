@@ -42,7 +42,7 @@ export default function ContractTable() {
           default:
             color = "inherit"; // Inherit the color from the parent
         }
-    
+
         const handleClick = () => {
           setSelectedTenantId(params.row.id);
           if (params.value.toLowerCase() === "new") {
@@ -51,7 +51,7 @@ export default function ContractTable() {
             setOpenUpdateDialog(true);
           }
         };
-    
+
         return (
           <Button variant="outlined" color={color} onClick={handleClick}>
             {params.value}
@@ -84,11 +84,6 @@ export default function ContractTable() {
 
     fetchContractData();
   }, []);
-
-  // const handleClickOpen = (tenantId) => {
-  //   setSelectedTenantId(tenantId);
-  //   setOpenDialog(true);
-  // };
 
   const handleGenerateDocument = async (language) => {
     setOpenDialog(false);

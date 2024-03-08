@@ -1,5 +1,4 @@
 import * as React from "react";
-import { signIn } from "next-auth/react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,13 +15,14 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { InputAdornment, IconButton } from "@mui/material/";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
+  const router = useRouter();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -30,16 +30,28 @@ export default function SignIn() {
     const name = data.get("name");
     const password = data.get("password");
 
-    const result = await signIn("credentials", {
-      redirect: true,
-      name,
-      password,
-      callbackUrl: `${window.location.origin}/home`,
-    });
+    try {
+      const response = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, password }),
+      });
 
-    // if (result.error) {
-    //   setErrorMessage(result.error);
-    // }
+      const result = await response.json();
+      if (response.ok) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("sessionInfo", JSON.stringify(result.user));
+        }
+        router.push("/home");
+      } else {
+        setErrorMessage(result.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error", error);
+      setErrorMessage("Login error");
+    }
   };
 
   return (
