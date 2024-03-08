@@ -85,39 +85,19 @@ export default function ContractTable() {
     },
   ];
 
-  // const handleGenerateDocument = async (language) => {
-  //   setOpenDialog(false);
-  //   setOpenUpdateDialog(false);
-
-  //   try {
-  //     const response = await axios.get(
-  //       `http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`,
-  //       {
-  //         responseType: "blob",
-  //       }
-  //     );
-
-  //     const pdfUrl = URL.createObjectURL(
-  //       new Blob([response.data], { type: "application/pdf" })
-  //     );
-  //     window.open(pdfUrl, "_blank");
-  //   } catch (error) {
-  //     console.error("Error generating document:", error);
-  //   }
-  // };
 
   const handleGenerateDocument = async (language) => {
     setOpenDialog(false);
     setOpenUpdateDialog(false);
-    setDocumentLoading(true); // Start loading
+    setDocumentLoading(true); 
   
     try {
-      const response = await axios.get(
-        `http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`,
-        { responseType: "blob" }
-      );
-  
-      const pdfUrl = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+      const response = await axios.get(`http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`, {
+        responseType: "blob",
+      });
+
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, "_blank");
     } catch (error) {
       console.error("Error generating document:", error);
@@ -127,8 +107,6 @@ export default function ContractTable() {
   };
   
 
-  // New One
-  // Function to fetch contract data
   const fetchContractData = async () => {
     setLoading(true);
     try {

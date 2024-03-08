@@ -127,7 +127,6 @@ const navigationItems4 = [
     icon: <ReceiptLongIcon />,
   },
   { label: "Printing/payment", link: "/printpayment", icon: <PrintIcon /> },
-  
 ];
 const navigationItems5 = [
   {
@@ -344,39 +343,6 @@ export default function Nav() {
           ))}
         </List>
         <Divider>{open && <div style={{ opacity: "60%", fontSize: "13px" }}>Account</div>}</Divider>
-        {/* <List>
-          {navigationItems6.map((item, index) => (
-            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <Link href={item.link} passHref>
-              <ListItemButton
-                component="a"
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                  backgroundColor: isLinkActive(item.link) ? theme.palette.action.selected : 'transparent',
-                  '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                }}
-                onClick={() => handleLinkClick(item.link)}
-              >
-                   <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                    color: isLinkActive(item.link) ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.87)',
-                  }}
-                >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.label} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
-          ))}
-        </List> */}
         <List>
           {navigationItems6.map((item, index) => (
             <ListItem key={index} disablePadding sx={{ display: "block" }}>
