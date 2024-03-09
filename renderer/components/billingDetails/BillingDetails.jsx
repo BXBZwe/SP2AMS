@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Import the check circle icon
 
 
 export default function BillingDetails() {
@@ -28,7 +29,7 @@ export default function BillingDetails() {
   const [previousReadings, setPreviousReadings] = useState({});
   const [waterCost, setWaterCost] = useState({});
   const [electricityCost, setElectricityCost] = useState({});
-
+  const [snackbarSeverity, setSnackbarSeverity] = useState('error'); // Default to 'error'
   const getroomsforbilling = async () => {
     try {
       const response = await axios.get("http://localhost:3000/generatebill");
@@ -185,12 +186,14 @@ export default function BillingDetails() {
   const handleGeneratebilling = async () => {
     setGenerateDialogOpen(false);
     if (!checkAllFieldsFilled()) {
-      setSnackbarMessage("Please fill in all the readings before generating bills.");
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
+      setSnackbarSeverity('error'); // Set snackbar to show error
       setSnackbarOpen(true);
       return;
     }
     if (!checkAllFieldsFilledAndPositive()) {
       setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
+      setSnackbarSeverity('error'); // Set snackbar to show error
       setSnackbarOpen(true);
       return;
     }
@@ -222,7 +225,13 @@ export default function BillingDetails() {
           },
         }));
         console.log(`Bill generated for Room ID ${roomId}`, response.data);
+        setSnackbarSeverity('success');
+        setSnackbarMessage('All bills have been successfully generated.');
+        setSnackbarOpen(true); // This is crucial
       } catch (error) {
+        setSnackbarMessage("Failed to generate bills.");
+        setSnackbarSeverity('error'); // Keep snackbar on error for actual errors
+        setSnackbarOpen(true);
         console.error(`Failed to generate bill for room`, error);
       }
     });
@@ -372,9 +381,14 @@ export default function BillingDetails() {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position Snackbar at the top-right corner
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          icon={snackbarSeverity === 'success' ? <CheckCircleIcon fontSize="inherit" /> : undefined} // Conditionally render the check icon for success
+          sx={{ width: '100%' }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -1,14 +1,14 @@
 import React from 'react'
 import Head from 'next/head'
 import { Typography } from '@mui/material'
-
+import SummaryBilling from '../components/billingreport/billingreport';
 export default function Summarybilling() {
   return (
     <div>
-            <Head>
+      <Head>
         <title>Summarybilling</title>
       </Head>
-      <Typography>Summarybilling</Typography>
+      <SummaryBilling />
       
     </div>
   )

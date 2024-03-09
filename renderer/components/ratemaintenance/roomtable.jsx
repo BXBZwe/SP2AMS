@@ -18,6 +18,8 @@ import {
   Chip,
   GridOverlay,
   Box,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -38,6 +40,7 @@ export default function ratetable() {
     fetchRooms();
   }, [fetchRooms]);
   const theme = useTheme();
+  
   // const [rooms, setRooms] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filterValue, setFilterValue] = useState("all");
@@ -53,6 +56,12 @@ export default function ratetable() {
     PARTIAL: "warning", // yellow color
     PAID: "success", // green color
   };
+  const occupancyFilterOptions = [
+    { label: "All", value: "all" },
+    { label: "Occupied", value: "OCCUPIED" },
+    { label: "Unavailable", value: "UNAVAILABLE" },
+    { label: "Vacant", value: "VACANT" },
+  ];
 
   // useEffect(() => {
   //   const fetchRooms = async () => {
@@ -280,10 +289,9 @@ export default function ratetable() {
   // });
 
   const filteredRows = rooms.filter((row) => {
-    return (
-      row.room_number.toLowerCase().includes(searchText.toLowerCase()) &&
-      (filterValue === "all" || row.occupancy_status === filterValue)
-    );
+    const matchesSearchText = row.room_number.toLowerCase().includes(searchText.toLowerCase());
+    const matchesFilterValue = filterValue === "all" || row.statusDetails.occupancy_status === filterValue;
+    return matchesSearchText && matchesFilterValue;
   });
 
   const CustomNoRowsOverlay = () => (
@@ -330,8 +338,41 @@ export default function ratetable() {
       </Card>
 
       <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
-        {" "}
-        {/* Ensure the Card allows for internal scrolling if needed */}
+      <CardContent>
+      <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+          <TextField
+            label="Search by Room Number"
+            variant="outlined"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            sx={{  marginRight: "5px", width: "80%"}}
+            
+          />
+          <FormControl sx={{ minWidth: 240 }}>
+            <InputLabel id="occupancy-filter-label">Occupancy Filter</InputLabel>
+            <Select
+              labelId="occupancy-filter-label"
+              id="occupancy-filter-select"
+              value={filterValue}
+              label="Occupancy Filter"
+              
+              onChange={(e) => setFilterValue(e.target.value)}
+            >
+              {occupancyFilterOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+            
+          </FormControl>
+          </div>
         <DataGrid
           rows={filteredRows}
           columns={columns}
@@ -343,6 +384,7 @@ export default function ratetable() {
           autoHeight
           density="compact"
         />
+        </CardContent>
       </Card>
 
       {/* Confirmation Dialog */}

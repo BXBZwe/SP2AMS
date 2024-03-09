@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+
 import { DataGrid } from "@mui/x-data-grid";
 import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Chip, GridOverlay, FormControl, InputLabel, Box, Autocomplete, FormControlLabel, Checkbox } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -11,9 +11,12 @@ import { useTheme } from "@mui/material/styles";
 import { ReactComponent as EmptyTableSvg } from "../../public/assets/empty-table.svg";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import React, { useState, useEffect, useMemo } from "react";
 
 export default function RequestTable() {
   const theme = useTheme();
+  const [searchRoomText, setSearchRoomText] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
   const [rooms, setRooms] = useState([]);
   const [requests, setRequests] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -86,7 +89,15 @@ export default function RequestTable() {
     };
     fetchRooms();
   }, []);
-
+  const filteredRequests = useMemo(() => {
+    return requests.filter((request) => {
+      const matchesRoomNumber = searchRoomText ? request.roomBaseDetails.room_number.toLowerCase().includes(searchRoomText.toLowerCase()) : true;
+      const matchesPriority = priorityFilter ? request.Request_priority === priorityFilter : true;
+      return matchesRoomNumber && matchesPriority;
+    });
+  }, [requests, searchRoomText, priorityFilter]);
+  
+  
   const handleOpenAddDialog = () => {
     setOpenAddDialog(true);
   };
@@ -339,10 +350,33 @@ export default function RequestTable() {
         </CardContent>
       </Card>
 
-      <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
-        {" "}
+     <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
+      <CardContent>
+      <Box sx={{ display: 'flex', marginBottom: 2 }}>
+          <TextField
+            label="Search by Room Number"
+            variant="outlined"
+            value={searchRoomText}
+            onChange={(e) => setSearchRoomText(e.target.value)}
+            sx={{  marginRight: "10px", width: "80%"}}
+          />
+          <FormControl sx={{ minWidth: 240 }}>
+            <InputLabel>Priority Filter</InputLabel>
+            <Select
+              value={priorityFilter}
+              label="Priority Filter"
+              onChange={(e) => setPriorityFilter(e.target.value)}
+            >
+              {priorityOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+              ))}
+              <MenuItem value="">All</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
         <DataGrid
-          rows={requests}
+          rows={filteredRequests}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5, 10]}
@@ -353,8 +387,9 @@ export default function RequestTable() {
           autoHeight
           density="compact"
         />
+        </CardContent>
       </Card>
-
+          
       {/* Delete Dialog */}
 
       <Dialog fullScreen={fullScreen} open={openDeleteDialog} onClose={handleCloseDeleteDialog} aria-labelledby="delete-confirm">
