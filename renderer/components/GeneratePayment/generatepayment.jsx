@@ -20,12 +20,12 @@ export default function PaymentTable() {
 
   const columns = [
     { field: "room_number", headerName: "Room Number", width: 200 },
-    { field: "tenant_name", headerName: "Tenant Name", width: 200 },
+    { field: "tenant_name", headerName: "Tenant Name", width: 300 },
     { field: "total_bill", headerName: "Total Bill", width: 200 },
     { field: "payment_status", headerName: "Payment Status", width: 200 },
     {
       field: "checkbox",
-      headerName: "CheckBox",
+      headerName: "",
       width: 200,
       renderCell: (params) => <Checkbox checked={selectedRows.includes(params.id)} onChange={() => handleRowSelectionToggle(params.id)} />,
     },

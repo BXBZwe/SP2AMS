@@ -14,6 +14,10 @@ import {
   DialogContentText,
   Typography,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 import Link from "next/link";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -25,7 +29,11 @@ import CloseIcon from "@mui/icons-material/Close";
 
 export default function ContractTable() {
   const theme = useTheme();
+  const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [filteredContracts, setFilteredContracts] = useState([]);
   const [contracts, setContracts] = useState([]);
+  
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTenantId, setSelectedTenantId] = useState(null);
@@ -35,12 +43,12 @@ export default function ContractTable() {
   const [documentLoading, setDocumentLoading] = useState(false);
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: 200 },
-    { field: "tenant_name", headerName: "Tenant Name", width: 200 },
+    { field: "room_number", headerName: "Room Number", width: '300' },
+    { field: "tenant_name", headerName: "Tenant Name", width: '300' },
     {
       field: "contract_status",
       headerName: "Contract Status",
-      width: 200,
+      width: '300',
       renderCell: (params) => {
         let color;
         switch (params.value.toLowerCase()) {
@@ -85,6 +93,43 @@ export default function ContractTable() {
     },
   ];
 
+  useEffect(() => {
+    const fetchContractData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getcontractdetails");
+        console.log("contract data: ", response.data);
+        const data = response.data.map((contract) => {
+          return {
+            id: contract.tenants.tenant_id,
+            room_number: contract.RoomBaseDetails.room_number,
+            tenant_name: `${contract.tenants.first_name} ${contract.tenants.last_name}`,
+            contract_status: contract.tenants.contract_status,
+            contract_days_left: contract.contract_days_left !== null ? contract.contract_days_left : "-",
+          };
+        });
+        setContracts(data);
+      } catch (error) {
+        console.error("Error fetching tenants:", error);
+      }
+    };
+
+    fetchContractData();
+
+
+    
+  }, []);
+ 
+  useEffect(() => {
+    const applyFilters = () => {
+      let filteredData = contracts.filter(contract => 
+        contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) &&
+        (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true)
+      );
+      setFilteredContracts(filteredData);
+    };
+
+    applyFilters();
+  }, [searchText, statusFilter, contracts]);
 
   const handleGenerateDocument = async (language) => {
     setOpenDialog(false);
@@ -172,14 +217,45 @@ export default function ContractTable() {
           </Typography>
         </CardContent>
       </Card>
-      <Card sx={{ marginTop: "10px" }}>
-        <DataGrid
-          rows={contracts}
-          getRowId={(row) => row.room_number}
-          columns={columns}
-          pageSize={5}
-          pageSizeOptions={[5, 10]}
-        />
+      <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
+      <CardContent>
+      <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+      <TextField
+        id="search-bar"
+        label="Search Tenant"
+        variant="outlined"
+        fullWidth
+        sx={{  marginRight: "10px", width: "80%"}}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+      />
+      <FormControl sx={{ minWidth: 240 }}>
+        <InputLabel id="status-filter-label">Contract Status</InputLabel>
+        <Select
+          labelId="status-filter-label"
+          id="status-filter"
+          value={statusFilter}
+          label="Contract Status"
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="new">New</MenuItem>
+          <MenuItem value="ongoing">Ongoing</MenuItem>
+          <MenuItem value="due">Due</MenuItem>
+          <MenuItem value="warning">Warning</MenuItem>
+          <MenuItem value="checkout">Checkout</MenuItem>
+          <MenuItem value="terminated">Terminated</MenuItem>
+        </Select>
+      </FormControl>
+      </div>
+        <DataGrid rows={filteredContracts} getRowId={(row) => row.room_number} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} />
+      </CardContent>
       </Card>
       <Dialog
         open={openUpdateDialog}
