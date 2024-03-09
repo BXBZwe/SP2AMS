@@ -16,6 +16,7 @@ import generatebillroute from './routes/generatebillroute';
 import paymentroute from './routes/paymentroute';
 import utilityroute from './routes/utilityroute';
 import authrouter from './routes/authroute';
+import pdfroute from './routes/pdfgenerationroute';
 
 const app = express();
 app.use(express.json());
@@ -49,6 +50,7 @@ app.use(generatebillroute);
 app.use(paymentroute);
 app.use('/images', express.static('C:\\\\Senior_Project2\\\\PSPark_Images'));
 app.use(utilityroute);
+app.use(pdfroute);
 
 
 

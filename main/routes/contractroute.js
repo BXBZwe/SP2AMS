@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updatePeriodOfStay } from '../controllers/contractcontroller';
+import { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updatePeriodOfStay, fetchSpecificContractDetail } from '../controllers/contractcontroller';
 import libre from 'libreoffice-convert';
 import fs from 'fs';
 
@@ -28,7 +28,7 @@ contractroute.get('/createfilledcontract/:tenantId/:language', async (req, res) 
 
 
 contractroute.get('/getcontractdetails', fetchContractDetail);
-contractroute.get('/getspecificcontractdetails/:contractId', fetchSpecificContractDetail); 
+contractroute.get('/getspecificcontractdetails/:contractId', fetchSpecificContractDetail);
 
 
 contractroute.put('/updatePeriodOfStay/:tenantId', async (req, res) => {

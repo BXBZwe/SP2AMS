@@ -339,77 +339,13 @@ const formatDate = (date) => {
 };
 
 
-// const fetchSpecificContractDetail = async (req, res) => {
-//     const contractId = parseInt(req.params.contractId); // Assuming the contract ID is passed as a URL parameter
-
-//     try {
-//         const contractDetail = await prisma.tenancy_records.findUnique({
-//             where: {
-//                 tenant_id: contractId, // Use the unique identifier for the contract
-//             },
-//             select: {
-//                 move_in_date: true,
-//                 move_out_date: true,
-//                 tenancy_status: true,
-//                 period_of_stay: true, // Assuming you have a field for period of stay
-//                 RoomBaseDetails: {
-//                     select: {
-//                         room_number: true,
-//                         floor: true, // Assuming you want to include the floor information
-//                     },
-//                 },
-//                 tenants: {
-//                     select: {
-//                         tenant_id: true,
-//                         first_name: true,
-//                         last_name: true,
-//                         contract_status: true,
-//                     },
-//                 },
-//             },
-//         });
-
-//         if (!contractDetail) {
-//             res.status(404).send(`Contract with ID ${contractId} not found.`);
-//             return;
-//         }
-
-//         // const currentDate = new Date();
-//         // const moveOutDate = new Date(contractDetail.move_out_date);
-//         // const contractDaysLeft = Math.ceil((moveOutDate - currentDate) / (1000 * 60 * 60 * 24));
-
-//         // // Update the contract status based on the days left, similar logic as in your batch update
-//         // let newStatus = contractDetail.tenants.contract_status;
-//         // if (contractDaysLeft <= 0) newStatus = 'DUE';
-//         // else if (contractDaysLeft < 30) newStatus = 'WARNING';
-//         // else newStatus = 'ONGOING';
-
-//         // // Update the status in the database if it has changed
-//         // if (newStatus !== contractDetail.tenants.contract_status) {
-//         //     await prisma.tenants.update({
-//         //         where: { tenant_id: contractDetail.tenants.tenant_id },
-//         //         data: { contract_status: newStatus },
-//         //     });
-//         // }
-
-//         // // Send the updated contract details as response
-//         // res.json({
-//         //     ...contractDetail,
-//         //     contract_days_left: contractDaysLeft,
-//         // });
-//     } catch (error) {
-//         console.error(`Error fetching specific contract detail:`, error);
-//         res.status(500).send(error.message);
-//     }
-// };
-
 const fetchSpecificContractDetail = async (req, res) => {
-    const contractId = parseInt(req.params.contractId); // Assuming the contract ID is passed as a URL parameter
+    const contractId = parseInt(req.params.contractId);
 
     try {
         const contractDetail = await prisma.tenancy_records.findUnique({
             where: {
-                tenant_id: contractId, // Adjusted to use 'id' as the unique identifier
+                tenant_id: contractId,
             },
             select: {
                 move_in_date: true,
@@ -442,17 +378,15 @@ const fetchSpecificContractDetail = async (req, res) => {
         const moveOutDate = new Date(contractDetail.move_out_date);
         const contractDaysLeft = Math.ceil((moveOutDate - currentDate) / (1000 * 60 * 60 * 24));
 
-        // Determine the new contract status based on the days left
         let newStatus;
         if (contractDaysLeft <= 0) newStatus = 'DUE';
         else if (contractDaysLeft < 30) newStatus = 'WARNING';
         else newStatus = 'ONGOING';
 
-        // Send the contract details along with the calculated days left and potentially updated status
         res.json({
             ...contractDetail,
             contract_days_left: contractDaysLeft,
-            contract_status: newStatus, // Send the potentially updated status
+            contract_status: newStatus,
         });
     } catch (error) {
         console.error(`Error fetching specific contract detail:`, error);
@@ -463,4 +397,4 @@ const fetchSpecificContractDetail = async (req, res) => {
 
 
 
-export { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updateTenantContractStatus, updatePeriodOfStay,fetchSpecificContractDetail };
+export { getTemplateFilePath, fetchTenantData, fillDocxTemplate, fetchContractDetail, updateTenantContractStatus, updatePeriodOfStay, fetchSpecificContractDetail };
