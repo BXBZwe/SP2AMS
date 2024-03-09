@@ -19,12 +19,16 @@
       {
         "from": "C:\\Senior_Project2\\english",
         "to": "resources\\english",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "C:\\Senior_Project2\\thai",
         "to": "resources\\thai",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   },
@@ -55,6 +59,8 @@
     "next-auth": "^4.24.5",
     "nodemailer": "^6.9.7",
     "path": "^0.12.7",
+    "pdfjs-dist": "^4.0.379",
+    "pdfmake": "^0.2.10",
     "pizzip": "^3.1.6",
     "react-copy-to-clipboard": "^5.1.0",
     "react-element-to-jsx-string": "^15.0.0",

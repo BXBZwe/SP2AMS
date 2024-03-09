@@ -3,23 +3,20 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert } from "@mui/material";
 
 export default function PaymentTable() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const theme = useTheme();
-  
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generationDates, setGenerationDates] = useState([]);
   const [selectedGenerationDate, setSelectedGenerationDate] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  
- 
-
 
   const columns = [
     { field: "room_number", headerName: "Room Number", width: 200 },
@@ -61,10 +58,38 @@ export default function PaymentTable() {
   };
   const handleGeneratePdfAndClose = async () => {
     console.log("Generating PDF for selected rows:", selectedRows);
-    // Add your PDF generation logic here
+
+    for (const rowId of selectedRows) {
+      const paymentDetail = payments.find((payment) => payment.id === rowId);
+      if (!paymentDetail) {
+        // console.error("Payment detail not found for id:", rowId);
+        continue;
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/generate-pdf",
+          {
+            room_id: paymentDetail.room_id,
+          },
+          { responseType: "blob" }
+        );
+
+        const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        window.open(pdfUrl);
+
+        console.log("PDF generated successfully for room:", paymentDetail.room_number);
+      } catch (error) {
+        console.error("Failed to generate PDF for room:", paymentDetail.room_number, error);
+      }
+    }
+
     setOpenPdfDialog(false);
   };
-  
+
   const fetchGenerationDates = async () => {
     try {
       const response = await axios.get("http://localhost:3000/getgenerationdate");
@@ -106,22 +131,21 @@ export default function PaymentTable() {
     });
   };
   const handleSendEmailAndClose = async () => {
-    await handleSendEmail(); // This is where you send the emails
     setOpenSnackbar(true); // Open the Snackbar with the success message
     setOpenDialog(false); // Close the dialog
     const success = await handleSendEmail(); // Assume this function now returns true on success, false otherwise
     if (success) {
-        setOpenSnackbar(true); // Show success message only if emails were sent successfully
-        setOpenDialog(false); // Close the dialog
+      setOpenSnackbar(true); // Show success message only if emails were sent successfully
+      setOpenDialog(false); // Close the dialog
     }
-};
+  };
 
   const handleSendEmail = async () => {
     console.log("Sending emails to selected rows:", selectedRows);
     for (const rowId of selectedRows) {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
       if (!paymentDetail) {
-        console.error("Payment detail not found for id:", rowId);
+        // console.error("Payment detail not found for id:", rowId);
         continue;
       }
 
@@ -137,23 +161,22 @@ export default function PaymentTable() {
       }
     }
   };
-  
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
   return (
     <>
-       <Card sx={{ width: "100%", display: "flex" }}>
+      <Card sx={{ width: "100%", display: "flex" }}>
         <CardContent
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between', // Adjust layout to space content
-            alignItems: 'center', // Align items vertically
-            width: '100%', // Ensure the CardContent takes full width
+            display: "flex",
+            justifyContent: "space-between", // Adjust layout to space content
+            alignItems: "center", // Align items vertically
+            width: "100%", // Ensure the CardContent takes full width
           }}
         >
-          <Box sx={{ width: '70%' }}>
+          <Box sx={{ width: "70%" }}>
             <Typography variant="h4">Payment Generation</Typography>
             <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
               Send an E-payment slip or print a pdf
@@ -164,17 +187,13 @@ export default function PaymentTable() {
             <Button variant="contained" color="primary" onClick={handleOpenPdfDialog} disabled={selectedRows.length === 0 || loading} sx={{ ml: 2 }}>
               Generate PDF
             </Button>
-
           </Box>
 
-          <Box sx={{ width: '30%' }}> {/* Adjusted for select component */}
+          <Box sx={{ width: "30%" }}>
+            {" "}
             <FormControl fullWidth variant="outlined">
               <InputLabel>Select Generation Date</InputLabel>
-              <Select
-                value={selectedGenerationDate}
-                onChange={handleGenerationDateChange}
-                label="Select Generation Date"
-              >
+              <Select value={selectedGenerationDate} onChange={handleGenerationDateChange} label="Select Generation Date">
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
@@ -191,43 +210,38 @@ export default function PaymentTable() {
       <Card sx={{ marginTop: "10px" }}>
         <DataGrid rows={payments} getRowId={(row) => row.id} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} onSelectionModelChange={handleRowSelection} selectionModel={selectedRows} />
       </Card>
-      <Dialog  open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
-  <DialogTitle id="dialog-title" sx={{textAlign: 'center'}}>Choose Your Option</DialogTitle>
-  <DialogActions >
-      <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
-        Payment
-      </Button>
-      <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
-        Receipt
-      </Button>
-      <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
-        Cancel
-      </Button>
-    </DialogActions>
-  </Dialog>
-  <Dialog open={openPdfDialog} onClose={() => setOpenPdfDialog(false)} aria-labelledby="pdf-dialog-title">
-  <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
-  <DialogActions sx={{ justifyContent: 'center' }}>
-    <Button variant="contained" onClick={handleGeneratePdfAndClose} color="primary">
-      Generate PDF
-    </Button>
-    <Button variant="contained" onClick={() => setOpenPdfDialog(false)} color="primary">
-      Cancel
-    </Button>
-  </DialogActions>
-</Dialog>
-    <Snackbar
-      open={openSnackbar}
-      autoHideDuration={6000}
-      onClose={() => setOpenSnackbar(false)}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-    >
-        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: '100%' }}>
-            Email sent successfully!
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
+        <DialogTitle id="dialog-title" sx={{ textAlign: "center" }}>
+          Choose Your Option
+        </DialogTitle>
+        <DialogActions>
+          <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
+            Payment
+          </Button>
+          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+            Receipt
+          </Button>
+          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openPdfDialog} onClose={() => setOpenPdfDialog(false)} aria-labelledby="pdf-dialog-title">
+        <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
+        <DialogActions sx={{ justifyContent: "center" }}>
+          <Button variant="contained" onClick={handleGeneratePdfAndClose} color="primary">
+            Generate PDF
+          </Button>
+          <Button variant="contained" onClick={() => setOpenPdfDialog(false)} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: "100%" }}>
+          Email sent successfully!
         </Alert>
-    </Snackbar>
-
-    
+      </Snackbar>
     </>
   );
 }

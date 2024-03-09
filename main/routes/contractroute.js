@@ -28,7 +28,7 @@ contractroute.get('/createfilledcontract/:tenantId/:language', async (req, res) 
 
 
 contractroute.get('/getcontractdetails', fetchContractDetail);
-contractroute.get('/getspecificcontractdetails/:contractId', fetchSpecificContractDetail); 
+contractroute.get('/getspecificcontractdetails/:contractId', fetchSpecificContractDetail);
 
 
 contractroute.put('/updatePeriodOfStay/:tenantId', async (req, res) => {
