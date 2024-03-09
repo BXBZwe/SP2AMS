@@ -15,8 +15,7 @@ import requestroute from './routes/requestroute';
 import generatebillroute from './routes/generatebillroute';
 import paymentroute from './routes/paymentroute';
 import utilityroute from './routes/utilityroute';
-
-// import authroute from './routes/authroute';
+import authrouter from './routes/authroute';
 
 const app = express();
 app.use(express.json());
@@ -43,7 +42,7 @@ app.use(rateroutes);
 app.use(tenantroutes);
 app.use(managerroute);
 app.use(tenancyrecordsroute);
-// app.use(authroute);
+app.use(authrouter);
 app.use(contractroute);
 app.use(requestroute);
 app.use(generatebillroute);

@@ -9,7 +9,7 @@ export default function generatecontract() {
       <Head>
         <title>generatecontract</title>
       </Head>
-      <ContractTable></ContractTable>
+      <ContractTable/>
     </div>
   );
 }

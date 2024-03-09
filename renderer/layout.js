@@ -38,11 +38,18 @@
 import React from "react";
 import Nav from "./components/Nav";
 import { SnackbarProvider } from "./components/snackBar/SnackbarContent";
+import { useRouter } from "next/router";
+
 
 const Layout = ({ children }) => {
+  const router = useRouter();
+  // Check if we are on a page where the Nav should not be displayed
+  const noNavRoutes = ['/signin'];
+  const showNav = !noNavRoutes.includes(router.pathname);
+
   return (
     <div style={{ display: "flex" }}>
-      <Nav />
+      {showNav && <Nav />}
       <SnackbarProvider>
         <main style={{ flex: 1, padding: "20px" }}>
           {children}

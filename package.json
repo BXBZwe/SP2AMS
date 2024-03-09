@@ -15,7 +15,17 @@
       "prisma/**/*",
       "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/**/*",
-      ".env"
+      ".env",
+      {
+        "from": "C:\\Senior_Project2\\english",
+        "to": "resources\\english",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "C:\\Senior_Project2\\thai",
+        "to": "resources\\thai",
+        "filter": ["**/*"]
+      }
     ]
   },
   "dependencies": {
