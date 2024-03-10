@@ -31,7 +31,7 @@ import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import Image from 'next/image';
+import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu"; // Import the MenuIcon
 
 const drawerWidth = 240;
@@ -64,7 +64,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'flex-end', // Center the content horizontally
+  justifyContent: "flex-end", // Center the content horizontally
 }));
 
 const TitleWrapper = styled("div")(({ theme }) => ({
@@ -133,8 +133,13 @@ const navigationItems4 = [
 ];
 const navigationItems5 = [
   {
-    label: "Billing Report",
-    link: "/Summarybilling",
+    label: "Accural Billing Report",
+    link: "/Summaryperiodicbilling",
+    icon: <AssessmentIcon />,
+  },
+  {
+    label: "Periodic Billing Report",
+    link: "/Summaryaccuralbilling",
     icon: <AssessmentIcon />,
   },
   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
@@ -148,7 +153,7 @@ const navigationItems6 = [
 export default function Nav() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-  
+
   const [activeLink, setActiveLink] = React.useState("/dashboard"); // Set the default active link
 
   const handleLinkClick = (link) => {
@@ -162,36 +167,28 @@ export default function Nav() {
       <CssBaseline />
 
       <Drawer variant="permanent" open={open}>
-      <DrawerHeader>
-        <div style={{ display: "flex", alignItems: "center", marginRight: '25px' }}>
-          <Image
-            src="/logo.png"
-            alt="PS Park Logo"
-            width={50}
-            height={50}
-          />
-          <Typography variant="h6" noWrap sx={{ ml: 1, fontWeight: 'bold' }}>PS Park</Typography>
-        </div>
-        <IconButton
-          onClick={() => setOpen(!open)}
-          sx={{
-            ...(open && {
-              justifyContent: 'flex-end',
-            }),
-            ...(!open && {
-              marginRight: '-4px', // Aligns the icon to the center when drawer is closed
-               // Centers the icon when drawer is closed
-            }),
-          }}
-        >
-          {open ? (
-            theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />
-          ) : (
-            <MenuIcon />
-          )}
-        </IconButton>
-      </DrawerHeader>
-
+        <DrawerHeader>
+          <div style={{ display: "flex", alignItems: "center", marginRight: "25px" }}>
+            <Image src="/logo.png" alt="PS Park Logo" width={50} height={50} />
+            <Typography variant="h6" noWrap sx={{ ml: 1, fontWeight: "bold" }}>
+              PS Park
+            </Typography>
+          </div>
+          <IconButton
+            onClick={() => setOpen(!open)}
+            sx={{
+              ...(open && {
+                justifyContent: "flex-end",
+              }),
+              ...(!open && {
+                marginRight: "-4px", // Aligns the icon to the center when drawer is closed
+                // Centers the icon when drawer is closed
+              }),
+            }}
+          >
+            {open ? theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+        </DrawerHeader>
 
         <Divider />
         <List>
