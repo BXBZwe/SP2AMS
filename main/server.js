@@ -16,6 +16,8 @@ import utilityroute from './routes/utilityroute';
 import authrouter from './routes/authroute';
 import pdfroute from './routes/pdfgenerationroute';
 import readingpdfroute from './routes/readingspdfroute';
+import billingReportRoute from './routes/periodicbillingreportroute';
+import accuralroute from './routes/accuralbillingreportroute';
 
 const app = express();
 app.use(express.json());
@@ -51,7 +53,8 @@ app.use('/images', express.static('C:\\\\Senior_Project2\\\\PSPark_Images'));
 app.use(utilityroute);
 app.use(pdfroute);
 app.use(readingpdfroute);
-
+app.use(billingReportRoute);
+app.use(accuralroute);
 
 export default function startServer() {
   const port = 3000;
