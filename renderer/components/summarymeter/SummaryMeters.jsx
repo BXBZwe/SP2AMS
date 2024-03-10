@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableRow, TableHead, Paper, Select, MenuItem, FormControl, InputLabel, Button, TextField } from "@mui/material";
+import {Grid, Box, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableRow, TableHead, Paper, Select, MenuItem, FormControl, InputLabel, Button, TextField } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -58,7 +58,10 @@ export default function SummaryMeter() {
       return { water_reading: 0, electricity_reading: 0 };
     }
   };
-
+  const formatDate = (isoString) => {
+    return isoString.split('T')[0]; // Splits the ISO string at 'T' and returns the date part
+  };
+  
   const fetchGenerationDates = async () => {
     try {
       const response = await axios.get("http://localhost:3000/getgenerationdate");
@@ -144,63 +147,87 @@ export default function SummaryMeter() {
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Card sx={{ width: "100%", marginBottom: "20px" }}>
-          <CardContent>
-            <Typography variant="h5">Meter Readings</Typography>
-            <FormControl fullWidth>
-              <InputLabel id="generation-date-label">Generation Date</InputLabel>
-              <Select labelId="generation-date-label" value={selectedGenerationDate} label="Generation Date" onChange={handleGenerationDateChange}>
-                {generationDates.map((date, index) => (
-                  <MenuItem key={index} value={date}>
-                    {date}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel id="bill-type-label">Reading Type</InputLabel>
-              <Select labelId="bill-type-label" value={billType} label="Bill Type" onChange={handleBillTypeChange}>
-                <MenuItem value={"electricity"}>Electricity Reading</MenuItem>
-                <MenuItem value={"water"}>Water Reading</MenuItem>
-              </Select>
-            </FormControl>
-          </CardContent>
-        </Card>
-        <Button variant="contained" color="primary" onClick={handleGeneratePdfClick}>
-          Generate PDF
-        </Button>
+      <Card sx={{ width: "100%", marginBottom: "20px" }}>
+        <CardContent >
+          <Grid container justifyContent="space-between" alignItems="center">
+            <Grid item>
+              <Typography variant="h4">Meter Readings</Typography>
+              <Typography>Generate Water Meter and Electricity Meter for each floor and rooms</Typography>
+            </Grid>
+            <Grid item>
+              <Grid container spacing={2}>
+                <Grid item style={{ width: '160px' }}>
+                  <FormControl fullWidth>
+                  <InputLabel id="generation-date-label">Generation Date</InputLabel>
+                    <Select
+                      labelId="generation-date-label"
+                      value={selectedGenerationDate}
+                      label="Generation Date"
+                      onChange={handleGenerationDateChange}
+                    >
+                      {generationDates.map((isoDate, index) => {
+                        const formattedDate = formatDate(isoDate); // Use the formatting function
+                        return (
+                          <MenuItem key={index} value={isoDate}>
+                            {formattedDate}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item style={{ width: '170px' }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="bill-type-label">Reading Type</InputLabel>
+                    <Select labelId="bill-type-label" value={billType} label="Bill Type" onChange={handleBillTypeChange}>
+                      <MenuItem value={"electricity"}>Electricity Reading</MenuItem>
+                      <MenuItem value={"water"}>Water Reading</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Button variant="contained" color="primary" onClick={handleGeneratePdfClick} sx={{ marginTop: 1 }}>
+            Generate PDF
+          </Button>
+        </CardContent>
+      </Card>
+        
       </LocalizationProvider>
-      <Box sx={{ display: "flex", justifyContent: "center", p: 1, m: 1, flexWrap: "wrap" }}>
-        {Object.entries(meterData).map(([floor, rooms], index) => (
-          <Card sx={{ width: "48%", margin: "0 20px 20px 0", "&:nth-of-type(2n)": { marginRight: 0 } }} key={index}>
-            <CardContent>
-              <Typography variant="h5">{`${floor} Floor`}</Typography>
-              <TableContainer component={Paper} sx={{ maxHeight: 440, overflow: "auto", marginBottom: "20px" }}>
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Room</TableCell>
-                      <TableCell align="right">Previous Measure</TableCell>
-                      <TableCell align="right">Current Measure</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rooms.map((roomData, roomIndex) => (
-                      <TableRow key={roomIndex}>
-                        <TableCell component="th" scope="row">
-                          {roomData.room}
-                        </TableCell>
-                        <TableCell align="right">{roomData.previousMeasure}</TableCell>
-                        <TableCell align="right">{roomData.currentMeasure}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1, m: 1, flexWrap: "wrap" }}>
+  {Object.entries(meterData).map(([floor, rooms], index) => (
+    <Card sx={{ width: "calc(50% - 10px)", margin: "0 20px 20px 0", "&:nth-of-type(2n)": { marginRight: 0 } }} key={index}>
+      <CardContent>
+        <Typography variant="h5">{`${floor} Floor`}</Typography>
+        <TableContainer component={Paper} sx={{ maxHeight: 440, overflow: "auto", marginBottom: "20px" }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Room</TableCell>
+                <TableCell align="right">Previous Measure</TableCell>
+                <TableCell align="right">Current Measure</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rooms.map((roomData, roomIndex) => (
+                <TableRow key={roomIndex}>
+                  <TableCell component="th" scope="row">
+                    {roomData.room}
+                  </TableCell>
+                  <TableCell align="right">{roomData.previousMeasure}</TableCell>
+                  <TableCell align="right">{roomData.currentMeasure}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  ))}
+</Box>
+
+
     </>
   );
 }
