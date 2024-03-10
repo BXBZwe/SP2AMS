@@ -77,5 +77,37 @@ const getLastReadingBeforeDate = async (req, res) => {
     }
 };
 
+const getCurrentReading = async (req, res) => {
+    const { room_id } = req.params;
+    const { generation_date } = req.query;
 
-export { addMeterReading, getLastReadingBeforeDate };
+    if (!generation_date || isNaN(Date.parse(generation_date))) {
+        return res.status(400).json({ error: 'Invalid generation_date provided.' });
+    }
+
+    try {
+        const currentReading = await prisma.meter_readings.findFirst({
+            where: {
+                room_id: parseInt(room_id, 10),
+                reading_date: {
+                    lte: new Date(generation_date)
+                }
+            },
+            orderBy: {
+                reading_date: 'desc',
+            },
+        });
+
+        if (!currentReading) {
+            return res.json({ data: { water_reading: 0, electricity_reading: 0 } });
+        }
+
+        res.status(200).json({ message: 'Current reading fetched successfully', data: currentReading });
+    } catch (error) {
+        console.error('Error fetching current reading:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+export { addMeterReading, getLastReadingBeforeDate, getCurrentReading };

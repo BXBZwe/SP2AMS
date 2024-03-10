@@ -1,7 +1,5 @@
-// app/server.js
 import express from 'express';
 import cors from 'cors';
-//import nodemailer from 'nodemailer';
 import billroute from './routes/billroute';
 import meterreadingroute from './routes/meterreadingroute';
 import roomroutes from './routes/roomroutes';
@@ -17,6 +15,7 @@ import paymentroute from './routes/paymentroute';
 import utilityroute from './routes/utilityroute';
 import authrouter from './routes/authroute';
 import pdfroute from './routes/pdfgenerationroute';
+import readingpdfroute from './routes/readingspdfroute';
 
 const app = express();
 app.use(express.json());
@@ -51,10 +50,8 @@ app.use(paymentroute);
 app.use('/images', express.static('C:\\\\Senior_Project2\\\\PSPark_Images'));
 app.use(utilityroute);
 app.use(pdfroute);
+app.use(readingpdfroute);
 
-
-
-// app.use(authroute);
 
 export default function startServer() {
   const port = 3000;

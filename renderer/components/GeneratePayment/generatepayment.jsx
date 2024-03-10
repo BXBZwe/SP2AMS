@@ -131,12 +131,12 @@ export default function PaymentTable() {
     });
   };
   const handleSendEmailAndClose = async () => {
-    setOpenSnackbar(true); // Open the Snackbar with the success message
-    setOpenDialog(false); // Close the dialog
-    const success = await handleSendEmail(); // Assume this function now returns true on success, false otherwise
+    setOpenSnackbar(true);
+    setOpenDialog(false);
+    const success = await handleSendEmail();
     if (success) {
-      setOpenSnackbar(true); // Show success message only if emails were sent successfully
-      setOpenDialog(false); // Close the dialog
+      setOpenSnackbar(true);
+      setOpenDialog(false);
     }
   };
 
@@ -165,15 +165,16 @@ export default function PaymentTable() {
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
+
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
         <CardContent
           sx={{
             display: "flex",
-            justifyContent: "space-between", // Adjust layout to space content
-            alignItems: "center", // Align items vertically
-            width: "100%", // Ensure the CardContent takes full width
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
           }}
         >
           <Box sx={{ width: "70%" }}>

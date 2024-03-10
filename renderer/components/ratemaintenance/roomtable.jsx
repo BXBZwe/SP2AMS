@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  IconButton,
-  Snackbar,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-  Chip,
-  GridOverlay,
-  Box,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+import { Button, Card, CardContent, TextField, Select, MenuItem, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Chip, GridOverlay, Box, FormControl, InputLabel } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -40,7 +20,7 @@ export default function ratetable() {
     fetchRooms();
   }, [fetchRooms]);
   const theme = useTheme();
-  
+
   // const [rooms, setRooms] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filterValue, setFilterValue] = useState("all");
@@ -62,108 +42,6 @@ export default function ratetable() {
     { label: "Unavailable", value: "UNAVAILABLE" },
     { label: "Vacant", value: "VACANT" },
   ];
-
-  // useEffect(() => {
-  //   const fetchRooms = async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:3000/getallrooms");
-  //       setRooms(
-  //         response.data.getrooms.map((room) => {
-  //           // Check if generatedBillRecords is not empty and assign the payment_status from the latest record
-  //           const paymentStatus =
-  //             room.generatedBillRecords.length > 0
-  //               ? room.generatedBillRecords[0].payment_status
-  //               : "Not Available"; // Or any default/fallback status you prefer
-
-  //           return {
-  //             id: room.room_id,
-  //             roomnumber: room.room_number,
-  //             floor: room.floor,
-  //             roomtype: room.room_type,
-  //             occupancystatus: room.statusDetails.occupancy_status,
-  //             reservationstatus: room.statusDetails.is_reserved,
-  //             paymentstatus: paymentStatus, // Use the extracted or default payment status
-  //           };
-  //         })
-  //       );
-  //     } catch (error) {
-  //       console.error("Error fetching rooms:", error.message);
-  //     }
-  //   };
-  //   fetchRooms();
-  // }, []);
-
-  // console.log("PaymentSTsuts",rooms.paymentStatus);
-
-  // const columns = [
-  //   { field: "roomnumber", headerName: "Room Number", flex: 0.14 },
-  //   { field: "floor", headerName: "Floor", flex: 0.14 },
-  //   { field: "roomtype", headerName: "Room Type", flex: 0.14 },
-  //   { field: "occupancystatus", headerName: "Occupancy", flex: 0.14 },
-  //   {
-  //     field: "reservationstatus",
-  //     headerName: "Reservation",
-  //     flex: 0.14,
-  //     renderCell: (params) => {
-  //       return (
-  //         <Box
-  //           sx={{
-  //             display: "flex",
-  //             justifyContent: "center",
-  //             alignItems: "center",
-  //           }}
-  //         >
-  //           {params.value ? (
-  //             <CheckCircleIcon color="success" />
-  //           ) : (
-  //             <CancelIcon color="error" />
-  //           )}
-  //         </Box>
-  //       );
-  //     },
-  //   },
-  //   {
-  //     field: "paymentstatus",
-  //     headerName: "Payment",
-  //     flex: 0.16,
-  //     renderCell: (params) => {
-  //       const color =
-  //         paymentStatusColors[params.row.paymentstatus] || "default";
-  //       return (
-  //         <Chip
-  //           label={params.row.paymentstatus}
-  //           color={color}
-  //           size="small"
-  //           variant="outlined"
-  //           style={{
-  //             width: "100%", // set the width to 100% to fill the cell
-  //             justifyContent: "center", // center the text inside the chip
-  //           }}
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     field: "actions",
-  //     headerName: "Actions",
-  //     flex: 0.14,
-  //     renderCell: (params) => (
-  //       <>
-  //         <Link
-  //           href={`/roommaintenance/editroom?roomId=${params.row.id}`}
-  //           passHref
-  //         >
-  //           <IconButton component="a">
-  //             <EditIcon />
-  //           </IconButton>
-  //         </Link>
-  //         <IconButton onClick={() => handleDeleteClick(params.row.id)}>
-  //           <DeleteIcon />
-  //         </IconButton>
-  //       </>
-  //     ),
-  //   },
-  // ];
 
   const columns = [
     { field: "room_number", headerName: "Room Number", flex: 0.14 },
@@ -192,11 +70,7 @@ export default function ratetable() {
               alignItems: "center",
             }}
           >
-            {params.row.statusDetails.is_reserved ? (
-              <CheckCircleIcon color="success" />
-            ) : (
-              <CancelIcon color="error" />
-            )}
+            {params.row.statusDetails.is_reserved ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
           </Box>
         );
       },
@@ -206,8 +80,7 @@ export default function ratetable() {
       headerName: "Payment",
       flex: 0.16,
       renderCell: (params) => {
-        const color =
-          paymentStatusColors[params.row.paymentStatus] || "default"; // Assuming paymentStatusColors is a predefined object mapping statuses to colors
+        const color = paymentStatusColors[params.row.paymentStatus] || "default"; // Assuming paymentStatusColors is a predefined object mapping statuses to colors
         return (
           <Chip
             label={params.row.paymentStatus}
@@ -326,11 +199,7 @@ export default function ratetable() {
         </CardContent>
         <CardContent>
           <Link href="roommaintenance/addroom" passHref>
-            <Button
-              variant="contained"
-              sx={{ width: "110px", marginTop: "15px" }}
-              component="a"
-            >
+            <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a">
               Add
             </Button>
           </Link>
@@ -338,83 +207,52 @@ export default function ratetable() {
       </Card>
 
       <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
-      <CardContent>
-      <div
+        <CardContent>
+          <div
             style={{
               display: "flex",
               alignItems: "center",
               marginBottom: "10px",
             }}
           >
-          <TextField
-            label="Search by Room Number"
-            variant="outlined"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{  marginRight: "5px", width: "80%"}}
-            
-          />
-          <FormControl sx={{ minWidth: 240 }}>
-            <InputLabel id="occupancy-filter-label">Occupancy Filter</InputLabel>
-            <Select
-              labelId="occupancy-filter-label"
-              id="occupancy-filter-select"
-              value={filterValue}
-              label="Occupancy Filter"
-              
-              onChange={(e) => setFilterValue(e.target.value)}
-            >
-              {occupancyFilterOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-            
-          </FormControl>
+            <TextField label="Search by Room Number" variant="outlined" value={searchText} onChange={(e) => setSearchText(e.target.value)} sx={{ marginRight: "5px", width: "80%" }} />
+            <FormControl sx={{ minWidth: 240 }}>
+              <InputLabel id="occupancy-filter-label">Occupancy Filter</InputLabel>
+              <Select labelId="occupancy-filter-label" id="occupancy-filter-select" value={filterValue} label="Occupancy Filter" onChange={(e) => setFilterValue(e.target.value)}>
+                {occupancyFilterOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10]}
-          sx={{
-            "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
-          }}
-          autoHeight
-          density="compact"
-        />
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5, 10]}
+            sx={{
+              "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+            }}
+            autoHeight
+            density="compact"
+          />
         </CardContent>
       </Card>
 
       {/* Confirmation Dialog */}
 
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-confirm"
-      >
+      <Dialog fullScreen={fullScreen} open={openDeleteDialog} onClose={handleCloseDeleteDialog} aria-labelledby="delete-confirm">
         <DialogTitle id="delete-confirm">{`Delete Room ${roomToDelete}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Once deleted the process cannot be undone.
-          </DialogContentText>
+          <DialogContentText>Once deleted the process cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="outlined"
-            autoFocus
-            onClick={handleCloseDeleteDialog}
-          >
+          <Button variant="outlined" autoFocus onClick={handleCloseDeleteDialog}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleConfirmDelete}
-            autoFocus
-          >
+          <Button variant="contained" color="error" onClick={handleConfirmDelete} autoFocus>
             Confirm Delete
           </Button>
         </DialogActions>
@@ -427,11 +265,7 @@ export default function ratetable() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
           Room {roomToDelete} deleted successfully!
         </MuiAlert>
       </Snackbar>
