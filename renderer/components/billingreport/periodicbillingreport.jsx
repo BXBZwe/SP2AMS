@@ -120,13 +120,28 @@ export default function PeriodicBillingReport() {
                 <FormControlLabel control={<Checkbox checked={periodicReport.showBills} onChange={handlePeriodicReportChange("showBills")} />} label="Show Bills" />
                 {/* Ignore Tax Invoice and Unpaid Bills for now */}
               </FormGroup>
+              
             </Box>
-            <Button variant="contained" onClick={handleDisplayReportClick} disabled={loading} sx={{ alignSelf: "flex-end", marginTop: theme.spacing(2) }}>
+            <Box sx={{  gap: theme.spacing(2), justifyContent: "space-between", marginTop: theme.spacing(2) }}>
+            <Button 
+              variant="contained" 
+              onClick={handleDisplayReportClick} 
+              disabled={loading} 
+              sx={{ margin: '10px', width: '150px' }}
+            >
               {loading ? "Loading..." : "Display"}
             </Button>
-            <Button variant="contained" color="primary" onClick={handleGeneratePdfClick} disabled={!isDataDisplayed || loading}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={handleGeneratePdfClick} 
+              disabled={!isDataDisplayed || loading} 
+              sx={{ width: '150px' }}
+            >
               Generate PDF
             </Button>
+          </Box>
+            
           </CardContent>
         </Card>
       </Box>

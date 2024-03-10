@@ -9,6 +9,7 @@ export default function AccrualBillingReport() {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [rateItems, setRateItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchRateItems();
@@ -76,10 +77,20 @@ export default function AccrualBillingReport() {
           </Box>
         </CardContent>
       </Card>
-
+      
       {reportData.length > 0 && (
         <TableContainer component={Paper}>
+          <Box sx={{ display: "flex", gap: theme.spacing(2), alignItems: "center", marginTop: theme.spacing(2) }}>
+            <TextField
+              fullWidth
+              label="Search (Room Number or Tenant Name)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {/* Other buttons like Display and Generate PDF */}
+          </Box>
           <Table>
+            
             <TableHead>
               <TableRow>
                 <TableCell>Room Number</TableCell>
@@ -90,18 +101,24 @@ export default function AccrualBillingReport() {
                 <TableCell>Total Bill</TableCell>
               </TableRow>
             </TableHead>
+            
             <TableBody>
-              {reportData.map((data, index) => (
-                <TableRow key={index}>
-                  <TableCell>{data.roomNumber}</TableCell>
-                  <TableCell>{data.tenantName}</TableCell>
-                  {rateItems.map((rate) => (
-                    <TableCell key={rate.rate_id}>{data.rateItems[rate.item_name] || 0}</TableCell>
-                  ))}
-                  <TableCell>{data.totalBill}</TableCell>
-                </TableRow>
-              ))}
+              {reportData
+                .filter((data) => {
+                  return data.roomNumber.toString().includes(searchQuery) || data.tenantName.toLowerCase().includes(searchQuery.toLowerCase());
+                })
+                .map((data, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{data.roomNumber}</TableCell>
+                    <TableCell>{data.tenantName}</TableCell>
+                    {rateItems.map((rate) => (
+                      <TableCell key={rate.rate_id}>{data.rateItems[rate.item_name] || 0}</TableCell>
+                    ))}
+                    <TableCell>{data.totalBill}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
+
           </Table>
         </TableContainer>
       )}
