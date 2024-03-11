@@ -22,17 +22,17 @@ export default function ratetable() {
   const [filter, setFilter] = useState('');
   const [tenants, setTenants] = useState([]);
   const columns = [
-    { field: "id", headerName: "Tenant ID", flex: 1 },
-    { field: "roomnumber", headerName: "Room Number", flex: 1 },
-    { field: "fullname", headerName: "Fullname", flex: 1 },
-    { field: "phnumber", headerName: "Phone Number", flex: 1 },
-    { field: "accountStatus", headerName: "Account Status", flex: 1 },
-    { field: "contractStatus", headerName: "Contract Status", flex: 1 },
-    { field: "paymentOption", headerName: "Payment Option", flex: 1 },
+    { field: "id", headerName: "Tenant ID", width: '150' },
+    { field: "roomnumber", headerName: "Room Number", width: '150' },
+    { field: "fullname", headerName: "Fullname", width: '150' },
+    { field: "phnumber", headerName: "Phone Number", width: '150' },
+    { field: "accountStatus", headerName: "Account Status", width: '150' },
+    { field: "contractStatus", headerName: "Contract Status", width: '150' },
+    { field: "paymentOption", headerName: "Payment Option", width: '150' },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
+      width: '150',
       renderCell: (params) => {
         const tenant_id = params.row.id;
         return (
