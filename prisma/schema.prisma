@@ -81,11 +81,8 @@ model rates {
   item_description String?
   last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
   room_rates       room_rates[]
-  VAT              Boolean          @default(false)
-  Payment          Boolean          @default(false)
-  Meter            Boolean          @default(false)
-  Bill             Boolean          @default(false)
-  Usage            Boolean          @default(false)
+  VAT_Percentage   Int              @default(0)
+  disable_rate     Boolean          @default(false)
 }
 
 model room_rates {

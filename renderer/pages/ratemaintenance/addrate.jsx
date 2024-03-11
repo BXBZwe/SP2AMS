@@ -3,22 +3,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import TextField from "@mui/material/TextField";
-import {
-  Card,
-  CardContent,
-  Autocomplete,
-  Typography,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-  Box,
-  Grid,
-} from "@mui/material";
+import { Card, CardContent, Autocomplete, Typography, Button, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Snackbar, Alert, Box, Grid } from "@mui/material";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 import MuiAlert from "@mui/material/Alert";
@@ -31,9 +16,12 @@ export default function AddRate() {
   const { openSnackbar } = useSnackbarContext();
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [includeVAT, setIncludeVAT] = useState(false);
+  const [VATPercentage, setVATPercentage] = useState(0);
+
   const itemOptions = useMemo(() => {
     const defaultOptions = ["Water", "Electricity", "Other"];
-    const selectedItems = rates.map((rate) => rate.item_name); // Assuming selectedRates is an array of objects with an item_name property
+    const selectedItems = rates.map((rate) => rate.item_name);
     return defaultOptions.filter((option) => !selectedItems.includes(option));
   }, [rates]);
   useEffect(() => {
@@ -46,6 +34,16 @@ export default function AddRate() {
       }
     };
 
+    const fetchLatestVATPercentage = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getLatestVATPercentage");
+        setVATPercentage(response.data.latestVATPercentage);
+      } catch (error) {
+        console.error("Error fetching latest VAT percentage:", error);
+      }
+    };
+
+    fetchLatestVATPercentage();
     fetchRates();
   }, []);
   const handleCloseSnackbar = () => {
@@ -55,34 +53,22 @@ export default function AddRate() {
   const validateForm = () => {
     let tempErrors = {};
 
-    // Check if "Other" is selected and validate the custom item name
     if (isOtherSelected) {
-      tempErrors.custom_item_name = isEditing.item_name.trim()
-        ? ""
-        : "Custom Item Name is required.";
+      tempErrors.custom_item_name = isEditing.item_name.trim() ? "" : "Custom Item Name is required.";
     } else {
-      // Validate the item name only if "Other" is not selected
-      tempErrors.item_name = isEditing.item_name.trim()
-        ? ""
-        : "Item Name is required.";
+      tempErrors.item_name = isEditing.item_name.trim() ? "" : "Item Name is required.";
     }
 
-    // Continue with the rest of your validation as before
-    tempErrors.item_price = isEditing.item_price.trim()
-      ? ""
-      : "Item Price is required.";
-    tempErrors.item_description = isEditing.item_description.trim()
-      ? ""
-      : "Item Description is required.";
+    tempErrors.item_price = isEditing.item_price.trim() ? "" : "Item Price is required.";
+    tempErrors.item_description = isEditing.item_description.trim() ? "" : "Item Description is required.";
 
     setErrors(tempErrors);
 
-    // Ensure form is valid if there are no error messages
     return Object.values(tempErrors).every((x) => x === "");
   };
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [alertOpen, setAlertOpen] = useState(false); // State for showing the Alert
+  const [alertOpen, setAlertOpen] = useState(false);
   const router = useRouter();
   const [isEditing, setIsEditing] = useState({
     rate_id: "",
@@ -91,25 +77,6 @@ export default function AddRate() {
     item_description: "",
     last_updated: "",
   });
-
-  // const handleItemChange = (event, newValue) => {
-  //   // Check if "Other" is selected
-  //   if (newValue === "Other") {
-  //     setIsOtherSelected(true);
-  //     // Set item_name to an empty string to allow for custom input
-  //     setIsEditing({ ...isEditing, item_name: "" });
-  //   } else {
-  //     setIsOtherSelected(false);
-  //     setIsEditing({ ...isEditing, item_name: newValue });
-  //   }
-  // };
-
-  // // Handler for the custom item name TextField
-  // const handleCustomItemChange = (event) => {
-  //   const { value } = event.target;
-  //   // Update itemData with the custom item name
-  //   setIsEditing({ ...isEditing, item_name: value });
-  // };
 
   const handleItemChange = (event, newValue) => {
     if (newValue === "Other") {
@@ -126,7 +93,6 @@ export default function AddRate() {
     setIsEditing({ ...isEditing, item_name: value });
   };
 
-  // Create separate handlers for each input
   const handleItemNameChange = (event) => {
     const { value } = event.target;
     setIsEditing({
@@ -134,7 +100,6 @@ export default function AddRate() {
       item_name: value,
     });
 
-    // Clear the error for this field when it's being edited
     setErrors((prevErrors) => ({
       ...prevErrors,
       item_name: "",
@@ -148,7 +113,6 @@ export default function AddRate() {
       item_price: value,
     });
 
-    // Clear the error for this field when it's being edited
     setErrors((prevErrors) => ({
       ...prevErrors,
       item_price: "",
@@ -162,7 +126,6 @@ export default function AddRate() {
       item_description: value,
     });
 
-    // Clear the error for this field when it's being edited
     setErrors((prevErrors) => ({
       ...prevErrors,
       item_description: "",
@@ -170,40 +133,31 @@ export default function AddRate() {
   };
 
   const handleAddClick = () => {
-    // Check if all input fields are filled
-    if (
-      isEditing.item_name.trim() !== "" &&
-      isEditing.item_price.trim() !== "" &&
-      isEditing.item_description.trim() !== ""
-    ) {
-      // Open the confirmation dialog
+    if (isEditing.item_name.trim() !== "" && isEditing.item_price.trim() !== "" && isEditing.item_description.trim() !== "") {
       setOpenDialog(true);
     } else {
       setSnackbarOpen(true);
-      // Show an error message and apply red outline to input fields
       setErrors((prevErrors) => ({
         ...prevErrors,
-        item_name:
-          isEditing.item_name.trim() === "" ? "Item Name is required." : "",
-        item_price:
-          isEditing.item_price.trim() === "" ? "Item Price is required." : "",
-        item_description:
-          isEditing.item_description.trim() === ""
-            ? "Item Description is required."
-            : "",
+        item_name: isEditing.item_name.trim() === "" ? "Item Name is required." : "",
+        item_price: isEditing.item_price.trim() === "" ? "Item Price is required." : "",
+        item_description: isEditing.item_description.trim() === "" ? "Item Description is required." : "",
       }));
     }
   };
 
   const handleDialogClose = () => {
-    // Close the confirmation dialog
     setOpenDialog(false);
   };
 
   const handleConfirmAdd = () => {
     setIsEditing(false);
+    const payload = {
+      ...isEditing,
+      VAT_Percentage: includeVAT ? VATPercentage : 0,
+    };
     axios
-      .post("http://localhost:3000/addrates", isEditing)
+      .post("http://localhost:3000/addrates", payload)
 
       .then((response) => {
         openSnackbar("Rate added successfully!", "success");
@@ -231,15 +185,6 @@ export default function AddRate() {
     }
   };
 
-  const handleSaveClick = async (event) => {
-    event.preventDefault();
-    if (!validateForm()) {
-      setSnackbarOpen(true);
-      return;
-    }
-    setOpenDialog(true);
-  };
-
   const handleCancelClick = () => {
     router.back();
   };
@@ -247,6 +192,23 @@ export default function AddRate() {
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
+
+  // const saveVATPercentage = async (req, res) => {
+  //   const { rate_id, VAT_Percentage } = req.body;
+
+  //   try {
+  //     const updatedRate = await prisma.rates.update({
+  //       where: { rate_id },
+  //       data: {
+  //         VAT_Percentage,
+  //         last_updated: new Date(), // Update the timestamp to now
+  //       },
+  //     });
+  //     res.status(200).json({ message: "VAT percentage updated successfully", data: updatedRate });
+  //   } catch (error) {
+  //     res.status(500).send(error.message);
+  //   }
+  // };
 
   return (
     <>
@@ -265,27 +227,15 @@ export default function AddRate() {
         <CardContent>
           {isEditing ? (
             <>
-              <Button
-                variant="outlined"
-                sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
-                onClick={handleCancelClick}
-              >
+              <Button variant="outlined" sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }} onClick={handleCancelClick}>
                 Back
               </Button>
-              <Button
-                variant="contained"
-                sx={{ width: "110px", marginTop: "15px" }}
-                onClick={handleAddClick}
-              >
-                Add
+              <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleAddClick}>
+                Save
               </Button>
             </>
           ) : (
-            <Button
-              variant="contained"
-              sx={{ width: "110px", marginTop: "15px" }}
-              onClick={handleEditClick}
-            >
+            <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleEditClick}>
               Edit
             </Button>
           )}
@@ -299,32 +249,11 @@ export default function AddRate() {
           display: "flex",
         }}
       >
-<CardContent sx={{ display: "inline-block",width:'60vw' }}>          <Box sx={{ width: "100%", marginBottom: 1.5 }}>
-            <Autocomplete
-              options={itemOptions}
-              value={isOtherSelected ? "Other" : isEditing.item_name || ""}
-              onChange={handleItemChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Item Name"
-                  error={!!errors.item_name}
-                  helperText={errors.item_name || ""}
-                />
-              )}
-              freeSolo
-            />
-            {isOtherSelected && (
-              <TextField
-                sx={{ mt: 1.5 }}
-                label="Custom Item Name"
-                value={isEditing.item_name}
-                onChange={handleCustomItemChange}
-                fullWidth
-                error={!!errors.item_name}
-                helperText={errors.item_name || ""}
-              />
-            )}
+        <CardContent sx={{ display: "inline-block", width: "60vw" }}>
+          {" "}
+          <Box sx={{ width: "100%", marginBottom: 1.5 }}>
+            <Autocomplete options={itemOptions} value={isOtherSelected ? "Other" : isEditing.item_name || ""} onChange={handleItemChange} renderInput={(params) => <TextField {...params} label="Item Name" error={!!errors.item_name} helperText={errors.item_name || ""} />} freeSolo />
+            {isOtherSelected && <TextField sx={{ mt: 1.5 }} label="Custom Item Name" value={isEditing.item_name} onChange={handleCustomItemChange} fullWidth error={!!errors.item_name} helperText={errors.item_name || ""} />}
           </Box>
           <TextField
             id="item_price"
@@ -366,33 +295,20 @@ export default function AddRate() {
         <CardContent>
           <Grid container spacing={0.5}>
             <Grid item xs={12}>
-              <Typography variant="h6">
-                Options
-              </Typography>
+              <Typography variant="h6">Options</Typography>
             </Grid>
             <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
+              <Checkbox
+                checked={includeVAT}
+                onChange={(e) => {
+                  setIncludeVAT(e.target.checked);
+                }}
+                disabled={!isEditing}
+              />
               <Typography variant="body2" component="span">
-                Add VAT 7% to Price
+                VAT
               </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Billing After Usage
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Calculate from Meter
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Show Month on Bill
-              </Typography>
+              {includeVAT && <TextField type="number" label="VAT Percentage" value={VATPercentage} onChange={(e) => setVATPercentage(e.target.value)} disabled={!isEditing} />}
             </Grid>
             <Grid item xs={6}>
               <Checkbox defaultChecked disabled={!isEditing} />
@@ -403,54 +319,35 @@ export default function AddRate() {
           </Grid>
         </CardContent>
         <Dialog open={openDialog} onClose={handleDialogClose}>
-            <DialogTitle>Add Rate Item</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Are you sure you want to add the item?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="outlined"
-                onClick={handleDialogClose}
-                color="primary"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleConfirmAdd}
-                color="primary"
-              >
-                Confirm Save
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Snackbar
-            open={alertOpen}
-            autoHideDuration={3000}
-            onClose={handleAlertClose}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-          >
-            <Alert onClose={handleAlertClose} severity="success">
-              The item is added.
-            </Alert>
-          </Snackbar>
-      </Card>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
-      >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
+          <DialogTitle>Add Rate Item</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to add the item?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={handleDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleConfirmAdd} color="primary">
+              Confirm Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={3000}
+          onClose={handleAlertClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
         >
+          <Alert onClose={handleAlertClose} severity="success">
+            The item is added.
+          </Alert>
+        </Snackbar>
+      </Card>
+      <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <MuiAlert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
           Please enter all fields!
         </MuiAlert>
       </Snackbar>

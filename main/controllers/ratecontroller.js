@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 
 // Get all rate items
-const getallRateItem = async(req, res) => {
-    try{
+const getallRateItem = async (req, res) => {
+    try {
         const getRate = await prisma.rates.findMany();
-        res.status(200).json({message: 'Get rate items successfully', getRate});
-    } catch (error){
+        res.status(200).json({ message: 'Get rate items successfully', getRate });
+    } catch (error) {
         res.status(500).send(error.message);
     }
 };
@@ -38,15 +38,16 @@ const getRateItemById = async (req, res) => {
 
 // Add a new rate item
 const addRateItem = async (req, res) => {
-    const { item_name, item_price, item_description } = req.body;
+    const { item_name, item_price, item_description, VAT_Percentage, disable_rate } = req.body;
 
     try {
         const newRate = await prisma.rates.create({
             data: {
                 item_name,
                 item_price,
-                item_description
-                
+                item_description,
+                VAT_Percentage: parseInt(VAT_Percentage)
+
             }
         });
         res.status(201).json({ message: 'New rate item added successfully', data: newRate });
@@ -90,4 +91,17 @@ const deleteRateItem = async (req, res) => {
     }
 };
 
-export { getallRateItem, addRateItem, updateRateItem, deleteRateItem,getRateItemById };
+const getLatestVATPercentage = async (req, res) => {
+    try {
+        const latestRate = await prisma.rates.findFirst({
+            orderBy: {
+                last_updated: 'desc',
+            },
+        });
+        res.status(200).json({ latestVATPercentage: latestRate?.VAT_Percentage || 0 });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+export { getallRateItem, addRateItem, updateRateItem, deleteRateItem, getRateItemById, getLatestVATPercentage };

@@ -1,7 +1,7 @@
 // routes/rateRoutes.js
 
 import express from 'express';
-import { getallRateItem, addRateItem, updateRateItem, deleteRateItem,getRateItemById } from '../controllers/ratecontroller';
+import { getallRateItem, addRateItem, updateRateItem, deleteRateItem, getRateItemById, getLatestVATPercentage } from '../controllers/ratecontroller';
 
 const rateroute = express.Router();
 
@@ -18,5 +18,7 @@ rateroute.put('/updaterates/:rate_id', updateRateItem);
 
 // Route for deleting a rate
 rateroute.delete('/deleterates/:rate_id', deleteRateItem);
+
+rateroute.get('/getLatestVATPercentage', getLatestVATPercentage);
 
 export default rateroute;
