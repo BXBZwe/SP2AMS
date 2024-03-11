@@ -31,6 +31,8 @@ import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
+import Image from "next/image";
+import MenuIcon from "@mui/icons-material/Menu"; // Import the MenuIcon
 
 const drawerWidth = 240;
 const isActive = (link) => {
@@ -62,6 +64,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
+  justifyContent: "flex-end", // Center the content horizontally
 }));
 
 const TitleWrapper = styled("div")(({ theme }) => ({
@@ -130,8 +133,13 @@ const navigationItems4 = [
 ];
 const navigationItems5 = [
   {
-    label: "Billing Report",
-    link: "/Summarybilling",
+    label: "Accural Billing Report",
+    link: "/Summaryperiodicbilling",
+    icon: <AssessmentIcon />,
+  },
+  {
+    label: "Periodic Billing Report",
+    link: "/Summaryaccuralbilling",
     icon: <AssessmentIcon />,
   },
   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
@@ -160,17 +168,28 @@ export default function Nav() {
 
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          {open ? (
-            // Replace the text with an image
-
-            <img
-              src="logo.png" // Provide the correct path to your PNG image
-              alt="Logo"
-              style={{ width: "100%" }}
-            />
-          ) : null}
-          <IconButton onClick={() => setOpen(!open)}>{theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}</IconButton>
+          <div style={{ display: "flex", alignItems: "center", marginRight: "25px" }}>
+            <Image src="/logo.png" alt="PS Park Logo" width={50} height={50} />
+            <Typography variant="h6" noWrap sx={{ ml: 1, fontWeight: "bold" }}>
+              PS Park
+            </Typography>
+          </div>
+          <IconButton
+            onClick={() => setOpen(!open)}
+            sx={{
+              ...(open && {
+                justifyContent: "flex-end",
+              }),
+              ...(!open && {
+                marginRight: "-4px", // Aligns the icon to the center when drawer is closed
+                // Centers the icon when drawer is closed
+              }),
+            }}
+          >
+            {open ? theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
         </DrawerHeader>
+
         <Divider />
         <List>
           {navigationItems1.map((item, index) => (

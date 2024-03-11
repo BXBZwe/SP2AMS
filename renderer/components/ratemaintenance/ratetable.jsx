@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Snackbar,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-} from "@mui/material";
+import { Button, Card, CardContent, IconButton, Snackbar, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, TextField, Select, MenuItem, FormControl, InputLabel, Box } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link";
@@ -24,8 +12,7 @@ import { useAPI } from "./apiContent";
 
 
 export default function RateTable() {
-  const { rates,fetchRates,refreshRates } = useAPI();
-// console.log(rates)
+  const { rates, fetchRates, refreshRates } = useAPI();
   useEffect(() => {
     fetchRates();
   }, [fetchRates]);
@@ -39,10 +26,11 @@ export default function RateTable() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [rateToDelete, setRateToDelete] = useState(null);
 
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     const dateObj = new Date(dateStr);
-    return dateObj.toISOString().split("T")[0]; // Splits the ISO string at 'T' and takes the first part (date)
+    return dateObj.toISOString().split("T")[0];
   };
 
   const columns = [
@@ -118,7 +106,6 @@ export default function RateTable() {
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
-        {/* CardContent for heading */}
         <CardContent
           sx={{
             marginRight: "auto",
@@ -143,6 +130,24 @@ export default function RateTable() {
         </CardContent>
       </Card>
       <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
+        <CardContent>
+        <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+          <TextField
+          label="Search"
+          variant="outlined"
+          fullWidth
+          
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+            
+          </div>
         <DataGrid
           rows={filteredRows}
           columns={columns}
@@ -154,6 +159,7 @@ export default function RateTable() {
           autoHeight
           density="compact"
         />
+        </CardContent>
       </Card>
 
       {/* Confirmation Dialog */}

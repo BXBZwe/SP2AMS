@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateDocDefinition, createPdfDefinition } from '../controllers/pdfcontroller';
+import { generateDocDefinition, createPdfDefinition } from '../controllers/paymentpdfcontroller';
 import PdfPrinter from 'pdfmake';
 
 const pdfroute = express.Router();

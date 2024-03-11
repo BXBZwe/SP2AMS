@@ -286,7 +286,7 @@ export default function addtenant() {
           }} 
         />
       )}
-      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
         {/* Hidden input for tenant image */}
         <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
         {/* Label that acts as a button */}
@@ -325,7 +325,7 @@ export default function addtenant() {
           }} 
         />
       )}
-      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 10 }}>
+      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
         {/* Hidden input for national ID image */}
         <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
         {/* Label that acts as a button */}

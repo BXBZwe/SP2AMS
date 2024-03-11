@@ -1,35 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import Typography from "@mui/material/Typography";
-import { Card, CardContent, TextField, Select, MenuItem, Button, IconButton } from "@mui/material";
+import {
+  Typography, 
+  Card, 
+  CardContent, 
+  TextField, 
+  Select, 
+  MenuItem, 
+  Button, 
+  IconButton, 
+  FormControl, 
+  InputLabel,
+} from "@mui/material";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
 export default function ratetable() {
-  const [searchText, setSearchText] = useState("");
-  const [filterValue, setFilterValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('');
   const [tenants, setTenants] = useState([]);
   const columns = [
     { field: "id", headerName: "Tenant ID", flex: 1 },
     { field: "roomnumber", headerName: "Room Number", flex: 1 },
     { field: "fullname", headerName: "Fullname", flex: 1 },
     { field: "phnumber", headerName: "Phone Number", flex: 1 },
-    // { field: 'lineid', headerName: 'Line ID', flex: 1 },
-    // { field: 'floor', headerName: 'Floor', flex: 1, valueGetter: () => 'N/A' },
     { field: "accountStatus", headerName: "Account Status", flex: 1 },
     { field: "contractStatus", headerName: "Contract Status", flex: 1 },
     { field: "paymentOption", headerName: "Payment Option", flex: 1 },
-
     {
       field: "actions",
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        // console.log("params:", params);
         const tenant_id = params.row.id;
-        // console.log("This tenant id ", tenant_id);
         return (
           <>
             <Link href={`/tenantmaintenance/UpdateTenant/${tenant_id}`} passHref>
@@ -47,32 +52,32 @@ export default function ratetable() {
   ];
 
   const handleDelete = async (tenant_id) => {
-    console.log(`Delete ${tenant_id}`);
     try {
       await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
-      // console.log(`Tenant with ID: ${tenant_id} deleted successfully`);
       fetchTenants();
     } catch (error) {
-      // console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
+      console.error(`Error deleting tenant with ID: ${tenant_id}`, error);
     }
   };
 
   const fetchTenants = async () => {
     try {
-      console.log("fetchTenants: Sending request to backend");
-
-      const response = await axios.get("http://localhost:3000/getalltenants");
-      // console.log("Raw tenants data:", response.data);
-      setTenants(response.data.getTenant);
-      // console.log("Tenants data:");
+      let response = await axios.get("http://localhost:3000/getalltenants");
+      let fetchedTenants = response.data.getTenant;
+      
+      if (filter) {
+        fetchedTenants = fetchedTenants.filter(tenant => tenant.contract_status === filter);
+      }
+      
+      setTenants(fetchedTenants);
     } catch (error) {
-      // console.error("Error fetching tenants:", error);
+      console.error("Error fetching tenants:", error);
     }
   };
 
   useEffect(() => {
     fetchTenants();
-  }, []);
+  }, [filter]);
 
   const handleSearchTextChange = (event) => {
     setSearchText(event.target.value);
@@ -82,18 +87,15 @@ export default function ratetable() {
     setFilterValue(event.target.value);
   };
 
-  const formattedTenants =
-    tenants && tenants.length > 0
-      ? tenants.map((tenant) => ({
-          id: tenant.tenant_id,
-          fullname: `${tenant.first_name} ${tenant.last_name}`,
-          phnumber: tenant.contacts?.phone_number || "N/A",
-          roomnumber: tenant.RoomBaseDetails?.room_number,
-          accountStatus: tenant.account_status || "N/A",
-          contractStatus: tenant.contract_status || "N/A",
-          paymentOption: tenant.invoice_option || "N/A",
-        }))
-      : [];
+  const formattedTenants = tenants.map((tenant) => ({
+    id: tenant.tenant_id,
+    fullname: `${tenant.first_name} ${tenant.last_name}`,
+    phnumber: tenant.contacts?.phone_number || "N/A",
+    roomnumber: tenant.RoomBaseDetails?.room_number,
+    accountStatus: tenant.account_status || "N/A",
+    contractStatus: tenant.contract_status || "N/A",
+    paymentOption: tenant.invoice_option || "N/A",
+  })).filter(tenant => tenant.fullname.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <>
@@ -115,35 +117,44 @@ export default function ratetable() {
 
       <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
         <CardContent>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "10px",
-            }}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+        <TextField
+          label="Search by Fullname"
+          variant="outlined"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{  marginRight: "10px", width: "80%"}}
+        />
+        <FormControl variant="outlined" sx={{ width: "20%" }}>
+          <InputLabel id="filter-label">Contract Status</InputLabel>
+          <Select
+            labelId="filter-label"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            label="Contract Status"
           >
-            <TextField label="Search" variant="outlined" value={searchText} onChange={handleSearchTextChange} sx={{ marginRight: "10px", width: "80%" }} />
-            <Select value={filterValue} onChange={handleFilterChange} displayEmpty variant="outlined" sx={{ width: "20%" }}>
-              <MenuItem value="" disabled>
-                Filter
-              </MenuItem>
-              <MenuItem value="Available">Available</MenuItem>
-              <MenuItem value="Occupied">Occupied</MenuItem>
-            </Select>
+            <MenuItem value="">None</MenuItem>
+            <MenuItem value="NEW">New</MenuItem>
+            <MenuItem value="ONGOING">Ongoing</MenuItem>
+            <MenuItem value="DUE">Due</MenuItem>
+            <MenuItem value="WARNING">Warning</MenuItem>
+            <MenuItem value="CHECKOUT">Checkout</MenuItem>
+            <MenuItem value="TERMINATED">Terminated</MenuItem>
+          </Select>
+        </FormControl>
           </div>
 
           <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
-            <DataGrid
-              rows={formattedTenants}
-              columns={columns}
-              pageSize={5}
-              checkboxSelection
-              sx={{
-                "& .MuiDataGrid-main": { maxHeight: "70vh" },
-              }}
-              autoHeight
-              density="compact"
-            />
+          <DataGrid
+            rows={formattedTenants}
+            columns={columns}
+            pageSize={5}
+            sx={{
+              "& .MuiDataGrid-main": { maxHeight: "70vh" },
+            }}
+            autoHeight
+            density="compact"
+          />
           </Card>
         </CardContent>
       </Card>
