@@ -106,7 +106,6 @@ export default function RateTable() {
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
-        {/* CardContent for heading */}
         <CardContent
           sx={{
             marginRight: "auto",
