@@ -38,7 +38,7 @@ const getRateItemById = async (req, res) => {
 
 // Add a new rate item
 const addRateItem = async (req, res) => {
-    const { item_name, item_price, item_description, VAT_Percentage, disable_rate } = req.body;
+    const { item_name, item_price, item_description, VAT_Percentage } = req.body;
 
     try {
         const newRate = await prisma.rates.create({
