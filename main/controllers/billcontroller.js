@@ -5,7 +5,43 @@ const prisma = new PrismaClient();
 const calculateAndGenerateBill = async (req, res) => {
     const { room_id } = req.body;
 
+    // Helper function to update or insert the current year's sequence in the BillSequence table
+    const updateBillSequence = async (year) => {
+        let billSequence = await prisma.billSequence.findUnique({
+            where: { year }
+        });
+
+        if (billSequence) {
+            // If a sequence exists for the current year, increment it
+            billSequence = await prisma.billSequence.update({
+                where: { year },
+                data: { last_sequence: { increment: 1 } }
+            });
+        } else {
+            // If no sequence exists for the current year, start a new one
+            billSequence = await prisma.billSequence.create({
+                data: { year, last_sequence: 1 }
+            });
+        }
+
+        return billSequence.last_sequence;
+    };
+
+    const generatedBill = await prisma.generatedBillRecord.findFirst({
+        where: { room_id: parseInt(room_id) },
+        orderBy: { generation_date: 'desc' },
+    });
+
+    // Generate billing number using the year and sequence number
+    const generateBillingNumber = async (billingDate) => {
+        // const billingYear = billingDate.getFullYear();
+        const billingYear = generatedBill.generation_date.getFullYear();
+        const sequenceNumber = await updateBillSequence(billingYear);
+        return `${billingYear}/${sequenceNumber.toString().padStart(4, '0')}`;
+    };
+
     try {
+        // Your existing logic to calculate waterCost, electricityCost, additionalRatesCost...
         const meterReadings = await prisma.meter_readings.findMany({
             where: { room_id: parseInt(room_id) },
             orderBy: { reading_date: 'desc' },
@@ -65,7 +101,7 @@ const calculateAndGenerateBill = async (req, res) => {
 
         const room_rates = await prisma.room_rates.findMany({
             where: {
-                room_id: 19,
+                room_id: room_id,
                 rates: {
                     NOT: {
                         item_name: {
@@ -79,16 +115,10 @@ const calculateAndGenerateBill = async (req, res) => {
             },
         });
 
-
         const additionalRatesCost = room_rates.reduce((acc, item) => {
-            return acc + (item.rates.item_price * item.quantity);
+            return acc + ((item.rates.item_price * item.quantity) + (item.rates.item_price * (item.rates.VAT_Percentage / 100)));
         }, 0);
 
-
-        const generatedBill = await prisma.generatedBillRecord.findFirst({
-            where: { room_id: parseInt(room_id) },
-            orderBy: { generation_date: 'desc' },
-        });
 
         if (!generatedBill) {
             throw new Error('No generated bill record found for this room.');
@@ -99,6 +129,10 @@ const calculateAndGenerateBill = async (req, res) => {
         console.log("Additional Rates Cost:", additionalRatesCost);
         console.log("Room Base Rent:", roombaserent)
         console.log("Total Amount:", Number(waterCost) + Number(electricityCost) + Number(additionalRatesCost) + Number(roombaserent));
+
+
+        const billingDate = new Date(); // Assuming the billing date is the current date. Adjust as needed.
+        const billingNumber = await generateBillingNumber(billingDate); // Generate billing number using billingDate
 
         const newBill = await prisma.bills.create({
             data: {
@@ -112,15 +146,17 @@ const calculateAndGenerateBill = async (req, res) => {
                 billing_date: generatedBill.generation_date,
                 baserent_month: generatedBill.rent_month,
                 baserent_year: generatedBill.rent_year,
+                billing_number: billingNumber, // Set the generated billing number here
             },
         });
 
+        // Your existing logic to update the generatedBillRecord...
         await prisma.generatedBillRecord.update({
             where: { bill_record_id: generatedBill.bill_record_id },
             data: { bill_id: newBill.bill_id },
         });
 
-        res.status(200).json({ message: 'bill created successfully.', billdetails: newBill });
+        res.status(200).json({ message: 'Bill created successfully.', billdetails: newBill });
     } catch (error) {
         console.error('Error in calculateAndGenerateBill:', error);
         res.status(500).json({ error: error.message });
@@ -128,4 +164,3 @@ const calculateAndGenerateBill = async (req, res) => {
 };
 
 export { calculateAndGenerateBill };
-

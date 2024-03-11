@@ -19,9 +19,18 @@ model bills {
   baserent_month        String                @db.VarChar(20)
   baserent_year         Int
   total_amount          Decimal               @db.Decimal(10, 2)
+  billing_number        String?               @db.VarChar(20)
   RoomBaseDetails       RoomBaseDetails       @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
   GeneratedBillRecord   GeneratedBillRecord[]
 }
+
+model BillSequence {
+  year          Int @id
+  last_sequence Int?
+
+  @@map("BillSequence")
+}
+
 
 model GeneratedBillRecord {
   bill_record_id  Int             @id @default(autoincrement())
@@ -81,11 +90,8 @@ model rates {
   item_description String?
   last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
   room_rates       room_rates[]
-  VAT              Boolean          @default(false)
-  Payment          Boolean          @default(false)
-  Meter            Boolean          @default(false)
-  Bill             Boolean          @default(false)
-  Usage            Boolean          @default(false)
+  VAT_Percentage   Int              @default(0)
+  disable_rate     Boolean          @default(false)
 }
 
 model room_rates {
