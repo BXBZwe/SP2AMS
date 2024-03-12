@@ -116,7 +116,7 @@ const calculateAndGenerateBill = async (req, res) => {
         });
 
         const additionalRatesCost = room_rates.reduce((acc, item) => {
-            return acc + (item.rates.item_price * item.quantity);
+            return acc + ((item.rates.item_price * item.quantity) + (item.rates.item_price * (item.rates.VAT_Percentage / 100)));
         }, 0);
 
 

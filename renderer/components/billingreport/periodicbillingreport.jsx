@@ -80,20 +80,36 @@ export default function PeriodicBillingReport() {
     }
   };
 
-  const handleGeneratePdfClick = async () => {
+  // const handleGeneratePdfClick = async () => {
+  //   const { fromDate, toDate } = periodicReport;
+  //   try {
+  //     const response = await axios.get(`http://localhost:3000/generate-periodic-report-pdf/${fromDate}/${toDate}`, { responseType: "blob" });
+  //     const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+  //     const fileLink = document.createElement("a");
+  //     fileLink.href = fileURL;
+  //     fileLink.setAttribute("download", `Periodic_Report_${fromDate}_to_${toDate}.pdf`);
+  //     document.body.appendChild(fileLink);
+  //     fileLink.click();
+  //   } catch (error) {
+  //     console.error("Error generating PDF:", error);
+  //   }
+  // };
+
+  const handleGenerateExcelClick = async () => {
     const { fromDate, toDate } = periodicReport;
     try {
-      const response = await axios.get(`http://localhost:3000/generate-periodic-report-pdf/${fromDate}/${toDate}`, { responseType: "blob" });
+      const response = await axios.get(`http://localhost:3000/generate-periodic-report-excel/${fromDate}/${toDate}`, { responseType: "blob" });
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement("a");
       fileLink.href = fileURL;
-      fileLink.setAttribute("download", `Periodic_Report_${fromDate}_to_${toDate}.pdf`);
+      fileLink.setAttribute("download", `Periodic_Report_${fromDate}_to_${toDate}.xlsx`);
       document.body.appendChild(fileLink);
       fileLink.click();
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error("Error generating Excel file:", error);
     }
   };
+
   return (
     <>
       <Card sx={{ width: "100%", marginBottom: "20px" }}>
@@ -118,30 +134,16 @@ export default function PeriodicBillingReport() {
               </Box>
               <FormGroup>
                 <FormControlLabel control={<Checkbox checked={periodicReport.showBills} onChange={handlePeriodicReportChange("showBills")} />} label="Show Bills" />
-                {/* Ignore Tax Invoice and Unpaid Bills for now */}
               </FormGroup>
-              
             </Box>
-            <Box sx={{  gap: theme.spacing(2), justifyContent: "space-between", marginTop: theme.spacing(2) }}>
-            <Button 
-              variant="contained" 
-              onClick={handleDisplayReportClick} 
-              disabled={loading} 
-              sx={{ margin: '10px', width: '150px' }}
-            >
-              {loading ? "Loading..." : "Display"}
-            </Button>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleGeneratePdfClick} 
-              disabled={!isDataDisplayed || loading} 
-              sx={{ width: '150px' }}
-            >
-              Generate PDF
-            </Button>
-          </Box>
-            
+            <Box sx={{ gap: theme.spacing(2), justifyContent: "space-between", marginTop: theme.spacing(2) }}>
+              <Button variant="contained" onClick={handleDisplayReportClick} disabled={loading} sx={{ margin: "10px", width: "150px" }}>
+                {loading ? "Loading..." : "Display"}
+              </Button>
+              <Button variant="contained" color="primary" onClick={handleGenerateExcelClick} disabled={!isDataDisplayed || loading} sx={{ width: "150px" }}>
+                Generate Excel
+              </Button>
+            </Box>
           </CardContent>
         </Card>
       </Box>
