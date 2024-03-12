@@ -214,7 +214,9 @@ const generateDocDefinition = (roomDetails, managerName) => {
                 }
             },
             { text: `*Please pay by: ${billingDateFormatted}`, style: 'footer' },
-            { text: `Manager: ${managerName}`, style: 'footer' }
+            { text: `Manager: ${managerName}`, style: 'footer' },
+            { text: '', pageBreak: 'after' }
+
         ],
         styles: {
             header: {

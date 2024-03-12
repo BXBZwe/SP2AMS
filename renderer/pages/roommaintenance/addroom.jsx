@@ -1,30 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import {
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Autocomplete,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-  List,
-  ListContent,
-  ListItem,
-  ListItemText,
-  Grid,
-  IconButton,
-  Fab,
-} from "@mui/material";
+import { Card, CardContent, Typography, TextField, Box, Button, Checkbox, FormControlLabel, Autocomplete, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Snackbar, Alert, List, ListContent, ListItem, ListItemText, Grid, IconButton, Fab } from "@mui/material";
 import axios from "axios";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -43,7 +19,7 @@ export default function AddRoom() {
   const [formData, setFormData] = useState({
     room_number: "",
     floor: "",
-    room_type:roomTypes[0],
+    room_type: roomTypes[0],
     base_rent: "",
     deposit: "",
     statusDetails: {
@@ -59,9 +35,7 @@ export default function AddRoom() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAll, setShowAll] = useState(false);
 
-  const filteredRates = rates.filter((rate) =>
-    rate.item_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRates = rates.filter((rate) => rate.item_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const filteredItems = showAll ? filteredRates : filteredRates.slice(0, 3);
 
@@ -158,11 +132,7 @@ export default function AddRoom() {
   // console.log("Outside Fetch",selectedRates);
 
   const handleCheck = (rateId) => {
-    setSelectedRates((prevSelectedRates) =>
-      prevSelectedRates.includes(rateId)
-        ? prevSelectedRates.filter((id) => id !== rateId)
-        : [...prevSelectedRates, rateId]
-    );
+    setSelectedRates((prevSelectedRates) => (prevSelectedRates.includes(rateId) ? prevSelectedRates.filter((id) => id !== rateId) : [...prevSelectedRates, rateId]));
   };
 
   // const handleRateChange = (rateId) => {
@@ -179,26 +149,20 @@ export default function AddRoom() {
   // };
 
   const handleRateChange = (rateId) => {
-    const index = selectedRates.findIndex(
-      (selectedRate) => selectedRate.rateId === rateId
-    );
-  
-    if (index !== -1) {
+    const index = selectedRates.findIndex((selectedRate) => selectedRate.rateId === rateId);
 
+    if (index !== -1) {
       const updatedSelectedRates = [...selectedRates];
       updatedSelectedRates.splice(index, 1);
       setSelectedRates(updatedSelectedRates);
     } else {
-
       const rateToAdd = {
         rateId: rateId,
-        quantity: 1, 
+        quantity: 1,
       };
       setSelectedRates([...selectedRates, rateToAdd]);
     }
   };
-  
-  
 
   const handleQuantityChange = (rateId, quantity) => {
     setSelectedRates((currentSelectedRates) => {
@@ -208,9 +172,7 @@ export default function AddRoom() {
 
       quantity = Math.max(1, quantity);
 
-      const rateIndex = currentSelectedRates.findIndex(
-        (rate) => rate.rateId === rateId
-      );
+      const rateIndex = currentSelectedRates.findIndex((rate) => rate.rateId === rateId);
       if (rateIndex >= 0) {
         const newSelectedRates = [...currentSelectedRates];
         newSelectedRates[rateIndex].quantity = quantity;
@@ -315,21 +277,16 @@ export default function AddRoom() {
     router.back();
   };
 
-
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     let tempErrors = {};
-    tempErrors.room_number = formData.room_number
-      ? ""
-      : "Room number is required.";
+    tempErrors.room_number = formData.room_number ? "" : "Room number is required.";
     tempErrors.floor = formData.floor ? "" : "Floor is required.";
     tempErrors.room_type = formData.room_type ? "" : "Room type is required.";
     tempErrors.base_rent = formData.base_rent ? "" : "Base rent is required.";
     tempErrors.deposit = formData.deposit ? "" : "Deposit is required.";
-    tempErrors.occupancy_status = formData.statusDetails.occupancy_status
-      ? ""
-      : "Occupancy status is required.";
+    tempErrors.occupancy_status = formData.statusDetails.occupancy_status ? "" : "Occupancy status is required.";
 
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
@@ -340,10 +297,7 @@ export default function AddRoom() {
       .filter((rate) => selectedRates.includes(rate.rate_id))
       .map((rate) => (
         <ListItem key={rate.rate_id}>
-          <ListItemText
-            primary={`${rate.item_name} - ${rate.item_price}`}
-            secondary={rate.item_description}
-          />
+          <ListItemText primary={`${rate.item_name} - ${rate.item_price}`} secondary={rate.item_description} />
         </ListItem>
       ));
   };
@@ -357,18 +311,10 @@ export default function AddRoom() {
           </Typography>
         </CardContent>
         <CardContent>
-          <Button
-            variant="outlined"
-            sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
-            onClick={handleCancelClick}
-          >
+          <Button variant="outlined" sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }} onClick={handleCancelClick}>
             Back
           </Button>
-          <Button
-            variant="contained"
-            sx={{ width: "110px", marginTop: "15px" }}
-            onClick={handleSubmit}
-          >
+          <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleSubmit}>
             Add
           </Button>
         </CardContent>
@@ -458,31 +404,8 @@ export default function AddRoom() {
               }}
             >
               <Box sx={{ width: "50%" }}>
-                <Autocomplete
-                  sx={{ mb: "10px" }}
-                  options={roomTypes}
-                  value={isOtherSelected ? "Other" : formData.room_type || ""}
-                  onChange={handleAutocompleteChange}
-                  freeSolo
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Room Type"
-                      error={!!errors.room_type}
-                      helperText={errors.room_type}
-                    />
-                  )}
-                />
-                {isOtherSelected && (
-                  <TextField
-                    label="Custom Room Type"
-                    value={formData.room_type}
-                    onChange={handleCustomInputChange}
-                    fullWidth
-                    error={!!errors.room_type}
-                    helperText={errors.room_type}
-                  />
-                )}
+                <Autocomplete sx={{ mb: "10px" }} options={roomTypes} value={isOtherSelected ? "Other" : formData.room_type || ""} onChange={handleAutocompleteChange} freeSolo renderInput={(params) => <TextField {...params} label="Room Type" error={!!errors.room_type} helperText={errors.room_type} />} />
+                {isOtherSelected && <TextField label="Custom Room Type" value={formData.room_type} onChange={handleCustomInputChange} fullWidth error={!!errors.room_type} helperText={errors.room_type} />}
               </Box>
               <Autocomplete
                 sx={{ width: "50%", marginLeft: "10px" }}
@@ -497,28 +420,12 @@ export default function AddRoom() {
                     },
                   });
                 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Occupancy Status"
-                    error={!!errors.occupancy_status}
-                    helperText={errors.occupancy_status}
-                  />
-                )}
+                renderInput={(params) => <TextField {...params} label="Occupancy Status" error={!!errors.occupancy_status} helperText={errors.occupancy_status} />}
               />
             </Box>
 
             <Box>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="statusDetails.is_reserved"
-                    checked={formData.statusDetails.is_reserved}
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="Is Reserved"
-              />
+              <FormControlLabel control={<Checkbox name="statusDetails.is_reserved" checked={formData.statusDetails.is_reserved} onChange={handleCheckboxChange} />} label="Is Reserved" />
             </Box>
           </Card>
           <Card sx={{ width: "55vw", marginBottom: "10px", padding: "10px" }}>
@@ -534,86 +441,40 @@ export default function AddRoom() {
               }}
             >
               <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
-                <TextField
-                  label="Search"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  size="small"
-                  sx={{ mr: 2 }}
-                />
+                <TextField label="Search" value={searchTerm} onChange={handleSearch} size="small" sx={{ mr: 2 }} />
                 {selectedRates.length > 3 && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setShowAll(!showAll)}
-                  >
+                  <Button variant="outlined" onClick={() => setShowAll(!showAll)}>
                     {showAll ? "Show Less" : "Show All"}
                   </Button>
                 )}
               </Box>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Fab
-                  size="small"
-                  color="primary"
-                  onClick={handleOpenDialog}
-                  aria-label="add item"
-                >
+                <Fab size="small" color="primary" onClick={handleOpenDialog} aria-label="add item">
                   <AddIcon />
                 </Fab>
               </Box>
             </Box>
             {selectedRates.length > 0 ? (
               selectedRates.map((selectedRate) => {
-                const rate = filteredItems.find(
-                  (rate) => rate.rate_id === selectedRate.rateId
-                );
+                const rate = filteredItems.find((rate) => rate.rate_id === selectedRate.rateId);
                 return (
                   rate && (
-                    <Grid
-                      container
-                      key={rate.rate_id}
-                      alignItems="center"
-                      sx={{ marginBottom: "10px" }}
-                    >
+                    <Grid container key={rate.rate_id} alignItems="center" sx={{ marginBottom: "10px" }}>
                       <Grid item xs={8}>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked
-                              onChange={() => handleRateChange(rate.rate_id)}
-                            />
-                          }
-                          label={`${rate.item_name} - ${rate.item_price}`}
-                        />
+                        <FormControlLabel control={<Checkbox checked onChange={() => handleRateChange(rate.rate_id)} />} label={`${rate.item_name} - ${rate.item_price}`} />
                       </Grid>
                       <Grid item xs={4}>
-                        <TextField
-                          label="Quantity"
-                          type="number"
-                          size="small"
-                          sx={{ ml: 2, width: "90px" }}
-                          value={selectedRate.quantity || ""}
-                          onChange={(e) =>
-                            handleQuantityChange(
-                              rate.rate_id,
-                              parseInt(e.target.value, 10) || 0
-                            )
-                          }
-                          InputProps={{ inputProps: { min: 1 } }}
-                        />
+                        <TextField label="Quantity" type="number" size="small" sx={{ ml: 2, width: "90px" }} value={selectedRate.quantity || ""} onChange={(e) => handleQuantityChange(rate.rate_id, parseInt(e.target.value, 10) || 0)} InputProps={{ inputProps: { min: 1 } }} />
                       </Grid>
                       <Grid item xs={12} sx={{ marginLeft: "8px" }}>
-                        <Typography variant="body2">
-                          {rate.item_description}
-                        </Typography>
+                        <Typography variant="body2">{rate.item_description}</Typography>
                       </Grid>
                     </Grid>
                   )
                 );
               })
             ) : (
-              <Typography sx={{ marginLeft: "8px", marginTop: "20px" }}>
-                No additional items selected.
-              </Typography>
+              <Typography sx={{ marginLeft: "8px", marginTop: "20px" }}>No additional items selected.</Typography>
             )}
           </Card>
         </Box>
@@ -622,9 +483,7 @@ export default function AddRoom() {
             <Typography variant="h6">Room Summary</Typography>
             <List dense>
               <ListItem>
-                <ListItemText
-                  primary={`Room Number: ${formData.room_number}`}
-                />
+                <ListItemText primary={`Room Number: ${formData.room_number}`} />
               </ListItem>
               <ListItem>
                 <ListItemText primary={`Base Rent: ${formData.base_rent}`} />
@@ -633,17 +492,11 @@ export default function AddRoom() {
                 <ListItemText primary={`Deposit: ${formData.deposit}`} />
               </ListItem>
               <ListItem>
-                <ListItemText
-                  primary={`Occupancy Status: ${formData.statusDetails.occupancy_status}`}
-                />
+                <ListItemText primary={`Occupancy Status: ${formData.statusDetails.occupancy_status}`} />
               </ListItem>
               <ListItem></ListItem>
               <ListItem>
-                <ListItemText
-                  primary={`Is Reserved: ${
-                    formData.statusDetails.is_reserved ? "Yes" : "No"
-                  }`}
-                />
+                <ListItemText primary={`Is Reserved: ${formData.statusDetails.is_reserved ? "Yes" : "No"}`} />
               </ListItem>
               {renderSelectedRatesSummary()}
             </List>
@@ -652,16 +505,10 @@ export default function AddRoom() {
       </Box>
 
       {/* Confirmation Dialog */}
-      <Dialog
-        fullScreen={fullScreen}
-        open={openDialog}
-        onClose={handleCloseDialog}
-      >
+      <Dialog fullScreen={fullScreen} open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{`Add Room ${formData.room_number}`}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to add this room?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to add this room?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" autoFocus onClick={handleCloseDialog}>
@@ -685,11 +532,7 @@ export default function AddRoom() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position top-right
       >
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+        <MuiAlert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
           Please enter all fields
         </MuiAlert>
       </Snackbar>
@@ -698,34 +541,18 @@ export default function AddRoom() {
       <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Select Items</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Search"
-            value={searchTerm}
-            onChange={handleSearch}
-            size="small"
-            sx={{ mt: 2 }}
-          />
+          <TextField label="Search" value={searchTerm} onChange={handleSearch} size="small" sx={{ mt: 2 }} />
           <List>
             {filteredRates.map((item) => {
               // Check if the item is already selected
-              const isSelected = selectedRates.some(
-                (selectedRate) => selectedRate.rateId === item.rate_id
-              );
+              const isSelected = selectedRates.some((selectedRate) => selectedRate.rateId === item.rate_id);
               // If the item is already selected, don't render it
               if (isSelected) {
                 return null;
               }
               return (
                 <ListItem key={item.rate_id}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleRateChange(item.rate_id)}
-                      />
-                    }
-                    label={`${item.item_name} - ${item.item_price}`}
-                  />
+                  <FormControlLabel control={<Checkbox checked={isSelected} onChange={() => handleRateChange(item.rate_id)} />} label={`${item.item_name} - ${item.item_price}`} />
                 </ListItem>
               );
             })}
