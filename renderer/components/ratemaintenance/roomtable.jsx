@@ -44,13 +44,13 @@ export default function ratetable() {
   ];
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", flex: 0.14 },
-    { field: "floor", headerName: "Floor", flex: 0.14 },
-    { field: "room_type", headerName: "Room Type", flex: 0.14 },
+    { field: "room_number", headerName: "Room Number", width: '150' },
+    { field: "floor", headerName: "Floor", width: '150' },
+    { field: "room_type", headerName: "Room Type", width: '200' },
     {
       field: "occupancy_status",
       headerName: "Occupancy",
-      flex: 0.14,
+      width: '150',
       renderCell: (params) => {
         // Accessing occupancy_status from the nested statusDetails object
         return params.row.statusDetails.occupancy_status;
@@ -59,7 +59,7 @@ export default function ratetable() {
     {
       field: "is_reserved",
       headerName: "Reservation",
-      flex: 0.14,
+      width: '150',
       renderCell: (params) => {
         // Accessing is_reserved from the nested statusDetails object
         return (
@@ -78,7 +78,7 @@ export default function ratetable() {
     {
       field: "paymentstatus",
       headerName: "Payment",
-      flex: 0.16,
+      width: '200',
       renderCell: (params) => {
         const color = paymentStatusColors[params.row.paymentStatus] || "default"; // Assuming paymentStatusColors is a predefined object mapping statuses to colors
         return (
@@ -98,7 +98,7 @@ export default function ratetable() {
     {
       field: "actions",
       headerName: "Actions",
-      flex: 0.14,
+      width: '200',
       renderCell: (params) => {
         // Assuming the room ID is stored in the row data under a property named 'room_id'
         const roomId = params.row.room_id;
@@ -216,7 +216,7 @@ export default function ratetable() {
             }}
           >
             <TextField label="Search by Room Number" variant="outlined" value={searchText} onChange={(e) => setSearchText(e.target.value)} sx={{ marginRight: "5px", width: "80%" }} />
-            <FormControl sx={{ minWidth: 240 }}>
+            <FormControl sx={{ minWidth: '20%' }}>
               <InputLabel id="occupancy-filter-label">Occupancy Filter</InputLabel>
               <Select labelId="occupancy-filter-label" id="occupancy-filter-select" value={filterValue} label="Occupancy Filter" onChange={(e) => setFilterValue(e.target.value)}>
                 {occupancyFilterOptions.map((option) => (
