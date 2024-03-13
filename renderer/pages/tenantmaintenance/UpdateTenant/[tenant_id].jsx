@@ -12,7 +12,9 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { Snackbar, Alert } from '@mui/material';
-
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from 'dayjs'; // Import dayjs
 export default function updatetenant() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -24,6 +26,8 @@ export default function updatetenant() {
   // const [nationalIDImagePreview, setNationalIDImagePreview] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [selectedEndDate, setSelectedEndDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // can be 'error', 'warning', 'info', 'success'
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -41,7 +45,9 @@ export default function updatetenant() {
     invoice_option: false,
     addresses: false,
     contacts: false,
-
+    addressnumber: "", // New
+    startDate: "", // New
+    endDate: "", // New
     // Add other fields as necessary
   })
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
@@ -232,6 +238,20 @@ export default function updatetenant() {
     newErrors.eme_relation = "Emergency contact relationship is required";
     isValid = false;
   }
+  if (!tenantData.addresses.addressnumber.trim()) {
+    newErrors.addressnumber = "No. is required";
+    isValid = false;
+  }
+  
+  if (!selectedDate || selectedDate.toString().trim() === "") {
+    newErrors.startDate = "Start date is required";
+    isValid = false;
+  }
+  
+  if (!selectedEndDate || selectedEndDate.toString().trim() === "") {
+    newErrors.endDate = "End date is required";
+    isValid = false;
+  }
   
     setErrors(newErrors);
 
@@ -378,7 +398,7 @@ export default function updatetenant() {
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
               Tenant Details
             </Typography>
-
+            
             <TextField 
               id="first_name"
               name="first_name"
@@ -419,6 +439,7 @@ export default function updatetenant() {
               variant="outlined"
               sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
             />
+            
               <Autocomplete disablePortal id="combo-box-demo" options={type} sx={{ width: 90, marginBottom: 1.5, marginRight: 0.5 }} renderInput={(params) => <TextField {...params} label="Code" />} />
               <TextField 
                 id="phone_number"
@@ -449,7 +470,7 @@ export default function updatetenant() {
               error={!!errors.email}
               helperText={errors.email || ''}
               variant="outlined"
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6, marginLeft: -1.7 }}
             />
             <TextField 
               id="line_id"
@@ -462,20 +483,56 @@ export default function updatetenant() {
               variant="outlined"
               sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
             />
-            
-            <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            
-            <TextField 
-                id="street"
-                name="addresses.street"
-                label="Street"
-                value={tenantData.addresses.street}
-                onChange={handleChange}
-                error={!!errors.street}
-                helperText={errors.street || ''}
-                variant="outlined"
-                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Issue Date"
+                value={selectedDate}
+                onChange={(newValue) => {
+                  setSelectedDate(newValue);
+                  // Clear start date error on change
+                  setErrors(prev => ({ ...prev, startDate: '' }));
+                }}
+                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />}
               />
+              <DatePicker
+                label="Expiration Date"
+                value={selectedEndDate}
+                onChange={(newValue) => {
+                  setSelectedEndDate(newValue);
+                  // Clear end date error on change
+                  setErrors(prev => ({ ...prev, endDate: '' }));
+                }}
+                renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />}
+              />
+            </LocalizationProvider>
+            <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
+            <div>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
+            <TextField
+              id="addressnumber"
+              name="addresses.addressnumber"
+              label="No."
+              value={tenantData.addresses.addressnumber}
+              onChange={handleChange}
+              error={!!errors.addressnumber}
+              helperText={errors.addressnumber}
+              variant="outlined"
+              sx={{ width: 'calc(50% - 8px)', marginRight: '0.5rem' }}
+            />
+            <TextField 
+              id="street"
+              name="addresses.street"
+              label="Street"
+              value={tenantData.addresses.street}
+              onChange={handleChange}
+              error={!!errors.street}
+              helperText={errors.street || ''}
+              variant="outlined"
+              sx={{ width: 'calc(50% - 8px)' }} // Adjusting width to fit in half
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
             <TextField 
               id="district"
               name="addresses.district"
@@ -485,21 +542,22 @@ export default function updatetenant() {
               error={!!errors.district}
               helperText={errors.district || ''}
               variant="outlined"
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              sx={{ width: 'calc(50% - 8px)', marginRight: '0.5rem' }} // Adjusting width to fit in half minus margin
             />
-            
-            <br></br>
             <TextField 
-                id="province"
-                name="addresses.province"
-                label="Province"
-                value={tenantData.addresses.province}
-                onChange={handleChange}
-                error={!!errors.province}
-                helperText={errors.province || ''}
-                variant="outlined"
-                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
-              />
+              id="province"
+              name="addresses.province"
+              label="Province"
+              value={tenantData.addresses.province}
+              onChange={handleChange}
+              error={!!errors.province}
+              helperText={errors.province || ''}
+              variant="outlined"
+              sx={{ width: 'calc(50% - 8px)' }} // Adjusting width to fit in half
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
             <TextField 
               id="postal_code"
               name="addresses.postal_code"
@@ -509,10 +567,8 @@ export default function updatetenant() {
               error={!!errors.postal_code}
               helperText={errors.postal_code || ''}
               variant="outlined"
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              sx={{ width: 'calc(50% - 8px)', marginRight: '0.5rem' }} // Adjusting width to fit in half minus margin
             />
-            
-            <br></br>
             <TextField 
               id="sub_district"
               name="addresses.sub_district"
@@ -522,8 +578,11 @@ export default function updatetenant() {
               error={!!errors.sub_district}
               helperText={errors.sub_district || ''}
               variant="outlined"
-              sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              sx={{ width: 'calc(50% - 8px)' }} // Adjusting width to fit in half
             />
+          </div>
+        </div>
+
         </CardContent>
           <Box sx={{ marginBottom: 2, marginLeft: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 2 }}>

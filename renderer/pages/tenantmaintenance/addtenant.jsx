@@ -15,6 +15,9 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { PhotoCamera } from "@mui/icons-material";
 import { Snackbar, Alert } from '@mui/material';
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from 'dayjs';
 
 export default function addtenant() {
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
@@ -25,6 +28,9 @@ export default function addtenant() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
+  const [startDate, setStartDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs());
+
   const [tenantData, setTenantData] = useState({
     first_name: "",
     last_name: "",
@@ -79,17 +85,25 @@ export default function addtenant() {
     tempErrors.province = tenantData.addresses.province ? "" : "Province is required.";
     tempErrors.postal_code = tenantData.addresses.postal_code ? "" : "Postal code is required.";
     tempErrors.sub_district = tenantData.addresses.sub_district ? "" : "Sub district is required.";
+     // Add validation for start date
+     if (!startDate || startDate.toString().trim() === "") {
+      tempErrors.startDate = "Start date is required";
+    }
 
+    // Add validation for end date
+    if (!endDate || endDate.toString().trim() === "") {
+      tempErrors.endDate = "End date is required";
+    } 
     let isFormValid = Object.values(tempErrors).every(x => x === "");
 
     if (!isFormValid) {
-        setErrorSnackbarMessage('Please correct the errors before submitting.');
-        setErrorSnackbarOpen(true);
+      setErrorSnackbarMessage('Please correct the errors before submitting.');
+      setErrorSnackbarOpen(true);
     }
 
     setErrors(tempErrors);
 
-    return isFormValid;
+    return isFormValid
 };
 
 
@@ -237,18 +251,100 @@ export default function addtenant() {
                 />
               )}
             />
-            
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Issue Date"
+                value={startDate}
+                onChange={setStartDate}
+                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate || ''} />}
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />
+              <DatePicker
+                label="Expiration Date"
+                value={endDate}
+                onChange={setEndDate}
+                renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate || ''} />}
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
+              />
+            </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
+            <div style={{ marginBottom: '1.5rem' }}>
+            <TextField
+              id="addressnumber"
+              name="addresses.addressnumber"
+              label="No."
+              variant="outlined"
+              value={tenantData.addressnumber}
+              onChange={handleChange}
+              sx={{ width: 270, marginRight: 0.5 }}
+              error={!!errors.addressnumber}
+              helperText={errors.addressnumber}
+            />
 
-            <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.street} helperText={errors.street} />
+            <TextField
+              id="street"
+              name="addresses.street"
+              label="Street"
+              variant="outlined"
+              value={tenantData.street}
+              onChange={handleChange}
+              sx={{ width: 270 }}
+              error={!!errors.street}
+              helperText={errors.street}
+            />
+          </div>
 
-            <TextField id="district" name="addresses.district" label="District" value={tenantData.district} onChange={handleChange} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.district} helperText={errors.district} />
-            <TextField id="province" name="addresses.province" label="Province" variant="outlined" value={tenantData.province} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.province} helperText={errors.province} />
+          <div style={{ marginBottom: '1.5rem' }}>
+            <TextField
+              id="district"
+              name="addresses.district"
+              label="District"
+              variant="outlined"
+              value={tenantData.district}
+              onChange={handleChange}
+              sx={{ width: 270, marginRight: 0.5 }}
+              error={!!errors.district}
+              helperText={errors.district}
+            />
 
-            <TextField id="postal_code" name="addresses.postal_code" label="Postal Code" value={tenantData.postal_code} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} error={!!errors.postal_code} helperText={errors.postal_code} />
-            <br></br>
-            <TextField id="sub_district" name="addresses.sub_district" label="Sub District" variant="outlined" value={tenantData.sub_district} onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 5 }} error={!!errors.sub_district} helperText={errors.sub_district} />
+            <TextField
+              id="sub_district"
+              name="addresses.sub_district"
+              label="Sub District"
+              variant="outlined"
+              value={tenantData.sub_district}
+              onChange={handleChange}
+              sx={{ width: 270 }}
+              error={!!errors.sub_district}
+              helperText={errors.sub_district}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <TextField
+              id="province"
+              name="addresses.province"
+              label="Province"
+              variant="outlined"
+              value={tenantData.province}
+              onChange={handleChange}
+              sx={{ width: 270, marginRight: 0.5 }}
+              error={!!errors.province}
+              helperText={errors.province}
+            />
+
+            <TextField
+              id="postal_code"
+              name="addresses.postal_code"
+              label="Postal Code"
+              variant="outlined"
+              value={tenantData.postal_code}
+              onChange={handleChange}
+              sx={{ width: 270 }}
+              error={!!errors.postal_code}
+              helperText={errors.postal_code}
+            />
+          </div> 
           </CardContent>
           <Box sx={{ marginBottom: 2, marginLeft: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
