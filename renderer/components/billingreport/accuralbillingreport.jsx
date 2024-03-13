@@ -9,7 +9,7 @@ export default function AccrualBillingReport() {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [rateItems, setRateItems] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchRateItems();
@@ -44,17 +44,31 @@ export default function AccrualBillingReport() {
     }
   };
 
-  const handleGeneratePdfClick = async () => {
+  // const handleGeneratePdfClick = async () => {
+  //   try {
+  //     const response = await axios.get(`http://localhost:3000/generateaccuralbillingreport/${year}`, { responseType: "blob" });
+  //     const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+  //     const fileLink = document.createElement("a");
+  //     fileLink.href = fileURL;
+  //     fileLink.setAttribute("download", `Accrual_Billing_Report_${year}.pdf`);
+  //     document.body.appendChild(fileLink);
+  //     fileLink.click();
+  //   } catch (error) {
+  //     console.error("Error generating PDF:", error);
+  //   }
+  // };
+
+  const handleGenerateExcelClick = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/generateaccuralbillingreport/${year}`, { responseType: "blob" });
+      const response = await axios.get(`http://localhost:3000/generateaccuralbillingreportexcel/${year}`, { responseType: "blob" });
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const fileLink = document.createElement("a");
       fileLink.href = fileURL;
-      fileLink.setAttribute("download", `Accrual_Billing_Report_${year}.pdf`);
+      fileLink.setAttribute("download", `Annual_Report_for_${year}.xlsx`);
       document.body.appendChild(fileLink);
       fileLink.click();
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error("Error generating Excel file:", error);
     }
   };
 
@@ -71,26 +85,20 @@ export default function AccrualBillingReport() {
             <Button variant="contained" onClick={handleDisplayReportClick} disabled={loading}>
               {loading ? "Loading..." : "Display"}
             </Button>
-            <Button variant="contained" color="primary" onClick={handleGeneratePdfClick} disabled={loading || reportData.length === 0}>
-              Generate PDF
+            <Button variant="contained" color="primary" onClick={handleGenerateExcelClick} disabled={loading || reportData.length === 0}>
+              Generate Excel
             </Button>
           </Box>
         </CardContent>
       </Card>
-      
+
       {reportData.length > 0 && (
         <TableContainer component={Paper}>
           <Box sx={{ display: "flex", gap: theme.spacing(2), alignItems: "center", marginTop: theme.spacing(2) }}>
-            <TextField
-              fullWidth
-              label="Search (Room Number or Tenant Name)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <TextField fullWidth label="Search (Room Number or Tenant Name)" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             {/* Other buttons like Display and Generate PDF */}
           </Box>
           <Table>
-            
             <TableHead>
               <TableRow>
                 <TableCell>Room Number</TableCell>
@@ -101,7 +109,7 @@ export default function AccrualBillingReport() {
                 <TableCell>Total Bill</TableCell>
               </TableRow>
             </TableHead>
-            
+
             <TableBody>
               {reportData
                 .filter((data) => {
@@ -118,7 +126,6 @@ export default function AccrualBillingReport() {
                   </TableRow>
                 ))}
             </TableBody>
-
           </Table>
         </TableContainer>
       )}

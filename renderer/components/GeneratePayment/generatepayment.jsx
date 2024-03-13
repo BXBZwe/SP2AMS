@@ -56,35 +56,69 @@ export default function PaymentTable() {
   const handleOpenPdfDialog = () => {
     setOpenPdfDialog(true);
   };
+  // const handleGeneratePdfAndClose = async () => {
+  //   console.log("Generating PDF for selected rows:", selectedRows);
+
+  //   for (const rowId of selectedRows) {
+  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
+  //     if (!paymentDetail) {
+  //       // console.error("Payment detail not found for id:", rowId);
+  //       continue;
+  //     }
+
+  //     try {
+  //       const response = await axios.post(
+  //         "http://localhost:3000/generate-pdf",
+  //         {
+  //           room_id: paymentDetail.room_id,
+  //         },
+  //         { responseType: "blob" }
+  //       );
+
+  //       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+
+  //       const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  //       window.open(pdfUrl);
+
+  //       console.log("PDF generated successfully for room:", paymentDetail.room_number);
+  //     } catch (error) {
+  //       console.error("Failed to generate PDF for room:", paymentDetail.room_number, error);
+  //     }
+  //   }
+
+  //   setOpenPdfDialog(false);
+  // };
+
   const handleGeneratePdfAndClose = async () => {
-    console.log("Generating PDF for selected rows:", selectedRows);
+    const roomIds = selectedRows
+      .map((rowId) => {
+        const paymentDetail = payments.find((payment) => payment.id === rowId);
+        return paymentDetail.room_id;
+      })
+      .filter((roomId) => roomId != null);
 
-    for (const rowId of selectedRows) {
-      const paymentDetail = payments.find((payment) => payment.id === rowId);
-      if (!paymentDetail) {
-        // console.error("Payment detail not found for id:", rowId);
-        continue;
-      }
-
+    if (roomIds.length > 0) {
       try {
-        const response = await axios.post(
-          "http://localhost:3000/generate-pdf",
-          {
-            room_id: paymentDetail.room_id,
-          },
-          { responseType: "blob" }
-        );
+        const response = await axios.post("http://localhost:3000/generate-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-
         const pdfUrl = URL.createObjectURL(pdfBlob);
-
         window.open(pdfUrl);
 
-        console.log("PDF generated successfully for room:", paymentDetail.room_number);
+        // const link = document.createElement("a");
+        // link.href = pdfUrl;
+        // link.setAttribute("download", `payment_details.pdf`); // or any other filename
+        // document.body.appendChild(link);
+        // link.click();
+        // link.parentNode.removeChild(link);
+
+        console.log("PDF generated successfully for selected rooms.");
       } catch (error) {
-        console.error("Failed to generate PDF for room:", paymentDetail.room_number, error);
+        console.error("Failed to generate PDF for selected rooms:", error);
       }
+    } else {
+      console.log("No rooms selected for PDF generation.");
     }
 
     setOpenPdfDialog(false);

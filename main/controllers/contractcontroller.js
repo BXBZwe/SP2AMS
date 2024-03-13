@@ -150,7 +150,33 @@ const convertDocxToPdf = (docxBuffer) => {
 const fetchContractDetail = async (req, res) => {
     try {
         logMessage("fetchContractDetail: Fetching contract details.");
+        // const contractDetails = await prisma.tenancy_records.findMany({
+        //     select: {
+        //         move_in_date: true,
+        //         move_out_date: true,
+        //         tenancy_status: true,
+        //         RoomBaseDetails: {
+        //             select: {
+        //                 room_number: true,
+        //             },
+        //         },
+        //         tenants: {
+        //             select: {
+        //                 tenant_id: true,
+        //                 first_name: true,
+        //                 last_name: true,
+        //                 contract_status: true,
+        //             },
+        //         },
+        //     }
+        // });
+
         const contractDetails = await prisma.tenancy_records.findMany({
+            where: {
+                tenancy_status: {
+                    not: 'CHECK_OUT', // Exclude tenancy records with CHECK_OUT status
+                },
+            },
             select: {
                 move_in_date: true,
                 move_out_date: true,

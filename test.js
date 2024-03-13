@@ -1,52 +1,50 @@
 // import React, { useState, useEffect } from "react";
-// import { Box, Card, CardContent, Typography, Select, MenuItem, TextField, Button } from "@mui/material";
-// import MoreVertIcon from "@mui/icons-material/MoreVert";
+// import { Grid, Box, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableRow, TableHead, Paper, Select, MenuItem, FormControl, InputLabel, Button, TextField } from "@mui/material";
+// import ClearIcon from "@mui/icons-material/Clear";
+// import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
+// import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 // import axios from "axios";
 
-// export default function BillingDetails() {
-//   const types = [
-//     {
-//       id: "1",
-//       value: "Water Reading",
-//     },
-//     { id: "2", value: "Meter Reading" },
-//   ];
-
+// export default function SummaryMeter() {
+//   const [billType, setBillType] = useState("electricity");
 //   const [selectedRooms, setSelectedRooms] = useState([]);
-//   const [selectedType, setSelectedType] = useState(types[0].value);
-//   const [currentReadings, setCurrentReadings] = useState({});
-//   const [unitsDifference, setUnitsDifference] = useState({});
-//   const [costs, setCosts] = useState({});
-//   const [readingValues, setReadingValues] = useState({});
-//   const [previousReadings, setPreviousReadings] = useState({});
+//   const [generationDates, setGenerationDates] = useState([]);
+//   const [selectedGenerationDate, setSelectedGenerationDate] = useState("");
+//   const [meterData, setMeterData] = useState({});
 
-//   const calculateUnitDifference = (current, previous) => {
-//     return current - previous;
+//   const handleGenerationDateChange = (event) => {
+//     setSelectedGenerationDate(event.target.value);
 //   };
 
-//   const calculateCost = (unitDifference, costPerUnit) => {
-//     return unitDifference * costPerUnit;
+//   const handleBillTypeChange = (event) => {
+//     setBillType(event.target.value);
 //   };
 
-//   const getroomsforbilling = async () => {
+//   const fetchRoomDetails = async () => {
 //     try {
-//       const response = await axios.get("http://localhost:3000/generatebill");
-//       const billedrooms = response.data.billRecords;
-//       console.log("the rooms for generating bills:", billedrooms);
-//       setSelectedRooms(
-//         billedrooms.map((room) => ({
-//           ...room,
-//           generation_date: new Date(room.generation_date).toISOString().split("T")[0],
-//         }))
-//       );
+//       const response = await axios.get("http://localhost:3000/getallrooms");
+//       setSelectedRooms(response.data.getrooms);
 //     } catch (error) {
-//       console.error("Failed to fetch rooms:", error);
+//       console.error("Error fetching rooms:", error);
 //     }
 //   };
 
 //   const getPreviousMeterReading = async (roomId, generationDate) => {
 //     try {
 //       const response = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}`, {
+//         params: { generation_date: generationDate },
+//       });
+//       return response.data.data;
+//     } catch (error) {
+//       console.error("Error fetching previous meter reading for room:", roomId, error);
+//       return null;
+//     }
+//   };
+
+//   const getCurrentReading = async (roomId, generationDate) => {
+//     try {
+//       const response = await axios.get(`http://localhost:3000/getCurrentReading/${roomId}`, {
 //         params: { generation_date: generationDate },
 //       });
 
@@ -56,178 +54,263 @@
 //         return { water_reading: 0, electricity_reading: 0 };
 //       }
 //     } catch (error) {
-//       console.error("Error fetching previous meter reading for room:", roomId, error);
+//       console.error("Error fetching current meter reading for room:", roomId, error);
 //       return { water_reading: 0, electricity_reading: 0 };
 //     }
 //   };
+//   const formatDate = (isoString) => {
+//     return isoString.split("T")[0];
+//   };
 
-//   const fetchPreviousReadings = async () => {
-//     const promises = selectedRooms.map(async (room) => {
-//       const prevReading = await getPreviousMeterReading(room.RoomBaseDetails.room_id, room.generation_date);
-//       return { roomId: room.RoomBaseDetails.room_id, prevReading };
-//     });
+//   // const fetchGenerationDates = async () => {
+//   //   try {
+//   //     const response = await axios.get("http://localhost:3000/getgenerationdate");
+//   //     if (response.data && Array.isArray(response.data.dates)) {
+//   //       setGenerationDates(response.data.dates);
+//   //       setSelectedGenerationDate(response.data.dates[0]);
+//   //     } else {
+//   //       console.error("Generation dates response is not an array:", response.data.dates);
+//   //       setGenerationDates([]);
+//   //     }
+//   //   } catch (error) {
+//   //     console.error("Failed to fetch generation dates:", error);
+//   //   }
+//   // };
 
-//     const results = await Promise.all(promises);
-//     const newPreviousReadings = results.reduce((acc, { roomId, prevReading }) => {
-//       acc[roomId] = prevReading;
-//       return acc;
-//     }, {});
-//     console.log("New Previous Readings", newPreviousReadings);
+//   // const fetchReadings = async () => {
+//   //   if (selectedGenerationDate) {
+//   //     const readings = await Promise.all(
+//   //       selectedRooms.map(async (room) => {
+//   //         const currentReading = await getCurrentReading(room.room_id, selectedGenerationDate);
+//   //         console.log("Current Reading", currentReading);
 
-//     setPreviousReadings(newPreviousReadings);
+//   //         if (currentReading && currentReading.reading_date && currentReading.reading_date.startsWith(selectedGenerationDate)) {
+//   //           const previousReading = await getPreviousMeterReading(room.room_id, selectedGenerationDate);
+//   //           return {
+//   //             room_id: room.room_id,
+//   //             room_number: room.room_number,
+//   //             floor: `Floor ${room.floor}`,
+//   //             currentReading: currentReading[`${billType}_reading`],
+//   //             previousReading: previousReading[`${billType}_reading`],
+//   //             currentReadingDate: currentReading.reading_date,
+//   //           };
+//   //         }
+//   //         return null;
+//   //       })
+//   //     );
+
+//   //     const validReadings = readings.filter((reading) => reading !== null);
+//   //     const meterDataByFloor = validReadings.reduce((acc, reading) => {
+//   //       const floor = reading.floor;
+//   //       if (!acc[floor]) {
+//   //         acc[floor] = [];
+//   //       }
+//   //       acc[floor].push({
+//   //         room: reading.room_number,
+//   //         previousMeasure: reading.previousReading,
+//   //         currentMeasure: reading.currentReading,
+//   //       });
+//   //       return acc;
+//   //     }, {});
+
+//   //     setMeterData(meterDataByFloor);
+//   //   }
+//   // };
+
+//   const fetchReadings = async () => {
+//     if (selectedGenerationDate) {
+//       const readings = await Promise.all(
+//         selectedRooms.map(async (room) => {
+//           const previousReading = await getPreviousMeterReading(room.room_id, selectedGenerationDate);
+
+//           // If previousReading is null, that means there was an error or no reading data was found.
+//           if (!previousReading) {
+//             return {
+//               room_id: room.room_id,
+//               room_number: room.room_number,
+//               floor: `Floor ${room.floor}`,
+//               previousReading: 0,
+//               currentReading: null, // Current reading is left blank since this is for a new generation date.
+//             };
+//           }
+
+//           // No need to fetch current reading as it should be blank for a new generation date.
+//           return {
+//             room_id: room.room_id,
+//             room_number: room.room_number,
+//             floor: `Floor ${room.floor}`,
+//             previousReading: previousReading[`${billType}_reading`],
+//             currentReading: null, // Assume there is no current reading as this date is beyond the database's latest date.
+//           };
+//         })
+//       );
+
+//       const validReadings = readings.filter((reading) => reading !== null);
+//       const meterDataByFloor = validReadings.reduce((acc, reading) => {
+//         const floor = reading.floor;
+//         if (!acc[floor]) {
+//           acc[floor] = [];
+//         }
+//         acc[floor].push({
+//           room: reading.room_number,
+//           previousMeasure: reading.previousReading,
+//           currentMeasure: reading.currentReading,
+//         });
+//         return acc;
+//       }, {});
+//       setMeterData(meterDataByFloor);
+//     }
 //   };
 
 //   useEffect(() => {
-//     getroomsforbilling();
+//     fetchRoomDetails();
 //   }, []);
 
 //   useEffect(() => {
-//     if (selectedRooms.length > 0) {
-//       fetchPreviousReadings();
+//     if (selectedGenerationDate && billType) {
+//       fetchReadings();
 //     }
-//   }, [selectedRooms, selectedType]);
+//   }, [selectedGenerationDate, billType]);
 
-//   const handleReadingValueChange = (roomId, value) => {
-//     const previousReading = currentReadings[roomId] || 0;
-//     const unitDifference = calculateUnitDifference(value, previousReading);
-//     const cost = calculateCost(unitDifference, selectedType === "Water Reading" ? 20 : 7);
+//   const handleGeneratePdfClick = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:3000/generateMeterReport", {
+//         params: {
+//           readingType: billType,
+//           generationDate: selectedGenerationDate,
+//         },
+//         responseType: "blob",
+//       });
 
-//     setReadingValues((prevValues) => ({
-//       ...prevValues,
-//       [roomId]: value,
-//     }));
-//     setUnitsDifference((prevDifference) => ({
-//       ...prevDifference,
-//       [roomId]: unitDifference,
-//     }));
-//     setCosts((prevCosts) => ({
-//       ...prevCosts,
-//       [roomId]: cost,
-//     }));
+//       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+//       const pdfUrl = URL.createObjectURL(pdfBlob);
+//       window.open(pdfUrl);
+//     } catch (error) {
+//       console.error("Error generating PDF:", error);
+//     }
 //   };
-
-//   const saveReadings = async () => {
-//     const readingPromises = selectedRooms.map(async (room) => {
-//       const roomId = room.RoomBaseDetails.room_id;
-//       const readingValue = readingValues[roomId];
-
-//       if (readingValue === undefined) {
-//         console.error(`No reading value provided for room ID: ${roomId}`);
-//         return;
-//       }
-
-//       const payload = {
-//         room_id: roomId,
-//         reading_date: room.generation_date,
-//         [selectedType.toLowerCase().replace(" ", "_")]: readingValue,
-//       };
-
-//       console.log(`Reading value in save reading function: ${readingValue}`);
-//       console.log(`Payload in save reading function:`, payload);
-
-//       try {
-//         await axios.post("http://localhost:3000/addreading", payload);
-//       } catch (error) {
-//         console.error(`Failed to save reading for room ${roomId}:`, error);
-//       }
-//     });
-
-//     await Promise.all(readingPromises);
-//   };
-
 //   return (
 //     <>
-//       <Box
-//         sx={{
-//           display: "flex",
-//           flexDirection: "column",
-//           marginBottom: "10px",
-//         }}
-//       >
-//         <Card sx={{ width: "100%", display: "flex", marginBottom: "10px" }}>
-//           <CardContent
-//             sx={{
-//               marginRight: "auto",
-//               marginBottom: "10px",
-//             }}
-//           >
-//             <Typography variant="h4">Billing Details</Typography>
-//             <Typography variant="body2" sx={{ opacity: 0.7 }}>
-//               Enter billing details for specific rooms
-//             </Typography>
-//             <Button variant="contained" color="primary" onClick={saveReadings}>
-//               Save All {selectedType}s
+//       <LocalizationProvider dateAdapter={AdapterDayjs}>
+//         <Card sx={{ width: "100%", marginBottom: "20px" }}>
+//           <CardContent>
+//             <Grid container justifyContent="space-between" alignItems="center">
+//               <Grid item>
+//                 <Typography variant="h4">Meter Readings</Typography>
+//                 <Typography>Generate Water Meter and Electricity Meter for each floor and rooms</Typography>
+//               </Grid>
+//               <Grid item>
+//                 <Grid container spacing={2}>
+//                   <Grid item style={{ width: "160px" }}>
+//                     {/* <FormControl fullWidth>
+//                       <InputLabel id="generation-date-label">Generation Date</InputLabel>
+//                       <Select labelId="generation-date-label" value={selectedGenerationDate} label="Generation Date" onChange={handleGenerationDateChange}>
+//                         {generationDates.map((isoDate, index) => {
+//                           const formattedDate = formatDate(isoDate); // Use the formatting function
+//                           return (
+//                             <MenuItem key={index} value={isoDate}>
+//                               {formattedDate}
+//                             </MenuItem>
+//                           );
+//                         })}
+//                       </Select>
+//                     </FormControl> */}
+//                     <DatePicker
+//                       label="Generation Date"
+//                       value={selectedGenerationDate}
+//                       onChange={(newValue) => {
+//                         setSelectedGenerationDate(formatDate(newValue.toString())); // Make sure newValue is not null before calling toISOString
+//                       }}
+//                       renderInput={(params) => <TextField {...params} />}
+//                     />
+//                   </Grid>
+//                   <Grid item style={{ width: "170px" }}>
+//                     <FormControl fullWidth>
+//                       <InputLabel id="bill-type-label">Reading Type</InputLabel>
+//                       <Select labelId="bill-type-label" value={billType} label="Bill Type" onChange={handleBillTypeChange}>
+//                         <MenuItem value={"electricity"}>Electricity Reading</MenuItem>
+//                         <MenuItem value={"water"}>Water Reading</MenuItem>
+//                       </Select>
+//                     </FormControl>
+//                   </Grid>
+//                 </Grid>
+//               </Grid>
+//             </Grid>
+//             <Button variant="contained" color="primary" onClick={handleGeneratePdfClick} sx={{ marginTop: 1 }}>
+//               Generate PDF
 //             </Button>
 //           </CardContent>
-//           <Box
-//             sx={{
-//               display: "flex",
-//               justifyContent: "center",
-//               alignItems: "center",
-//               marginRight: "15px",
-//               width: "20%",
-//             }}
-//           >
-//             <Select label="Reading Type" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} variant="outlined" sx={{ width: "100%" }}>
-//               {types.map((item) => (
-//                 <MenuItem key={item.id} value={item.value}>
-//                   {item.value}
-//                 </MenuItem>
-//               ))}
-//             </Select>
-//           </Box>
 //         </Card>
-//         <Box
-//           sx={{
-//             display: "flex",
-//             flexDirection: "row",
-//             justifyContent: "space-between",
-//             gap: "15px",
-//           }}
-//         >
-//           <Card
-//             sx={{
-//               width: "100%",
-//               display: "flex",
-//               flexDirection: "column",
-//             }}
-//           >
-//             {selectedRooms.map((room) => {
-//               const roomId = room.RoomBaseDetails.room_id;
-//               const previousWaterReading = previousReadings[roomId]?.water_reading || "N/A";
-//               const previousElectricityReading = previousReadings[roomId]?.electricity_reading || "N/A";
-//               const previousReading = previousReadings[room.RoomBaseDetails.room_id];
-//               return (
-//                 <Box key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`} sx={{ margin: "10px" }}>
-//                   <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-//                     <Typography sx={{ marginBottom: "10px" }} variant="h6">
-//                       Room {room.RoomBaseDetails.room_number} - {selectedType}
-//                     </Typography>
-//                     <MoreVertIcon />
-//                   </Box>
-
-//                   {selectedType === "Meter Reading" && (
-//                     <Box sx={{ display: "flex", gap: "10px" }}>
-//                       <TextField type="number" variant="outlined" sx={{ width: "25%" }} label={`Previous ${selectedType}`} value={previousReading?.water_reading || "N/A"} disabled />
-//                       <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />{" "}
-//                       <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.id] || ""} disabled />
-//                       <TextField label="Cost" type="number" variant="outlined" sx={{ width: "25%" }} value={costs[room.id] || 0} disabled />
-//                     </Box>
-//                   )}
-//                   {selectedType === "Water Reading" && (
-//                     <Box sx={{ display: "flex", gap: "10px" }}>
-//                       <TextField label={`Previous ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={previousReading?.water_reading || "N/A"} disabled />
-//                       <TextField label={`Current ${selectedType}`} type="number" variant="outlined" sx={{ width: "25%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />{" "}
-//                       <TextField label="Units Difference" type="number" variant="outlined" sx={{ width: "25%" }} value={unitsDifference[room.id] || ""} disabled />
-//                       <TextField label="Cost" type="number" variant="outlined" sx={{ width: "25%" }} value={costs[room.id] || 0} disabled />
-//                     </Box>
-//                   )}
-//                 </Box>
-//               );
-//             })}
+//       </LocalizationProvider>
+//       <Box sx={{ display: "flex", justifyContent: "flex-start", p: 1, m: 1, flexWrap: "wrap" }}>
+//         {Object.entries(meterData).map(([floor, rooms], index) => (
+//           <Card sx={{ width: "calc(50% - 10px)", margin: "0 20px 20px 0", "&:nth-of-type(2n)": { marginRight: 0 } }} key={index}>
+//             <CardContent>
+//               <Typography variant="h5">{`${floor} Floor`}</Typography>
+//               <TableContainer component={Paper} sx={{ maxHeight: 440, overflow: "auto", marginBottom: "20px" }}>
+//                 <Table stickyHeader aria-label="sticky table">
+//                   <TableHead>
+//                     <TableRow>
+//                       <TableCell>Room</TableCell>
+//                       <TableCell align="right">Previous Measure</TableCell>
+//                       <TableCell align="right">Current Measure</TableCell>
+//                     </TableRow>
+//                   </TableHead>
+//                   <TableBody>
+//                     {rooms.map((roomData, roomIndex) => (
+//                       <TableRow key={roomIndex}>
+//                         <TableCell component="th" scope="row">
+//                           {roomData.room}
+//                         </TableCell>
+//                         <TableCell align="right">{roomData.previousMeasure}</TableCell>
+//                         <TableCell align="right">{roomData.currentMeasure}</TableCell>
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </TableContainer>
+//             </CardContent>
 //           </Card>
-//         </Box>
+//         ))}
 //       </Box>
 //     </>
 //   );
+// }
 
+
+
+
+
+
+
+// const getCurrentReading = async (req, res) => {
+//     const { room_id } = req.params;
+//     const { generation_date } = req.query;
+
+//     if (!generation_date || isNaN(Date.parse(generation_date))) {
+//         return res.status(400).json({ error: 'Invalid generation_date provided.' });
+//     }
+
+//     try {
+//         const currentReading = await prisma.meter_readings.findFirst({
+//             where: {
+//                 room_id: parseInt(room_id, 10),
+//                 reading_date: {
+//                     lte: new Date(generation_date)
+//                 }
+//             },
+//             orderBy: {
+//                 reading_date: 'desc',
+//             },
+//         });
+
+//         if (!currentReading) {
+//             return res.json({ data: { water_reading: 0, electricity_reading: 0 } });
+//         }
+
+//         res.status(200).json({ message: 'Current reading fetched successfully', data: currentReading });
+//     } catch (error) {
+//         console.error('Error fetching current reading:', error);
+//         res.status(500).json({ error: error.message });
+//     }
+// };
