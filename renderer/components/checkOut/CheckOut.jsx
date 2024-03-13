@@ -332,7 +332,7 @@ export default function CheckOut() {
                   </Button>
 
                   <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
-                    Add
+                    Check Out
                   </Button>
                 </Box>
               </Box>

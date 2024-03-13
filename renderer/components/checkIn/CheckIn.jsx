@@ -337,7 +337,7 @@ export default function CheckIn() {
                   </Button>
 
                   <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
-                    Add
+                    Check In
                   </Button>
                 </Box>
               </Box>

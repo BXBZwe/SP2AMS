@@ -144,7 +144,7 @@ export default function PeriodicBillingReport() {
               <Button variant="contained" onClick={handleDisplayReportClick} disabled={loading} sx={{ margin: "10px", width: "150px" }}>
                 {loading ? "Loading..." : "Display"}
               </Button>
-              <Button variant="contained" color="primary" onClick={handleGenerateExcelClick} disabled={!isDataDisplayed || loading} sx={{ width: "150px" }}>
+              <Button variant="contained" color="primary" onClick={handleGenerateExcelClick} disabled={!isDataDisplayed || loading} sx={{ width: "155px" }}>
                 Generate Excel
               </Button>
             </Box>
