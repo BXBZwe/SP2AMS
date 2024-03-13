@@ -17,16 +17,19 @@ export default function PeriodicBillingReport() {
   const [loading, setLoading] = useState(false);
   const [rateItems, setRateItems] = useState([]);
   const [isDataDisplayed, setIsDataDisplayed] = useState(false);
-
-  // const headers = ["Room Number", "Tenant Name", ...rateItems.map((item) => item.item_name), "Total Bill"];
+  const [searchQuery, setSearchQuery] = useState(""); // Added search state
 
   useEffect(() => {
     fetchRateItems();
   }, []);
 
-  const handlePeriodicReportChange = (prop) => (event) => {
+
+   const handlePeriodicReportChange = (prop) => (event) => {
     const value = prop === "showBills" || prop === "showTaxInvoice" || prop === "showUnpaidBills" ? event.target.checked : event.target.value;
     setPeriodicReport({ ...periodicReport, [prop]: value });
+  };
+  const handleSearchQueryChange = (event) => {
+    setSearchQuery(event.target.value);
   };
 
   const handleDisplayReportClick = async () => {
@@ -98,6 +101,7 @@ export default function PeriodicBillingReport() {
     <>
       <Card sx={{ width: "100%", marginBottom: "20px" }}>
         <CardContent>
+        
           <Typography variant="h4">Periodic Billing Report</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
             Reporting bill and its full summary
@@ -146,10 +150,19 @@ export default function PeriodicBillingReport() {
         </Card>
       </Box>
 
-      {reportData.length > 0 && reportData.length > 0 && (
+      {reportData.length > 0 && (
         <TableContainer component={Paper} sx={{ marginTop: theme.spacing(4) }}>
+          <TextField
+              fullWidth
+              label="Search (Room Number or Tenant Name)"
+              value={searchQuery}
+              onChange={handleSearchQueryChange}
+              sx={{ marginTop: theme.spacing(2) }}
+            
+            />
           <Table>
             <TableHead>
+            
               <TableRow>
                 <TableCell>Room Number</TableCell>
                 <TableCell>Tenant Name</TableCell>
@@ -160,8 +173,13 @@ export default function PeriodicBillingReport() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {reportData.map((data, index) => (
-                <TableRow key={index}>
+              {reportData
+                .filter((data) =>
+                  data.roomNumber.toString().includes(searchQuery) ||
+                  data.tenantName.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((data, index) => (
+                  <TableRow key={index}>
                   <TableCell>{data.roomNumber}</TableCell>
                   <TableCell>{data.tenantName}</TableCell>
                   {rateItems.map((rate) => (

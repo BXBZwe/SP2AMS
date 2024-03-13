@@ -122,12 +122,13 @@ export default function ContractTable() {
   useEffect(() => {
     const applyFilters = () => {
       let filteredData = contracts.filter(contract => 
-        contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) &&
+        (contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) ||
+        contract.room_number.toLowerCase().includes(searchText.toLowerCase())) &&
         (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true)
       );
       setFilteredContracts(filteredData);
     };
-
+  
     applyFilters();
   }, [searchText, statusFilter, contracts]);
 
@@ -228,7 +229,7 @@ export default function ContractTable() {
           >
       <TextField
         id="search-bar"
-        label="Search Tenant"
+        label="Search Tenant or Room Number"
         variant="outlined"
         fullWidth
         sx={{  marginRight: "10px", width: "80%"}}

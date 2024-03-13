@@ -80,14 +80,16 @@ export default function ratetable() {
   }, [filter]);
 
   const handleSearchTextChange = (event) => {
-    setSearchText(event.target.value);
+    const searchText = event.target.value.toLowerCase();
+    setSearchQuery(searchText);
   };
 
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
   };
 
-  const formattedTenants = tenants.map((tenant) => ({
+  const formattedTenants = tenants
+  .map((tenant) => ({
     id: tenant.tenant_id,
     fullname: `${tenant.first_name} ${tenant.last_name}`,
     phnumber: tenant.contacts?.phone_number || "N/A",
@@ -95,7 +97,13 @@ export default function ratetable() {
     accountStatus: tenant.account_status || "N/A",
     contractStatus: tenant.contract_status || "N/A",
     paymentOption: tenant.invoice_option || "N/A",
-  })).filter(tenant => tenant.fullname.toLowerCase().includes(searchQuery.toLowerCase()));
+  }))
+  .filter(
+    (tenant) =>
+      tenant.fullname.toLowerCase().includes(searchQuery) ||
+      (tenant.roomnumber && tenant.roomnumber.toLowerCase().includes(searchQuery)) ||
+      tenant.id.toString().toLowerCase().includes(searchQuery)
+  );
 
   return (
     <>
@@ -119,7 +127,7 @@ export default function ratetable() {
         <CardContent>
         <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
         <TextField
-          label="Search by Fullname"
+          label="Search by ID, Room Number, or Fullname"
           variant="outlined"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
