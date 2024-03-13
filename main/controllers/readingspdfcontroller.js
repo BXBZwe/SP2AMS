@@ -32,13 +32,16 @@ const createMeterReadingsPdfDefinition = (readings, generationDate, readingType)
 
 
 
-    const content = Object.entries(groupedReadings).reduce((acc, [floor, details]) => {
+    const content = Object.entries(groupedReadings).reduce((acc, [floor, details], index) => {
+        if (index > 0) {
+            acc.push({ text: '', margin: [0, 10, 0, 0] });
+        }
         acc.push(
             { text: floor, style: 'floorHeader' },
             {
                 style: 'tableStyle',
                 table: {
-                    widths: ['auto', '*', '*'],
+                    widths: ['*', '*', '*'],
                     body: [
                         [
                             { text: 'Room', style: 'tableHeader' },
@@ -101,26 +104,22 @@ const createMeterReadingsPdfDefinition = (readings, generationDate, readingType)
 };
 
 const generateMeterReport = async (readingType, generationDate) => {
-    const currentReadings = await prisma.meter_readings.findMany({
-        where: {
-            reading_date: new Date(generationDate),
-        },
-        include: {
-            RoomBaseDetails: true,
-        },
+    const rooms = await prisma.roomBaseDetails.findMany({
         orderBy: {
-            RoomBaseDetails: {
-                floor: 'asc',
-            },
+            floor: 'asc',
         },
     });
 
-    for (const reading of currentReadings) {
-        const previousReading = await getPreviousReading(reading.room_id, generationDate);
-        reading.previous_reading = previousReading ? previousReading[`${readingType}_reading`] : 0;
-        reading.current_reading = reading[`${readingType}_reading`];
-    }
-    const pdfDefinition = createMeterReadingsPdfDefinition(currentReadings, generationDate, readingType);
+    const readings = await Promise.all(rooms.map(async (room) => {
+        const previousReading = await getPreviousReading(room.room_id, generationDate);
+        return {
+            RoomBaseDetails: room,
+            previous_reading: previousReading ? previousReading[`${readingType}_reading`] : 0,
+            current_reading: '',
+        };
+    }));
+
+    const pdfDefinition = createMeterReadingsPdfDefinition(readings, generationDate, readingType);
 
     return pdfDefinition;
 };

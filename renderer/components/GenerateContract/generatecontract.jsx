@@ -17,7 +17,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import Link from "next/link";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -29,11 +29,11 @@ import CloseIcon from "@mui/icons-material/Close";
 
 export default function ContractTable() {
   const theme = useTheme();
-  const [searchText, setSearchText] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [filteredContracts, setFilteredContracts] = useState([]);
   const [contracts, setContracts] = useState([]);
-  
+
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTenantId, setSelectedTenantId] = useState(null);
@@ -43,12 +43,12 @@ export default function ContractTable() {
   const [documentLoading, setDocumentLoading] = useState(false);
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: '300' },
-    { field: "tenant_name", headerName: "Tenant Name", width: '300' },
+    { field: "room_number", headerName: "Room Number", width: "300" },
+    { field: "tenant_name", headerName: "Tenant Name", width: "300" },
     {
       field: "contract_status",
       headerName: "Contract Status",
-      width: '300',
+      width: "300",
       renderCell: (params) => {
         let color;
         switch (params.value.toLowerCase()) {
@@ -96,7 +96,9 @@ export default function ContractTable() {
   useEffect(() => {
     const fetchContractData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getcontractdetails");
+        const response = await axios.get(
+          "http://localhost:3000/getcontractdetails"
+        );
         console.log("contract data: ", response.data);
         const data = response.data.map((contract) => {
           return {
@@ -104,7 +106,10 @@ export default function ContractTable() {
             room_number: contract.RoomBaseDetails.room_number,
             tenant_name: `${contract.tenants.first_name} ${contract.tenants.last_name}`,
             contract_status: contract.tenants.contract_status,
-            contract_days_left: contract.contract_days_left !== null ? contract.contract_days_left : "-",
+            contract_days_left:
+              contract.contract_days_left !== null
+                ? contract.contract_days_left
+                : "-",
           };
         });
         setContracts(data);
@@ -114,16 +119,19 @@ export default function ContractTable() {
     };
 
     fetchContractData();
-
-
-    
   }, []);
- 
+
   useEffect(() => {
     const applyFilters = () => {
-      let filteredData = contracts.filter(contract => 
-        contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) &&
-        (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true)
+      let filteredData = contracts.filter(
+        (contract) =>
+          contract.tenant_name
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) &&
+          (statusFilter
+            ? contract.contract_status.toLowerCase() ===
+              statusFilter.toLowerCase()
+            : true)
       );
       setFilteredContracts(filteredData);
     };
@@ -134,12 +142,15 @@ export default function ContractTable() {
   const handleGenerateDocument = async (language) => {
     setOpenDialog(false);
     setOpenUpdateDialog(false);
-    setDocumentLoading(true); 
-  
+    setDocumentLoading(true);
+
     try {
-      const response = await axios.get(`http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`, {
-        responseType: "blob",
-      });
+      const response = await axios.get(
+        `http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`,
+        {
+          responseType: "blob",
+        }
+      );
 
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -150,7 +161,6 @@ export default function ContractTable() {
       setDocumentLoading(false); // Stop loading
     }
   };
-  
 
   const fetchContractData = async () => {
     setLoading(true);
@@ -218,44 +228,56 @@ export default function ContractTable() {
         </CardContent>
       </Card>
       <Card sx={{ width: "100%", overflow: "hidden", marginTop: "10px" }}>
-      <CardContent>
-      <div
+        <CardContent>
+          <div
             style={{
               display: "flex",
               alignItems: "center",
               marginBottom: "10px",
             }}
           >
-      <TextField
-        id="search-bar"
-        label="Search Tenant"
-        variant="outlined"
-        fullWidth
-        sx={{  marginRight: "10px", width: "80%"}}
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-      />
-      <FormControl sx={{ minWidth: 240 }}>
-        <InputLabel id="status-filter-label">Contract Status</InputLabel>
-        <Select
-          labelId="status-filter-label"
-          id="status-filter"
-          value={statusFilter}
-          label="Contract Status"
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="new">New</MenuItem>
-          <MenuItem value="ongoing">Ongoing</MenuItem>
-          <MenuItem value="due">Due</MenuItem>
-          <MenuItem value="warning">Warning</MenuItem>
-          <MenuItem value="checkout">Checkout</MenuItem>
-          <MenuItem value="terminated">Terminated</MenuItem>
-        </Select>
-      </FormControl>
-      </div>
-        <DataGrid rows={filteredContracts} getRowId={(row) => row.room_number} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} />
-      </CardContent>
+            <TextField
+              id="search-bar"
+              label="Search Tenant"
+              variant="outlined"
+              fullWidth
+              sx={{ marginRight: "10px", width: "80%" }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <FormControl sx={{ minWidth: 240 }}>
+              <InputLabel id="status-filter-label">Contract Status</InputLabel>
+              <Select
+                labelId="status-filter-label"
+                id="status-filter"
+                value={statusFilter}
+                label="Contract Status"
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="new">New</MenuItem>
+                <MenuItem value="ongoing">Ongoing</MenuItem>
+                <MenuItem value="due">Due</MenuItem>
+                <MenuItem value="warning">Warning</MenuItem>
+                <MenuItem value="checkout">Checkout</MenuItem>
+                <MenuItem value="terminated">Terminated</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <DataGrid
+            rows={filteredContracts}
+            getRowId={(row) => row.room_number}
+            columns={columns}
+            pageSize={5}
+            pageSizeOptions={[5, 10]}
+            sx={{
+              "& .MuiDataGrid-main": { maxHeight: "70vh" }, // Adjust based on your layout
+            }}
+            autoHeight
+            density="compact"
+            rowHeight={80}
+          />
+        </CardContent>
       </Card>
       <Dialog
         open={openUpdateDialog}
@@ -304,7 +326,7 @@ export default function ContractTable() {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              width: "100%", 
+              width: "100%",
             }}
           >
             <Box sx={{ display: "flex", gap: 1 }}>
@@ -335,14 +357,21 @@ export default function ContractTable() {
         </DialogActions>
       </Dialog>
       <Dialog open={documentLoading} aria-labelledby="loading-dialog-title">
-    <DialogTitle id="loading-dialog-title">Generating Contract</DialogTitle>
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
-      <CircularProgress />
-      <Typography variant="body1" sx={{ mt: 2 }}>
-        Please wait...
-      </Typography>
-    </Box>
-  </Dialog>
+        <DialogTitle id="loading-dialog-title">Generating Contract</DialogTitle>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            p: 3,
+          }}
+        >
+          <CircularProgress />
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            Please wait...
+          </Typography>
+        </Box>
+      </Dialog>
     </>
   );
 }

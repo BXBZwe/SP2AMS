@@ -7,7 +7,7 @@ export default function generatecontract() {
   return (
     <div>
       <Head>
-        <title>generatecontract</title>
+        <title>Generate Contract</title>
       </Head>
       <ContractTable/>
     </div>
