@@ -1,595 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   Box,
-//   Card,
-//   CardContent,
-//   Typography,
-//   Select,
-//   MenuItem,
-//   TextField,
-//   Button,
-//   Snackbar,
-//   Alert,
-//   Dialog,
-//   DialogTitle,
-//   DialogContent,
-//   DialogContentText,
-//   DialogActions,
-// } from "@mui/material";
-// import MoreVertIcon from "@mui/icons-material/MoreVert";
-// import axios from "axios";
-// import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the check circle icon
-
-// export default function BillingDetails() {
-//   const types = [
-//     {
-//       id: "1",
-//       value: "Water Reading",
-//     },
-//     { id: "2", value: "Meter Reading" },
-//   ];
-//   const [generateDialogOpen, setGenerateDialogOpen] = useState(false); // New state for the second dialog
-
-//   const [dialogOpen, setDialogOpen] = useState(false);
-//   const [snackbarOpen, setSnackbarOpen] = useState(false);
-//   const [snackbarMessage, setSnackbarMessage] = useState("");
-//   const [selectedRooms, setSelectedRooms] = useState([]);
-//   const [selectedType, setSelectedType] = useState(types[0].value);
-//   const [selectedGenerationDate, setSelectedGenerationDate] = useState(null);
-//   const [allGenerationDate, setAllGenerationDate] = useState([]);
-//   const [unitsDifference, setUnitsDifference] = useState({});
-//   const [costs, setCosts] = useState({});
-//   const [readingValues, setReadingValues] = useState({});
-//   const [previousReadings, setPreviousReadings] = useState({});
-//   const [waterCost, setWaterCost] = useState({});
-//   const [electricityCost, setElectricityCost] = useState({});
-//   const [snackbarSeverity, setSnackbarSeverity] = useState("error"); // Default to 'error'
-
-//   const getroomsforbilling = async () => {
-//     try {
-//       const response = await axios.get("http://localhost:3000/generatebill");
-//       const billedrooms = response.data.billRecords;
-
-//       const allDates = billedrooms.map(
-//         (item) => new Date(item.generation_date).toISOString().split("T")[0]
-//       );
-
-//       const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
-//       const latestDate = sortedDates[0];
-//       setAllGenerationDate(sortedDates); // Use sortedDates here to ensure the dates are sorted
-//       setSelectedGenerationDate(latestDate);
-
-//       const latestBilledRooms = billedrooms.reduce((acc, room) => {
-//         const existing = acc.find((r) => r.room_id === room.room_id);
-//         if (
-//           !existing ||
-//           new Date(room.generation_date) > new Date(existing.generation_date)
-//         ) {
-//           acc = acc.filter((r) => r.room_id !== room.room_id);
-//           acc.push(room);
-//         }
-//         return acc;
-//       }, []);
-
-//       setSelectedRooms(
-//         latestBilledRooms.map((room) => ({
-//           ...room,
-//           generation_date: new Date(room.generation_date)
-//             .toISOString()
-//             .split("T")[0],
-//         }))
-//       );
-//     } catch (error) {
-//       console.error("Failed to fetch rooms:", error);
-//     }
-//   };
-//   const checkAllFieldsFilledAndPositive = () => {
-//     for (const roomId of selectedRooms.map(
-//       (room) => room.RoomBaseDetails.room_id
-//     )) {
-//       const value = readingValues[roomId];
-//       if (value === undefined || value === "" || Number(value) < 0) {
-//         // Either a field is missing, empty, or contains a negative number
-//         return false;
-//       }
-//     }
-//     return true; // All fields are filled and contain non-negative numbers
-//   };
-//   const checkAllFieldsFilled = () => {
-//     // This function checks if all text fields have been filled
-//     for (const roomId of selectedRooms.map(
-//       (room) => room.RoomBaseDetails.room_id
-//     )) {
-//       if (!readingValues[roomId]) {
-//         return false; // A field is missing
-//       }
-//     }
-//     return true; // All fields are filled
-//   };
-
-//   const getPreviousMeterReading = async (roomId, generationDate) => {
-//     try {
-//       const response = await axios.get(
-//         `http://localhost:3000/getLastReadingBeforeDate/${roomId}`,
-//         {
-//           params: { generation_date: generationDate },
-//         }
-//       );
-//       if (response.data && response.data.data) {
-//         return response.data.data;
-//       } else {
-//         return { water_reading: 0, electricity_reading: 0 };
-//       }
-//     } catch (error) {
-//       console.error(
-//         "Error fetching previous meter reading for room:",
-//         roomId,
-//         error
-//       );
-//       return { water_reading: 0, electricity_reading: 0 };
-//     }
-//   };
-//   const handleCloseDialog = () => {
-//     setDialogOpen(false);
-//   };
-//   const fetchPreviousReadings = async () => {
-//     const promises = selectedRooms.map(async (room) => {
-//       const prevReading = await getPreviousMeterReading(
-//         room.RoomBaseDetails.room_id,
-//         // room.generation_date
-//         selectedGenerationDate
-//       );
-//       // setSelectedGenerationDate(room.generation_date);
-
-//       return { roomId: room.RoomBaseDetails.room_id, prevReading };
-//     });
-
-//     const results = await Promise.all(promises);
-//     const newPreviousReadings = results.reduce(
-//       (acc, { roomId, prevReading }) => {
-//         acc[roomId] = prevReading;
-//         return acc;
-//       },
-//       {}
-//     );
-//     console.log("New Previous Readings", newPreviousReadings);
-
-//     setPreviousReadings(newPreviousReadings);
-//   };
-
-//   // console.log("Generation Date", selectedGenerationDate);
-//   useEffect(() => {
-//     getroomsforbilling();
-//   }, []);
-
-//   useEffect(() => {
-//     if (selectedRooms.length > 0) {
-//       fetchPreviousReadings();
-//     }
-//   }, [selectedRooms, selectedType]);
-
-//   const handleReadingValueChange = (roomId, value) => {
-//     setReadingValues((prevValues) => ({
-//       ...prevValues,
-//       [roomId]: value,
-//     }));
-//   };
-//   const handleOpenDialog = () => {
-//     if (!checkAllFieldsFilledAndPositive()) {
-//       setSnackbarMessage(
-//         "Please fill in all the readings with non-negative values before saving."
-//       );
-//       setSnackbarOpen(true);
-//     } else {
-//       // All fields are filled and non-negative, open the confirmation dialog
-//       setDialogOpen(true);
-//     }
-//   };
-//   const saveReadings = async () => {
-//     setDialogOpen(false);
-//     const readingPromises = selectedRooms.map(async (room) => {
-//       const roomId = room.RoomBaseDetails.room_id;
-//       const readingValue = readingValues[roomId];
-
-//       if (!checkAllFieldsFilled()) {
-//         setSnackbarMessage("Please fill in all the readings before saving.");
-//         setSnackbarOpen(true);
-//         return;
-//       }
-//       if (!checkAllFieldsFilledAndPositive()) {
-//         setSnackbarMessage(
-//           "Please fill in all the readings with non-negative values before saving."
-//         );
-//         setSnackbarOpen(true);
-//         return;
-//       }
-
-//       const payload = {
-//         room_id: roomId,
-//         reading_date: room.generation_date,
-//         [selectedType.toLowerCase().replace(" ", "_")]: readingValue,
-//       };
-
-//       console.log(`Reading value in save reading function: ${readingValue}`);
-//       console.log(`Payload in save reading function:`, payload);
-
-//       try {
-//         await axios.post("http://localhost:3000/addreading", payload);
-//       } catch (error) {
-//         console.error(`Failed to save reading for room ${roomId}:`, error);
-//       }
-//     });
-
-//     await Promise.all(readingPromises);
-//   };
-//   const handleOpenGenerateDialog = () => {
-//     if (!checkAllFieldsFilledAndPositive()) {
-//       setSnackbarMessage(
-//         "Please fill in all the readings with non-negative values before generating bills."
-//       );
-//       setSnackbarOpen(true);
-//     } else {
-//       setGenerateDialogOpen(true); // Open the generate bills confirmation dialog
-//     }
-//   };
-
-//   // Function to close the "Generate All Bills" dialog
-//   const handleCloseGenerateDialog = () => {
-//     setGenerateDialogOpen(false);
-//   };
-//   const handleGeneratebilling = async () => {
-//     setGenerateDialogOpen(false);
-//     if (!checkAllFieldsFilled()) {
-//       setSnackbarMessage(
-//         "Please fill in all the readings with non-negative values before generating bills."
-//       );
-//       setSnackbarSeverity("error"); // Set snackbar to show error
-//       setSnackbarOpen(true);
-//       return;
-//     }
-//     if (!checkAllFieldsFilledAndPositive()) {
-//       setSnackbarMessage(
-//         "Please fill in all the readings with non-negative values before generating bills."
-//       );
-//       setSnackbarSeverity("error"); // Set snackbar to show error
-//       setSnackbarOpen(true);
-//       return;
-//     }
-//     const billPromises = selectedRooms.map(async (room) => {
-//       try {
-//         const roomId = room.RoomBaseDetails.room_id;
-//         const payload = {
-//           room_id: roomId,
-//           electricity_reading: readingValues[roomId].electricity || 0, // Adjust this based on your actual data structure
-//           water_reading: readingValues[roomId].water || 0, // Adjust this based on your actual data structure
-//         };
-//         const response = await axios.post(
-//           "http://localhost:3000/calculateandgeneratebill",
-//           { room_id: roomId }
-//         );
-//         setWaterCost((prev) => ({
-//           ...prev,
-//           [roomId]: response.data.waterCost,
-//         }));
-//         setElectricityCost((prev) => ({
-//           ...prev,
-//           [roomId]: response.data.electricityCost,
-//         }));
-//         setCosts((prev) => ({
-//           ...prev,
-//           [roomId]: {
-//             waterCost: response.data.waterCost,
-//             electricityCost: response.data.electricityCost,
-//           },
-//         }));
-//         console.log(`Bill generated for Room ID ${roomId}`, response.data);
-//         setSnackbarSeverity("success");
-//         setSnackbarMessage("All bills have been successfully generated.");
-//         setSnackbarOpen(true); // This is crucial
-//       } catch (error) {
-//         setSnackbarMessage("Failed to generate bills.");
-//         setSnackbarSeverity("error"); // Keep snackbar on error for actual errors
-//         setSnackbarOpen(true);
-//         console.error(`Failed to generate bill for room`, error);
-//       }
-//     });
-//   };
-//   const handleCloseSnackbar = (event, reason) => {
-//     if (reason === "clickaway") {
-//       return;
-//     }
-//     setSnackbarOpen(false);
-//   };
-
-//   // console.log('selected Date',selectedGenerationDate);
-//   return (
-//     <>
-//       <Box
-//         sx={{
-//           display: "flex",
-//           flexDirection: "column",
-//           marginBottom: "10px",
-//         }}
-//       >
-//         <Card sx={{ width: "100%", display: "flex", marginBottom: "10px" }}>
-//           <CardContent
-//             sx={{
-//               marginRight: "auto",
-//               marginBottom: "10px",
-//             }}
-//           >
-//             <Typography variant="h4">Billing Details</Typography>
-//             <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
-//               Enter billing details for specific rooms
-//             </Typography>
-//             <Button
-//               variant="contained"
-//               color="primary"
-//               onClick={handleOpenDialog}
-//             >
-//               Save All {selectedType}
-//             </Button>
-//             <Button
-//               variant="contained"
-//               color="primary"
-//               onClick={handleOpenGenerateDialog}
-//               sx={{ ml: 2 }}
-//             >
-//               Generate All Bills
-//             </Button>
-//           </CardContent>
-
-//           <Box
-//             sx={{
-//               display: "flex",
-//               justifyContent: "center",
-//               alignItems: "center",
-//               flexDirection: "row",
-//               marginRight: "15px",
-//               width: "40%",
-//             }}
-//           >
-//             {/* <TextField
-//               type="text" // Changed from number to text to display formatted date
-//               variant="outlined"
-//               sx={{ width: "100%", paddingRight: "10px" }}
-//               label="Generation Date"
-//               value={selectedGenerationDate || "N/A"} // Use the formatted date here
-//               disabled
-//             /> */}
-
-//             <Select
-//               label="Generation Date"
-//               value={selectedGenerationDate || ""}
-//               onChange={(e) => setSelectedGenerationDate(e.target.value)}
-//               variant="outlined"
-//               displayEmpty
-//               sx={{ width: "100%", paddingRight: "10px" }}
-//             >
-//               {allGenerationDate.map((date, index) => (
-//                 <MenuItem key={index} value={date}>
-//                   {date}
-//                 </MenuItem>
-//               ))}
-//             </Select>
-
-//             <Box>
-//               <Select
-//                 label="Reading Type"
-//                 value={selectedType}
-//                 onChange={(e) => setSelectedType(e.target.value)}
-//                 variant="outlined"
-//                 sx={{ width: "100%" }}
-//               >
-//                 {types.map((item) => (
-//                   <MenuItem key={item.id} value={item.value}>
-//                     {item.value}
-//                   </MenuItem>
-//                 ))}
-//               </Select>
-//             </Box>
-//           </Box>
-//         </Card>
-//         <Box
-//           sx={{
-//             display: "flex",
-//             flexDirection: "row",
-//             justifyContent: "space-between",
-//             gap: "15px",
-//           }}
-//         >
-//           <Card
-//             sx={{
-//               width: "100%",
-//               display: "flex",
-//               flexDirection: "column",
-//             }}
-//           >
-//             {selectedRooms.map((room) => {
-//               const previousReading =
-//                 previousReadings[room.RoomBaseDetails.room_id];
-//               return (
-//                 <Box
-//                   key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`}
-//                   sx={{ margin: "10px" }}
-//                 >
-//                   <Box
-//                     sx={{ display: "flex", justifyContent: "space-between" }}
-//                   >
-//                     <Typography sx={{ marginBottom: "10px" }} variant="h6">
-//                       Room {room.RoomBaseDetails.room_number} - {selectedType}
-//                     </Typography>
-//                     <MoreVertIcon />
-//                   </Box>
-
-//                   {selectedType === "Meter Reading" && (
-//                     <Box sx={{ display: "flex", gap: "10px" }}>
-//                       <TextField
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         label={`Previous ${selectedType}`}
-//                         value={previousReading?.electricity_reading || "N/A"}
-//                         disabled
-//                       />
-//                       <TextField
-//                         label={`Current ${selectedType}`}
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={
-//                           readingValues[room.RoomBaseDetails.room_id] || ""
-//                         }
-//                         onChange={(e) =>
-//                           handleReadingValueChange(
-//                             room.RoomBaseDetails.room_id,
-//                             e.target.value
-//                           )
-//                         }
-//                       />
-//                       <TextField
-//                         label="Units Difference"
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={
-//                           unitsDifference[room.RoomBaseDetails.room_id] || "N/A"
-//                         }
-//                         disabled
-//                       />
-//                       <TextField
-//                         label="Cost"
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={costs[room.id] || 0}
-//                         disabled
-//                       />
-//                     </Box>
-//                   )}
-//                   {selectedType === "Water Reading" && (
-//                     <Box sx={{ display: "flex", gap: "10px" }}>
-//                       <TextField
-//                         label={`Previous ${selectedType}`}
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={previousReading?.water_reading || "N/A"}
-//                         disabled
-//                       />
-//                       <TextField
-//                         label={`Current ${selectedType}`}
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={
-//                           readingValues[room.RoomBaseDetails.room_id] || ""
-//                         }
-//                         onChange={(e) =>
-//                           handleReadingValueChange(
-//                             room.RoomBaseDetails.room_id,
-//                             e.target.value
-//                           )
-//                         }
-//                       />
-//                       <TextField
-//                         label="Units Difference"
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={
-//                           unitsDifference[room.RoomBaseDetails.room_id] || "N/A"
-//                         }
-//                         disabled
-//                       />
-//                       <TextField
-//                         label="Cost"
-//                         type="number"
-//                         variant="outlined"
-//                         sx={{ width: "25%" }}
-//                         value={costs[room.id] || 0}
-//                         disabled
-//                       />
-//                     </Box>
-//                   )}
-//                 </Box>
-//               );
-//             })}
-//           </Card>
-//         </Box>
-//         <Dialog
-//           open={dialogOpen}
-//           onClose={handleCloseDialog}
-//           aria-labelledby="alert-dialog-title"
-//           aria-describedby="alert-dialog-description"
-//         >
-//           <DialogTitle id="alert-dialog-title">{"Confirm Save"}</DialogTitle>
-//           <DialogContent>
-//             <DialogContentText id="alert-dialog-description">
-//               Are you sure you want to save all readings?
-//             </DialogContentText>
-//           </DialogContent>
-//           <DialogActions>
-//             <Button variant="outlined" onClick={handleCloseDialog}>
-//               Cancel
-//             </Button>
-//             <Button variant="contained" onClick={saveReadings} autoFocus>
-//               Confirm
-//             </Button>
-//           </DialogActions>
-//         </Dialog>
-//         <Dialog
-//           open={generateDialogOpen}
-//           onClose={handleCloseGenerateDialog}
-//           aria-labelledby="generate-dialog-title"
-//           aria-describedby="generate-dialog-description"
-//         >
-//           <DialogTitle id="generate-dialog-title">
-//             {"Confirm Bill Generation"}
-//           </DialogTitle>
-//           <DialogContent>
-//             <DialogContentText id="generate-dialog-description">
-//               Are you sure you want to generate bills for all readings?
-//             </DialogContentText>
-//           </DialogContent>
-//           <DialogActions>
-//             <Button variant="outlined" onClick={handleCloseGenerateDialog}>
-//               Cancel
-//             </Button>
-//             <Button
-//               variant="contained"
-//               onClick={handleGeneratebilling}
-//               autoFocus
-//             >
-//               Confirm
-//             </Button>
-//           </DialogActions>
-//         </Dialog>
-//       </Box>
-
-//       <Snackbar
-//         open={snackbarOpen}
-//         autoHideDuration={6000}
-//         onClose={handleCloseSnackbar}
-//         anchorOrigin={{ vertical: "top", horizontal: "right" }}
-//       >
-//         <Alert
-//           onClose={handleCloseSnackbar}
-//           severity={snackbarSeverity}
-//           icon={
-//             snackbarSeverity === "success" ? (
-//               <CheckCircleIcon fontSize="inherit" />
-//             ) : undefined
-//           } // Conditionally render the check icon for success
-//           sx={{ width: "100%" }}
-//         >
-//           {snackbarMessage}
-//         </Alert>
-//       </Snackbar>
-//     </>
-//   );
-// }
-
 // New One
 import React, { useState, useEffect } from "react";
 import {
@@ -608,12 +16,60 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  LinearProgress,
+  CircularProgress,
 } from "@mui/material";
+import { useRouter } from "next/router";
+import { styled } from '@mui/material/styles';
+import  { linearProgressClasses } from '@mui/material/LinearProgress';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the check circle icon
 
 export default function BillingDetails() {
+
+  // const router = useRouter();
+  // const [openNavDialog, setOpenNavDialog] = useState(false); // State to control the dialog visibility
+  // const [leaveUrl, setLeaveUrl] = useState(''); // Assuming you have a saveProgress state
+
+  // // Function to handle "Stay on page" action
+  // const handleStay = () => {
+  //   setOpenNavDialog(false); // Close the dialog
+  // };
+
+  // // Function to handle "Leave page" action
+  // const handleLeave = (url) => {
+  //   console.log("State Leave Url", leaveUrl);
+  //   setOpenNavDialog(false); // Close the dialog
+  //   router.push(leaveUrl).catch(() => {}); 
+  // };
+
+  // const handleNavigation = (link) => {
+  //   // If the saveProgress is not 100%, prompt the user before navigating away
+  //   const currentPath = router.pathname;
+  //   if (saveProgress < 100) {
+  //     setOpenNavDialog(true); // Open the navigation warning dialog
+  
+  //     // Set the URL they're trying to navigate to, so you can use it if they confirm
+  //     setLeaveUrl(link); 
+  //   } 
+  //   else {
+  //     // If there's no unsaved progress, navigate directly
+  //     router.push(link);
+  //   }
+  // };
+  
+
+  // useEffect(() => {
+  //   // Listen for route changes before they happen
+  //   router.events.on('routeChangeStart', handleNavigation);
+  //   // console.log('routeChangeStart',router.events);
+
+  //   return () => {
+  //     router.events.off('routeChangeStart', handleNavigation);
+  //   };
+  // }, [saveProgress, router.events]);
+  
   const types = [
     {
       id: "1",
@@ -638,6 +94,10 @@ export default function BillingDetails() {
   const [electricityCost, setElectricityCost] = useState({});
   const [snackbarSeverity, setSnackbarSeverity] = useState("error"); // Default to 'error'
   const [billedRooms, setBilledRooms] = useState([]);
+  const [saveProgress, setSaveProgress] = useState(0);
+  const [saveCallCount, setSaveCallCount] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+
 
   const getroomsforbilling = async () => {
     try {
@@ -728,32 +188,75 @@ export default function BillingDetails() {
     setPreviousReadings(newPreviousReadings);
   };
 
+  // const calculateUnitsDifference = () => {
+  //   const newUnitsDifference = {};
+
+  //   selectedRooms.forEach((room) => {
+  //     const roomId = room.RoomBaseDetails.room_id;
+  //     const currentReading = readingValues[roomId] || 0;
+
+  //     // Determine the previous reading type based on the selectedType state
+  //     let previousReading = 0;
+  //     if (selectedType === "Water Reading") {
+  //       previousReading = previousReadings[roomId]?.water_reading || 0;
+  //     } else if (selectedType === "Electricity Reading") {
+  //       previousReading = previousReadings[roomId]?.electricity_reading || 0;
+  //     }
+
+  //     // Calculate the difference
+  //     const difference = currentReading - previousReading;
+
+  //     newUnitsDifference[roomId] = difference >= 0 ? difference : "N/A"; // Ensure the difference is not negative, or set it to "N/A"
+  //   });
+
+  //   setUnitsDifference(newUnitsDifference);
+  // };
+
   const calculateUnitsDifference = () => {
     const newUnitsDifference = {};
-
-    selectedRooms.forEach((room) => {
+  
+    selectedRooms.forEach((room) => {     
       const roomId = room.RoomBaseDetails.room_id;
-      const currentReading = readingValues[roomId] || 0;
-
-      // Determine the previous reading type based on the selectedType state
-      let previousReading = 0;
-      if (selectedType === "Water Reading") {
-        previousReading = previousReadings[roomId]?.water_reading || 0;
-      } else if (selectedType === "Meter Reading") {
-        previousReading = previousReadings[roomId]?.electricity_reading || 0;
+      const currentReadingInput = readingValues[roomId]; // Get the input value without defaulting to 0
+  
+      // Only proceed if there's an input for the current reading
+      if (currentReadingInput !== undefined && currentReadingInput !== "") {
+        const currentReading = parseFloat(currentReadingInput); // Ensure it's a number
+  
+        let previousReading = 0;
+        let rolloverValue = 0;
+        if (selectedType === "Water Reading") {
+          previousReading = previousReadings[roomId]?.water_reading || 0;
+          rolloverValue = 10000; // Rollover value for water
+        } else if (selectedType === "Meter Reading") {
+          previousReading = previousReadings[roomId]?.electricity_reading || 0;
+          rolloverValue = 1000000; // Rollover value for electricity
+        }
+  
+        // Adjust current reading if it's less than previous (accounting for rollover)
+        let adjustedCurrentReading = currentReading;
+        if (currentReading < previousReading) {
+          adjustedCurrentReading += rolloverValue;
+        }
+  
+        // Calculate the difference with adjusted current reading
+        const difference = adjustedCurrentReading - previousReading;
+  
+        newUnitsDifference[roomId] = difference; // Set the calculated difference
+      } else {
+        // If there's no input, set the units difference to a placeholder or null
+        newUnitsDifference[roomId] = null; // Or use "-" or another placeholder
       }
-
-      // Calculate the difference
-      const difference = currentReading - previousReading;
-
-      newUnitsDifference[roomId] = difference >= 0 ? difference : "N/A"; // Ensure the difference is not negative, or set it to "N/A"
     });
-
+  
     setUnitsDifference(newUnitsDifference);
   };
+  
+  
 
   useEffect(() => {
     calculateUnitsDifference();
+    console.log('readingvalues',readingValues);
   }, [readingValues, previousReadings]);
 
   useEffect(() => {
@@ -811,7 +314,10 @@ export default function BillingDetails() {
       setDialogOpen(true);
     }
   };
+
   const saveReadings = async () => {
+    setIsSaving(true);
+    let localSavedCount = 0;
     setDialogOpen(false);
     const readingPromises = selectedRooms.map(async (room) => {
       const roomId = room.RoomBaseDetails.room_id;
@@ -836,17 +342,27 @@ export default function BillingDetails() {
         [selectedType.toLowerCase().replace(" ", "_")]: readingValue,
       };
 
-      // console.log(`Reading value in save reading function: ${readingValue}`);
-      // console.log(`Payload in save reading function:`, payload);
-
       try {
         await axios.post("http://localhost:3000/addreading", payload);
+        localSavedCount++;
       } catch (error) {
         console.error(`Failed to save reading for room ${roomId}:`, error);
       }
     });
 
     await Promise.all(readingPromises);
+
+    if (localSavedCount > 0) {
+      setSaveCallCount((prevCount) => prevCount + 1);
+      setSaveProgress((saveCallCount + 1) * 33.5);
+
+      if (saveCallCount + 1 === 2) {
+        setSnackbarMessage("All readings have been saved successfully.");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      }
+    }
+    setIsSaving(false);
   };
   const handleOpenGenerateDialog = () => {
     if (!checkAllFieldsFilledAndPositive()) {
@@ -863,6 +379,7 @@ export default function BillingDetails() {
   const handleCloseGenerateDialog = () => {
     setGenerateDialogOpen(false);
   };
+  
   const handleGeneratebilling = async () => {
     setGenerateDialogOpen(false);
     if (!checkAllFieldsFilled()) {
@@ -909,6 +426,7 @@ export default function BillingDetails() {
           },
         }));
         // console.log(`Bill generated for Room ID ${roomId}`, response.data);
+        setSaveProgress(((saveCallCount + 1) /3) * 100);
         setSnackbarSeverity("success");
         setSnackbarMessage("All bills have been successfully generated.");
         setSnackbarOpen(true); // This is crucial
@@ -926,6 +444,37 @@ export default function BillingDetails() {
     }
     setSnackbarOpen(false);
   };
+
+
+
+  // Custom styled LinearProgress
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+  height: 10, // Increase the height of the progress bar here
+  borderRadius: 5,
+  [`&.${linearProgressClasses.colorPrimary}`]: {
+    backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+  },
+  [`& .${linearProgressClasses.bar}`]: {
+    borderRadius: 5,
+    backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
+  },
+}));
+
+function LinearProgressWithLabel(props) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ width: '100%', mr: 1 }}>
+        {/* Use BorderLinearProgress instead of the default LinearProgress */}
+        <BorderLinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(
+          props.value,
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
 
   // console.log('Selected Room',selectedRooms);
   return (
@@ -948,21 +497,22 @@ export default function BillingDetails() {
             <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
               Enter billing details for specific rooms
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpenDialog}
-            >
-              Save All {selectedType}
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpenGenerateDialog}
-              sx={{ ml: 2 }}
-            >
-              Generate All Bills
-            </Button>
+
+            <Box>
+  {saveProgress >= 100 ? (
+    <Button variant="contained" color="primary" disabled>
+      All Steps Completed
+    </Button>
+  ) : saveCallCount === 2 ? (
+    <Button variant="contained" color="primary" onClick={handleOpenGenerateDialog}>
+      Generate All Bills
+    </Button>
+  ) : (
+    <Button variant="contained" color="primary" onClick={handleOpenDialog}>
+      Save {selectedType}
+    </Button>
+  )}
+</Box>
           </CardContent>
 
           <Box
@@ -1009,6 +559,15 @@ export default function BillingDetails() {
             </Box>
           </Box>
         </Card>
+        {/*Progress Bar*/}
+        <Box sx={{ width: "100%", mb: 2 }}>
+          {isSaving ? (
+            <CircularProgress />
+          ) : (
+            <LinearProgressWithLabel value={saveProgress} />
+          )}
+        </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -1017,122 +576,14 @@ export default function BillingDetails() {
             gap: "15px",
           }}
         >
-          {/* <Box>
-            <Card
-              sx={{
-                width: "60%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {selectedRooms.map((room) => {
-                const previousReading =
-                  previousReadings[room.RoomBaseDetails.room_id];
-                return (
-                  <Box
-                    key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`}
-                    sx={{ margin: "10px" }}
-                  >
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
-                      <Typography sx={{ marginBottom: "10px" }} variant="h6">
-                        Room {room.RoomBaseDetails.room_number} - {selectedType}
-                      </Typography>
-                    </Box>
-
-                    {selectedType === "Meter Reading" && (
-                      <Box sx={{ display: "flex", gap: "10px" }}>
-                        <TextField
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          label={`Previous`}
-                          value={previousReading?.electricity_reading || "N/A"}
-                          disabled
-                        />
-                        <TextField
-                          label={`Current`}
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          value={
-                            readingValues[room.RoomBaseDetails.room_id] || ""
-                          }
-                          onChange={(e) =>
-                            handleReadingValueChange(
-                              room.RoomBaseDetails.room_id,
-                              e.target.value
-                            )
-                          }
-                        />
-
-                        <TextField
-                          label="Units Difference"
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          value={
-                            unitsDifference[room.RoomBaseDetails.room_id] ||
-                            "N/A"
-                          }
-                          disabled
-                        />
-                      </Box>
-                    )}
-                    {selectedType === "Water Reading" && (
-                      <Box sx={{ display: "flex", gap: "10px" }}>
-                        <TextField
-                          label={`Previous`}
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          value={previousReading?.water_reading || "N/A"}
-                          disabled
-                        />
-                        <TextField
-                          label={`Current`}
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          value={
-                            readingValues[room.RoomBaseDetails.room_id] || ""
-                          }
-                          onChange={(e) =>
-                            handleReadingValueChange(
-                              room.RoomBaseDetails.room_id,
-                              e.target.value
-                            )
-                          }
-                        />
-
-                        <TextField
-                          label="Units Difference"
-                          type="number"
-                          variant="outlined"
-                          sx={{ width: "33%" }}
-                          value={
-                            unitsDifference[room.RoomBaseDetails.room_id] ||
-                            "N/A"
-                          }
-                          disabled
-                        />
-                      </Box>
-                    )}
-                  </Box>
-                );
-              })}
-            </Card>
-          </Box> */}
           <Box
             sx={{
               display: "flex",
-              flexDirection: "row", // Change from column to row
-              flexWrap: "wrap", // Add wrap to allow cards to wrap to the next line
-              justifyContent: "left", // Center the cards horizontally
-              gap: "5px", // Add some space between the cards
-              // margin:'20px'
-              width: '100%', //
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "left",
+              gap: "5px",
+              width: "100%",
             }}
           >
             {selectedRooms.map((room) => {
@@ -1142,17 +593,19 @@ export default function BillingDetails() {
                 <Card
                   key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`}
                   sx={{
-                    width: "30%", // Adjust width as needed for your layout
+                    flexGrow: 1,
+                    flexBasis: "calc(33.333% - 5px)",
+                    maxWidth: "calc(33.333% - 5px)",
                     display: "flex",
                     flexDirection: "column",
-                    margin: "10px",
                     padding: "10px",
+                    minWidth: 350,
                   }}
                 >
                   <Box
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    <Typography sx={{ marginBottom: "10px" }} variant="h6">
+                    <Typography sx={{ marginBottom: "10px" }} variant="body1">
                       Room {room.RoomBaseDetails.room_number} - {selectedType}
                     </Typography>
                   </Box>
@@ -1184,7 +637,7 @@ export default function BillingDetails() {
                       />
 
                       <TextField
-                        label="Units Difference"
+                        label="Units"
                         type="number"
                         variant="outlined"
                         sx={{ width: "33%" }}
@@ -1222,7 +675,7 @@ export default function BillingDetails() {
                       />
 
                       <TextField
-                        label="Units Difference"
+                        label="Units"
                         type="number"
                         variant="outlined"
                         sx={{ width: "33%" }}
@@ -1288,6 +741,23 @@ export default function BillingDetails() {
         </Dialog>
       </Box>
 
+{/*Navigation Dialog*/}
+{/* <Dialog open={openNavDialog} onClose={handleStay}>
+        <DialogTitle>{"Confirm Navigation"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You have unsaved changes. Are you sure you want to leave?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleStay} color="primary">
+            Stay on page
+          </Button>
+          <Button onClick={handleLeave} color="primary" autoFocus>
+            Leave page
+          </Button>
+        </DialogActions>
+      </Dialog> */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -1310,3 +780,4 @@ export default function BillingDetails() {
     </>
   );
 }
+
