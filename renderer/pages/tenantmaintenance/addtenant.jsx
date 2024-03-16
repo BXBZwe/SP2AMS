@@ -85,6 +85,8 @@ export default function addtenant() {
     tempErrors.province = tenantData.addresses.province ? "" : "Province is required.";
     tempErrors.postal_code = tenantData.addresses.postal_code ? "" : "Postal code is required.";
     tempErrors.sub_district = tenantData.addresses.sub_district ? "" : "Sub district is required.";
+    tempErrors.tenantImage = tenantImage ? "" : "Tenant image is required.";
+    tempErrors.nationalCardImage = nationalCardImage ? "" : "National ID image is required.";
      // Add validation for start date
      if (!startDate || startDate.toString().trim() === "") {
       tempErrors.startDate = "Start date is required";
@@ -102,8 +104,7 @@ export default function addtenant() {
     }
 
     setErrors(tempErrors);
-
-    return isFormValid
+    return isFormValid;
 };
 
 

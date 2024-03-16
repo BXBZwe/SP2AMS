@@ -123,6 +123,12 @@ export default function ContractTable() {
 
   useEffect(() => {
     const applyFilters = () => {
+<<<<<<< HEAD
+      let filteredData = contracts.filter(contract => 
+        (contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) ||
+        contract.room_number.toLowerCase().includes(searchText.toLowerCase())) &&
+        (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true)
+=======
       let filteredData = contracts.filter(
         (contract) =>
           contract.tenant_name
@@ -132,10 +138,11 @@ export default function ContractTable() {
             ? contract.contract_status.toLowerCase() ===
               statusFilter.toLowerCase()
             : true)
+>>>>>>> b8231d4674058e57f994737afccb5a31d53c2b83
       );
       setFilteredContracts(filteredData);
     };
-
+  
     applyFilters();
   }, [searchText, statusFilter, contracts]);
 
@@ -236,6 +243,38 @@ export default function ContractTable() {
               marginBottom: "10px",
             }}
           >
+<<<<<<< HEAD
+      <TextField
+        id="search-bar"
+        label="Search Tenant or Room Number"
+        variant="outlined"
+        fullWidth
+        sx={{  marginRight: "10px", width: "80%"}}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+      />
+      <FormControl sx={{ minWidth: 240 }}>
+        <InputLabel id="status-filter-label">Contract Status</InputLabel>
+        <Select
+          labelId="status-filter-label"
+          id="status-filter"
+          value={statusFilter}
+          label="Contract Status"
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="new">New</MenuItem>
+          <MenuItem value="ongoing">Ongoing</MenuItem>
+          <MenuItem value="due">Due</MenuItem>
+          <MenuItem value="warning">Warning</MenuItem>
+          <MenuItem value="checkout">Checkout</MenuItem>
+          <MenuItem value="terminated">Terminated</MenuItem>
+        </Select>
+      </FormControl>
+      </div>
+        <DataGrid rows={filteredContracts} getRowId={(row) => row.room_number} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} />
+      </CardContent>
+=======
             <TextField
               id="search-bar"
               label="Search Tenant"
@@ -278,6 +317,7 @@ export default function ContractTable() {
             rowHeight={80}
           />
         </CardContent>
+>>>>>>> b8231d4674058e57f994737afccb5a31d53c2b83
       </Card>
       <Dialog
         open={openUpdateDialog}

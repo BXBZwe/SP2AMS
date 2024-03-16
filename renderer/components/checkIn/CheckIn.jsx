@@ -103,6 +103,7 @@ export default function CheckIn() {
         setSnackbarMessage(response.data.message || 'Tenant checked in successfully!');
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
+        resetForm();
       } catch (error) {
         console.error("Check-in failed:", error);
         // Display error Snackbar for missing information
@@ -112,6 +113,10 @@ export default function CheckIn() {
       }
     } else {
       console.error("No room or tenant selected.");
+      // Display error Snackbar for missing room or tenant selection
+      setSnackbarMessage('No room or tenant selected. Please select both and try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -332,7 +337,7 @@ export default function CheckIn() {
                   </Button>
 
                   <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
-                    Add
+                    Check In
                   </Button>
                 </Box>
               </Box>
