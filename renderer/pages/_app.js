@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import Layout from '../layout';
 import { SnackbarProvider } from "../components/snackBar/SnackbarContent";
 import { APIProvider } from "../components/ratemaintenance/apiContent";
+import theme from '../theme';
+import { ThemeProvider } from '@mui/material';
 
 export const AuthContext = createContext({
   isLoggedIn: false,
@@ -35,15 +37,17 @@ function MyApp({ Component, pageProps }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-      <SnackbarProvider>
-        <APIProvider>
-          <AuthWrapper>
-            <Component {...pageProps} />
-          </AuthWrapper>
-        </APIProvider>
-      </SnackbarProvider>
-    </AuthContext.Provider>
+    <ThemeProvider theme={theme}>
+      <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+        <SnackbarProvider>
+          <APIProvider>
+            <AuthWrapper>
+              <Component {...pageProps} />
+            </AuthWrapper>
+          </APIProvider>
+        </SnackbarProvider>
+      </AuthContext.Provider>
+    </ThemeProvider>
   );
 }
 

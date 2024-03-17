@@ -150,26 +150,6 @@ const convertDocxToPdf = (docxBuffer) => {
 const fetchContractDetail = async (req, res) => {
     try {
         logMessage("fetchContractDetail: Fetching contract details.");
-        // const contractDetails = await prisma.tenancy_records.findMany({
-        //     select: {
-        //         move_in_date: true,
-        //         move_out_date: true,
-        //         tenancy_status: true,
-        //         RoomBaseDetails: {
-        //             select: {
-        //                 room_number: true,
-        //             },
-        //         },
-        //         tenants: {
-        //             select: {
-        //                 tenant_id: true,
-        //                 first_name: true,
-        //                 last_name: true,
-        //                 contract_status: true,
-        //             },
-        //         },
-        //     }
-        // });
 
         const contractDetails = await prisma.tenancy_records.findMany({
             where: {
@@ -201,6 +181,12 @@ const fetchContractDetail = async (req, res) => {
         const updatePromises = contractDetails.map(async (detail) => {
             const moveOutDate = detail.move_out_date ? new Date(detail.move_out_date) : null;
             const contractDaysLeft = moveOutDate ? Math.ceil((moveOutDate - currentDate) / (1000 * 60 * 60 * 24)) : null;
+            // if (detail.tenants.contract_status === 'NEW') {
+            //     return {
+            //         ...detail,
+            //         contract_days_left: contractDaysLeft,
+            //     };
+            // }
 
             let newStatus = detail.tenants.contract_status;
 
@@ -296,8 +282,6 @@ const fillDocxTemplate = async (filePath, data, language) => {
     logMessage(`fillDocxTemplate: Starting to fill DOCX template for language: ${language}.`);
 
     try {
-        await updateTenantContractStatus(data.tenant_id);
-        logMessage('fillDocxTemplate: Tenant contract status updated.');
 
         const content = fs.readFileSync(path.resolve(filePath), 'binary');
         const tenantName = `${data.first_name}_${data.last_name}`;
@@ -347,6 +331,8 @@ const fillDocxTemplate = async (filePath, data, language) => {
         try {
             const pdfBuffer = await convertDocxToPdf(buf);
             logMessage(`fillDocxTemplate: PDF conversion successful.`);
+            await updateTenantContractStatus(data.tenant_id);
+            logMessage('fillDocxTemplate: Tenant contract status updated.');
             return pdfBuffer;
         } catch (error) {
             logMessage(`fillDocxTemplate: Error converting DOCX to PDF: ${error.message}`);

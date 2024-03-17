@@ -14,14 +14,14 @@ import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { PhotoCamera } from "@mui/icons-material";
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 export default function addtenant() {
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  const [errorSnackbarMessage, setErrorSnackbarMessage] = useState('');
+  const [errorSnackbarMessage, setErrorSnackbarMessage] = useState("");
   const theme = useTheme();
   const { openSnackbar } = useSnackbarContext();
   const paymentOptions = ["EMAIL", "PAPER", "BOTH"];
@@ -29,12 +29,15 @@ export default function addtenant() {
   const router = useRouter();
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
   const [startDate, setStartDate] = useState(dayjs());
-  const [endDate, setEndDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs().add(5, "year"));
 
   const [tenantData, setTenantData] = useState({
     first_name: "",
     last_name: "",
     personal_id: "",
+    gender: "",
+    // issue_date: dayjs(),
+    // expiration_date: dayjs().add(5, "year"),
     invoice_option: "",
     addresses: {
       addressnumber: "",
@@ -87,26 +90,25 @@ export default function addtenant() {
     tempErrors.sub_district = tenantData.addresses.sub_district ? "" : "Sub district is required.";
     tempErrors.tenantImage = tenantImage ? "" : "Tenant image is required.";
     tempErrors.nationalCardImage = nationalCardImage ? "" : "National ID image is required.";
-     // Add validation for start date
-     if (!startDate || startDate.toString().trim() === "") {
+    // Add validation for start date
+    if (!startDate || startDate.toString().trim() === "") {
       tempErrors.startDate = "Start date is required";
     }
 
     // Add validation for end date
     if (!endDate || endDate.toString().trim() === "") {
       tempErrors.endDate = "End date is required";
-    } 
-    let isFormValid = Object.values(tempErrors).every(x => x === "");
+    }
+    let isFormValid = Object.values(tempErrors).every((x) => x === "");
 
     if (!isFormValid) {
-      setErrorSnackbarMessage('Please correct the errors before submitting.');
+      setErrorSnackbarMessage("Please correct the errors before submitting.");
       setErrorSnackbarOpen(true);
     }
 
     setErrors(tempErrors);
     return isFormValid;
-};
-
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -129,12 +131,10 @@ export default function addtenant() {
     event.preventDefault();
     const isValid = validateForm();
     if (!isValid) {
-      
       return;
     }
     setOpenDialog(true);
   };
-  
 
   const handleConfirmAdd = async (e) => {
     e.preventDefault();
@@ -152,6 +152,9 @@ export default function addtenant() {
         formdata.append(key, value);
       }
     });
+
+    formdata.append("issue_date", startDate.toDate());
+    formdata.append("expiration_date", endDate.toDate());
 
     if (tenantImage) formdata.append("tenant_image", tenantImage);
     if (nationalCardImage) formdata.append("nationalcard_image", nationalCardImage);
@@ -204,7 +207,6 @@ export default function addtenant() {
           </Typography>
         </CardContent>
         <CardContent>
-          
           <Button type="submit" variant="contained" sx={{ width: "110px", marginTop: "15px" }} component="a" onClick={handleSubmit} disabled={loading}>
             {loading ? "Adding..." : "Add"}
           </Button>
@@ -220,7 +222,7 @@ export default function addtenant() {
             <TextField id="first_name" name="first_name" label="First Name" value={tenantData.first_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} error={!!errors.first_name} helperText={errors.first_name} />
             <TextField id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} variant="outlined" onChange={handleChange} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} error={!!errors.last_name} helperText={errors.last_name} />
 
-            <RadioGroup aria-labelledby="demo-radio-buttons-group-label" defaultValue="Male" name="radio-buttons-group" sx={{ display: "inline", marginLeft: 2 }}>
+            <RadioGroup row aria-label="gender" name="gender" value={tenantData.gender} onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })}>
               <FormControlLabel value="Male" control={<Radio />} label="Male" />
               <FormControlLabel value="Female" control={<Radio />} label="Female" />
             </RadioGroup>
@@ -242,110 +244,31 @@ export default function addtenant() {
                 setTenantData({ ...tenantData, invoice_option: newValue });
               }}
               sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}
-
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  error={!!errors.invoice_option}
-                  helperText={errors.invoice_option}
-                  label="Invoice Option"
-                />
-              )}
+              renderInput={(params) => <TextField {...params} error={!!errors.invoice_option} helperText={errors.invoice_option} label="Invoice Option" />}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Issue Date"
-                value={startDate}
-                onChange={setStartDate}
-                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate || ''} />}
-                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
-              />
-              <DatePicker
-                label="Expiration Date"
-                value={endDate}
-                onChange={setEndDate}
-                renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate || ''} />}
-                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }}
-              />
+              <DatePicker label="Issue Date" value={startDate} onChange={(newValue) => setStartDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />} />
+
+              <DatePicker label="Expiration Date" value={endDate} onChange={(newValue) => setEndDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />} />
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <div style={{ marginBottom: '1.5rem' }}>
-            <TextField
-              id="addressnumber"
-              name="addresses.addressnumber"
-              label="No."
-              variant="outlined"
-              value={tenantData.addressnumber}
-              onChange={handleChange}
-              sx={{ width: 270, marginRight: 0.5 }}
-              error={!!errors.addressnumber}
-              helperText={errors.addressnumber}
-            />
+            <div style={{ marginBottom: "1.5rem" }}>
+              <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
 
-            <TextField
-              id="street"
-              name="addresses.street"
-              label="Street"
-              variant="outlined"
-              value={tenantData.street}
-              onChange={handleChange}
-              sx={{ width: 270 }}
-              error={!!errors.street}
-              helperText={errors.street}
-            />
-          </div>
+              <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270 }} error={!!errors.street} helperText={errors.street} />
+            </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <TextField
-              id="district"
-              name="addresses.district"
-              label="District"
-              variant="outlined"
-              value={tenantData.district}
-              onChange={handleChange}
-              sx={{ width: 270, marginRight: 0.5 }}
-              error={!!errors.district}
-              helperText={errors.district}
-            />
+            <div style={{ marginBottom: "1.5rem" }}>
+              <TextField id="district" name="addresses.district" label="District" variant="outlined" value={tenantData.district} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.district} helperText={errors.district} />
 
-            <TextField
-              id="sub_district"
-              name="addresses.sub_district"
-              label="Sub District"
-              variant="outlined"
-              value={tenantData.sub_district}
-              onChange={handleChange}
-              sx={{ width: 270 }}
-              error={!!errors.sub_district}
-              helperText={errors.sub_district}
-            />
-          </div>
+              <TextField id="sub_district" name="addresses.sub_district" label="Sub District" variant="outlined" value={tenantData.sub_district} onChange={handleChange} sx={{ width: 270 }} error={!!errors.sub_district} helperText={errors.sub_district} />
+            </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <TextField
-              id="province"
-              name="addresses.province"
-              label="Province"
-              variant="outlined"
-              value={tenantData.province}
-              onChange={handleChange}
-              sx={{ width: 270, marginRight: 0.5 }}
-              error={!!errors.province}
-              helperText={errors.province}
-            />
+            <div style={{ marginBottom: "1.5rem" }}>
+              <TextField id="province" name="addresses.province" label="Province" variant="outlined" value={tenantData.province} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.province} helperText={errors.province} />
 
-            <TextField
-              id="postal_code"
-              name="addresses.postal_code"
-              label="Postal Code"
-              variant="outlined"
-              value={tenantData.postal_code}
-              onChange={handleChange}
-              sx={{ width: 270 }}
-              error={!!errors.postal_code}
-              helperText={errors.postal_code}
-            />
-          </div> 
+              <TextField id="postal_code" name="addresses.postal_code" label="Postal Code" variant="outlined" value={tenantData.postal_code} onChange={handleChange} sx={{ width: 270 }} error={!!errors.postal_code} helperText={errors.postal_code} />
+            </div>
           </CardContent>
           <Box sx={{ marginBottom: 2, marginLeft: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
@@ -358,83 +281,83 @@ export default function addtenant() {
           </Box>
         </Card>
         <Box sx={{ display: "flex", flexDirection: "column", height: "90%" }}>
-  <Card
-    sx={{
-      display: "inline-block",
-      width: "28vw",
-      marginLeft: 2,
-      marginBottom: "10px",
-      height: "auto",
-    }}
-  >
-    <CardContent sx={{ textAlign: "center" }}>
-      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
-      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
-      {/* Display uploaded tenant image with fixed size */}
-      {tenantImage && (
-        <img 
-          src={URL.createObjectURL(tenantImage)} 
-          alt="Tenant" 
-          style={{ 
-            width: "200px", // Fixed width
-            height: "200px", // Fixed height
-            objectFit: "contain", // Keep aspect ratio
-            marginTop: "10px"
-          }} 
-        />
-      )}
-      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
-        {/* Hidden input for tenant image */}
-        <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
-        {/* Label that acts as a button */}
-        <label htmlFor="tenant-image-upload">
-          <Fab color="secondary" component="span" aria-label="add">
-            <PhotoCamera />
-          </Fab>
-        </label>
-      </Box>
-    </CardContent>
-  </Card>
+          <Card
+            sx={{
+              display: "inline-block",
+              width: "28vw",
+              marginLeft: 2,
+              marginBottom: "10px",
+              height: "auto",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
+              <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>Tenant Image</Typography>
+              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a picture of tenant</Typography>
+              {/* Display uploaded tenant image with fixed size */}
+              {tenantImage && (
+                <img
+                  src={URL.createObjectURL(tenantImage)}
+                  alt="Tenant"
+                  style={{
+                    width: "200px", // Fixed width
+                    height: "200px", // Fixed height
+                    objectFit: "contain", // Keep aspect ratio
+                    marginTop: "10px",
+                  }}
+                />
+              )}
+              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
+                {/* Hidden input for tenant image */}
+                <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
+                {/* Label that acts as a button */}
+                <label htmlFor="tenant-image-upload">
+                  <Fab color="secondary" component="span" aria-label="add">
+                    <PhotoCamera />
+                  </Fab>
+                </label>
+              </Box>
+            </CardContent>
+          </Card>
 
-  {/* National ID Image Upload */}
-  <Card
-    sx={{
-      display: "inline-block",
-      width: "28vw",
-      marginLeft: 2,
-      marginBottom: "10px",
-      height: "auto",
-    }}
-  >
-    <CardContent sx={{ textAlign: "center" }}>
-      <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
-      <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
-      {/* Display uploaded national ID image with fixed size */}
-      {nationalCardImage && (
-        <img 
-          src={URL.createObjectURL(nationalCardImage)} 
-          alt="National ID" 
-          style={{ 
-            width: "200px", // Fixed width
-            height: "200px", // Fixed height
-            objectFit: "contain", // Keep aspect ratio
-            marginTop: "10px"
-          }} 
-        />
-      )}
-      <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
-        {/* Hidden input for national ID image */}
-        <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
-        {/* Label that acts as a button */}
-        <label htmlFor="national-id-image-upload">
-          <Fab color="secondary" component="span" aria-label="add">
-            <PhotoCamera />
-          </Fab>
-        </label>
-      </Box>
-    </CardContent>
-  </Card>
-</Box>
+          {/* National ID Image Upload */}
+          <Card
+            sx={{
+              display: "inline-block",
+              width: "28vw",
+              marginLeft: 2,
+              marginBottom: "10px",
+              height: "auto",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
+              <Typography sx={{ textAlign: "center", marginBottom: 0.3, fontWeight: "bold", fontSize: "19px" }}>National Thai Citizen ID or Passport</Typography>
+              <Typography sx={{ textAlign: "center", margin: 0, opacity: "50%" }}>Attach a copy of the tenant Identification</Typography>
+              {/* Display uploaded national ID image with fixed size */}
+              {nationalCardImage && (
+                <img
+                  src={URL.createObjectURL(nationalCardImage)}
+                  alt="National ID"
+                  style={{
+                    width: "200px", // Fixed width
+                    height: "200px", // Fixed height
+                    objectFit: "contain", // Keep aspect ratio
+                    marginTop: "10px",
+                  }}
+                />
+              )}
+              <Box sx={{ "& > :not(style)": { m: 1 }, marginTop: 5 }}>
+                {/* Hidden input for national ID image */}
+                <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
+                {/* Label that acts as a button */}
+                <label htmlFor="national-id-image-upload">
+                  <Fab color="secondary" component="span" aria-label="add">
+                    <PhotoCamera />
+                  </Fab>
+                </label>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
 
         <Dialog fullScreen={fullScreen} open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>{`Add Tenant ${tenantData.first_name} - ${tenantData.last_name}`}</DialogTitle>
@@ -456,12 +379,11 @@ export default function addtenant() {
           </DialogActions>
         </Dialog>
       </Box>
-      <Snackbar open={errorSnackbarOpen} autoHideDuration={6000} onClose={() => setErrorSnackbarOpen(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-          <Alert onClose={() => setErrorSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
-              {errorSnackbarMessage}
-          </Alert>
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={6000} onClose={() => setErrorSnackbarOpen(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <Alert onClose={() => setErrorSnackbarOpen(false)} severity="error" sx={{ width: "100%" }}>
+          {errorSnackbarMessage}
+        </Alert>
       </Snackbar>
-
     </>
   );
 }

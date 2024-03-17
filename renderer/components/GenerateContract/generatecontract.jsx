@@ -1,24 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Snackbar,
-  Dialog,
-  TextField,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Button, Card, CardContent, IconButton, Snackbar, Dialog, TextField, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import Link from "next/link";
 import CircularProgress from "@mui/material/CircularProgress";
 import MuiAlert from "@mui/material/Alert";
@@ -66,15 +48,14 @@ export default function ContractTable() {
             break;
           default:
             color = "inherit";
+            break;
         }
 
         const handleClick = () => {
           setSelectedTenantId(params.row.id);
           if (params.value.toLowerCase() === "new") {
             setOpenDialog(true);
-          } else if (
-            ["ongoing", "due", "warning"].includes(params.value.toLowerCase())
-          ) {
+          } else if (["ongoing", "due", "warning"].includes(params.value.toLowerCase())) {
             setOpenUpdateDialog(true);
           }
         };
@@ -96,9 +77,7 @@ export default function ContractTable() {
   useEffect(() => {
     const fetchContractData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/getcontractdetails"
-        );
+        const response = await axios.get("http://localhost:3000/getcontractdetails");
         console.log("contract data: ", response.data);
         const data = response.data.map((contract) => {
           return {
@@ -106,10 +85,7 @@ export default function ContractTable() {
             room_number: contract.RoomBaseDetails.room_number,
             tenant_name: `${contract.tenants.first_name} ${contract.tenants.last_name}`,
             contract_status: contract.tenants.contract_status,
-            contract_days_left:
-              contract.contract_days_left !== null
-                ? contract.contract_days_left
-                : "-",
+            contract_days_left: contract.contract_days_left !== null ? contract.contract_days_left : "-",
           };
         });
         setContracts(data);
@@ -123,26 +99,10 @@ export default function ContractTable() {
 
   useEffect(() => {
     const applyFilters = () => {
-<<<<<<< HEAD
-      let filteredData = contracts.filter(contract => 
-        (contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) ||
-        contract.room_number.toLowerCase().includes(searchText.toLowerCase())) &&
-        (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true)
-=======
-      let filteredData = contracts.filter(
-        (contract) =>
-          contract.tenant_name
-            .toLowerCase()
-            .includes(searchText.toLowerCase()) &&
-          (statusFilter
-            ? contract.contract_status.toLowerCase() ===
-              statusFilter.toLowerCase()
-            : true)
->>>>>>> b8231d4674058e57f994737afccb5a31d53c2b83
-      );
+      let filteredData = contracts.filter((contract) => contract.tenant_name.toLowerCase().includes(searchText.toLowerCase()) && (statusFilter ? contract.contract_status.toLowerCase() === statusFilter.toLowerCase() : true));
       setFilteredContracts(filteredData);
     };
-  
+
     applyFilters();
   }, [searchText, statusFilter, contracts]);
 
@@ -152,12 +112,9 @@ export default function ContractTable() {
     setDocumentLoading(true);
 
     try {
-      const response = await axios.get(
-        `http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`, {
+        responseType: "blob",
+      });
 
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -172,18 +129,13 @@ export default function ContractTable() {
   const fetchContractData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        "http://localhost:3000/getcontractdetails"
-      );
+      const response = await axios.get("http://localhost:3000/getcontractdetails");
       const data = response.data.map((contract) => ({
         id: contract.tenants.tenant_id,
         room_number: contract.RoomBaseDetails.room_number,
         tenant_name: `${contract.tenants.first_name} ${contract.tenants.last_name}`,
         contract_status: contract.tenants.contract_status,
-        contract_days_left:
-          contract.contract_days_left !== null
-            ? contract.contract_days_left
-            : "-",
+        contract_days_left: contract.contract_days_left !== null ? contract.contract_days_left : "-",
       }));
       setContracts(data);
     } catch (error) {
@@ -200,12 +152,9 @@ export default function ContractTable() {
   const handleUpdatePeriodOfStay = async () => {
     setLoading(true);
     try {
-      await axios.put(
-        `http://localhost:3000/updatePeriodOfStay/${selectedTenantId}`,
-        {
-          newPeriod: updatedPeriodOfStay,
-        }
-      );
+      await axios.put(`http://localhost:3000/updatePeriodOfStay/${selectedTenantId}`, {
+        newPeriod: updatedPeriodOfStay,
+      });
       await fetchContractData();
       setOpenUpdateDialog(false);
       // console.log('Update Clicked',contracts)
@@ -243,56 +192,10 @@ export default function ContractTable() {
               marginBottom: "10px",
             }}
           >
-<<<<<<< HEAD
-      <TextField
-        id="search-bar"
-        label="Search Tenant or Room Number"
-        variant="outlined"
-        fullWidth
-        sx={{  marginRight: "10px", width: "80%"}}
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-      />
-      <FormControl sx={{ minWidth: 240 }}>
-        <InputLabel id="status-filter-label">Contract Status</InputLabel>
-        <Select
-          labelId="status-filter-label"
-          id="status-filter"
-          value={statusFilter}
-          label="Contract Status"
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="new">New</MenuItem>
-          <MenuItem value="ongoing">Ongoing</MenuItem>
-          <MenuItem value="due">Due</MenuItem>
-          <MenuItem value="warning">Warning</MenuItem>
-          <MenuItem value="checkout">Checkout</MenuItem>
-          <MenuItem value="terminated">Terminated</MenuItem>
-        </Select>
-      </FormControl>
-      </div>
-        <DataGrid rows={filteredContracts} getRowId={(row) => row.room_number} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} />
-      </CardContent>
-=======
-            <TextField
-              id="search-bar"
-              label="Search Tenant"
-              variant="outlined"
-              fullWidth
-              sx={{ marginRight: "10px", width: "80%" }}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
+            <TextField id="search-bar" label="Search Tenant" variant="outlined" fullWidth sx={{ marginRight: "10px", width: "80%" }} value={searchText} onChange={(e) => setSearchText(e.target.value)} />
             <FormControl sx={{ minWidth: 240 }}>
               <InputLabel id="status-filter-label">Contract Status</InputLabel>
-              <Select
-                labelId="status-filter-label"
-                id="status-filter"
-                value={statusFilter}
-                label="Contract Status"
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
+              <Select labelId="status-filter-label" id="status-filter" value={statusFilter} label="Contract Status" onChange={(e) => setStatusFilter(e.target.value)}>
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="new">New</MenuItem>
                 <MenuItem value="ongoing">Ongoing</MenuItem>
@@ -317,13 +220,8 @@ export default function ContractTable() {
             rowHeight={80}
           />
         </CardContent>
->>>>>>> b8231d4674058e57f994737afccb5a31d53c2b83
       </Card>
-      <Dialog
-        open={openUpdateDialog}
-        onClose={() => setOpenUpdateDialog(false)}
-        fullWidth
-      >
+      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)} fullWidth>
         <Box
           sx={{
             display: "flex",
@@ -333,31 +231,14 @@ export default function ContractTable() {
           }}
         >
           <DialogTitle>Contract Options</DialogTitle>
-          <IconButton
-            sx={{ paddingRight: "10px" }}
-            onClick={() => setOpenUpdateDialog(false)}
-          >
+          <IconButton sx={{ paddingRight: "10px" }} onClick={() => setOpenUpdateDialog(false)}>
             <CloseIcon />
           </IconButton>
         </Box>
 
         <DialogContent>
-          <DialogContentText>
-            Please update the period of stay (if necessary) before generating
-            the contract document.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="periodOfStay"
-            label="Period of Stay (months)"
-            type="number"
-            fullWidth
-            variant="standard"
-            value={updatedPeriodOfStay}
-            onChange={(e) => setUpdatedPeriodOfStay(e.target.value)}
-            disabled={loading}
-          />
+          <DialogContentText>Please update the period of stay (if necessary) before generating the contract document.</DialogContentText>
+          <TextField autoFocus margin="dense" id="periodOfStay" label="Period of Stay (months)" type="number" fullWidth variant="standard" value={updatedPeriodOfStay} onChange={(e) => setUpdatedPeriodOfStay(e.target.value)} disabled={loading} />
         </DialogContent>
         <DialogActions>
           <Box
@@ -374,22 +255,14 @@ export default function ContractTable() {
                 <CircularProgress size={24} />
               ) : (
                 <>
-                  <Button onClick={() => handleGenerateDocument("english")}>
-                    English Contract
-                  </Button>
-                  <Button onClick={() => handleGenerateDocument("thai")}>
-                    Thai Contract
-                  </Button>
+                  <Button onClick={() => handleGenerateDocument("english")}>English Contract</Button>
+                  <Button onClick={() => handleGenerateDocument("thai")}>Thai Contract</Button>
                 </>
               )}
             </Box>
 
             <Box>
-              <Button
-                variant="outlined"
-                onClick={handleUpdatePeriodOfStay}
-                disabled={loading}
-              >
+              <Button variant="outlined" onClick={handleUpdatePeriodOfStay} disabled={loading}>
                 Update
               </Button>
             </Box>
