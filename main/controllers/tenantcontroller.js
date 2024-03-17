@@ -150,6 +150,8 @@ const updatetenant = async (req, res) => {
 
         const newTenantImagePath = req.files['tenant_image'] ? req.files['tenant_image'][0].path : currentTenant.tenant_image;
         const newNationalCardImagePath = req.files['nationalcard_image'] ? req.files['nationalcard_image'][0].path : currentTenant.nationalcard_image;
+        const issueDate = req.body.issue_date ? new Date(req.body.issue_date) : undefined;
+        const expirationDate = req.body.expiration_date ? new Date(req.body.expiration_date) : undefined;
 
         const updatedTenant = await prisma.tenants.update({
             where: { tenant_id: parseInt(tenant_id) },
@@ -157,6 +159,9 @@ const updatetenant = async (req, res) => {
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
+                gender: req.body.gender,
+                issue_date: issueDate,
+                expiration_date: expirationDate,
                 invoice_option: req.body.invoice_option,
                 account_status: req.body.account_status,
                 tenant_image: newTenantImagePath,
