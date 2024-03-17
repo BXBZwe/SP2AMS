@@ -181,12 +181,12 @@ const fetchContractDetail = async (req, res) => {
         const updatePromises = contractDetails.map(async (detail) => {
             const moveOutDate = detail.move_out_date ? new Date(detail.move_out_date) : null;
             const contractDaysLeft = moveOutDate ? Math.ceil((moveOutDate - currentDate) / (1000 * 60 * 60 * 24)) : null;
-            // if (detail.tenants.contract_status === 'NEW') {
-            //     return {
-            //         ...detail,
-            //         contract_days_left: contractDaysLeft,
-            //     };
-            // }
+            if (detail.tenants.contract_status === 'NEW') {
+                return {
+                    ...detail,
+                    contract_days_left: contractDaysLeft,
+                };
+            }
 
             let newStatus = detail.tenants.contract_status;
 
