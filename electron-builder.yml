@@ -1,9 +1,10 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: com.example.sp2ams
+productName: PS Park
+copyright: Copyright © 2024 Zwe Min Maw
 directories:
   output: dist
   buildResources: resources
+icon: "C:\\Users\\Zwe Min Maw\\SP2AMS\\resources\\psparkicon.ico"
 files:
   - from: .
     filter:
