@@ -59,10 +59,10 @@ export default function CheckOut() {
         tenant_id: tenantDetails.tenant_id,
       });
       console.log(response.data.message);
-      // alert("Checkout successful!");
       setSnackbarMessage(response.data.message || 'Tenant checked out successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
+      resetForm(); // Clear all text fields after successful checkout
     } catch (error) {
       console.error("Checkout failed:", error);
       setSnackbarMessage('No room or tenant selected. Please select both and try again.');
@@ -332,7 +332,7 @@ export default function CheckOut() {
                   </Button>
 
                   <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
-                    Add
+                    Check Out
                   </Button>
                 </Box>
               </Box>

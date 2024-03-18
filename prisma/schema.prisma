@@ -162,7 +162,10 @@ model tenants {
   first_name             String            @db.VarChar(100)
   last_name              String            @db.VarChar(100)
   personal_id            String            @unique @db.VarChar(255)
-  contract_status        ContractStatus    @default(NEW)
+  contract_status        ContractStatus?    
+  gender                 String            @db.VarChar(10)
+  issue_date             DateTime
+  expiration_date        DateTime
   invoice_option         InvoiceOption     @default(EMAIL)
   account_status         AccountStatus     @default(ACTIVE)
   tenant_image           String            @db.VarChar(255)

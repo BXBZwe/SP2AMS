@@ -16,8 +16,9 @@ import { InputAdornment, IconButton } from "@mui/material/";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useRouter } from "next/router";
+import theme from "../theme";
 
-const defaultTheme = createTheme();
+// const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -55,7 +56,7 @@ export default function SignIn() {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box

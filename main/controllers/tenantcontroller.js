@@ -64,13 +64,18 @@ const addnewtenant = async (req, res) => {
     try {
         const addressesObject = JSON.parse(req.body.addresses);
         const contactsObject = JSON.parse(req.body.contacts);
+        const issueDate = new Date(req.body.issue_date);
+        const expirationDate = new Date(req.body.expiration_date);
 
         const newTenant = await prisma.tenants.create({
             data: {
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
-                contract_status: 'NEW',
+                gender: req.body.gender,
+                issue_date: issueDate,
+                expiration_date: expirationDate,
+                // contract_status: '',
                 account_status: 'ACTIVE',
                 invoice_option: req.body.invoice_option,
                 tenant_image: tenant_image,
@@ -132,11 +137,6 @@ const deletetenant = async (req, res) => {
 const updatetenant = async (req, res) => {
 
     const { tenant_id } = req.params;
-    // console.log("Update address", req.body.addresses);
-    // console.log("Address street:", req.body.addresses.street);
-    // console.log("Address Number:", req.body.addresses.addressnumber); 
-
-    // console.log("Update contact", req.body.contacts);
 
     try {
 
@@ -150,6 +150,8 @@ const updatetenant = async (req, res) => {
 
         const newTenantImagePath = req.files['tenant_image'] ? req.files['tenant_image'][0].path : currentTenant.tenant_image;
         const newNationalCardImagePath = req.files['nationalcard_image'] ? req.files['nationalcard_image'][0].path : currentTenant.nationalcard_image;
+        const issueDate = req.body.issue_date ? new Date(req.body.issue_date) : undefined;
+        const expirationDate = req.body.expiration_date ? new Date(req.body.expiration_date) : undefined;
 
         const updatedTenant = await prisma.tenants.update({
             where: { tenant_id: parseInt(tenant_id) },
@@ -157,6 +159,9 @@ const updatetenant = async (req, res) => {
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
                 personal_id: req.body.personal_id,
+                gender: req.body.gender,
+                issue_date: issueDate,
+                expiration_date: expirationDate,
                 invoice_option: req.body.invoice_option,
                 account_status: req.body.account_status,
                 tenant_image: newTenantImagePath,

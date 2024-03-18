@@ -117,17 +117,17 @@ export default function GenerateBill() {
 
   const handleGenerateButtonClick = async () => {
     setGenerateButtonClicked(true);
-
+  
     if (selectedRoomList.length === 0 || billingDate === null) {
       setSnackbarSeverity("error");
       setSnackbarMessage("Please select at least one room and fill in the generation date.");
       setSnackbarOpen(true);
       return;
     }
-
+  
     const rentMonth = selectedMonth;
     const rentYear = parseInt(year, 10);
-
+  
     try {
       await Promise.all(
         selectedRoomList.map(async (room) => {
@@ -137,15 +137,15 @@ export default function GenerateBill() {
             room_id: room.room_id,
             rent_year: rentYear,
           };
-
+  
           await axios.post("http://localhost:3000/creategeneratebill", postData);
         })
       );
-
+  
       setSnackbarSeverity("success");
       setSnackbarMessage("Bills generated successfully for selected rooms.");
       setSnackbarOpen(true);
-      resetForm();
+      resetForm(); // Reset the form after successful generation
     } catch (error) {
       console.error("Error generating bills:", error);
       setSnackbarSeverity("error");
@@ -165,6 +165,8 @@ export default function GenerateBill() {
     setSnackbarOpen(false);
   };
   const resetForm = () => {
+    setSelectedRoomList([]);
+    setAddAllChecked(false);
     setBillingDate(null);
     setSelectedMonth("");
     setYear("");
