@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
@@ -27,7 +41,12 @@ export default function PaymentTable() {
       field: "checkbox",
       headerName: "",
       width: 200,
-      renderCell: (params) => <Checkbox checked={selectedRows.includes(params.id)} onChange={() => handleRowSelectionToggle(params.id)} />,
+      renderCell: (params) => (
+        <Checkbox
+          checked={selectedRows.includes(params.id)}
+          onChange={() => handleRowSelectionToggle(params.id)}
+        />
+      ),
     },
   ];
   const fetchPaymentsdetails = async () => {
@@ -35,15 +54,22 @@ export default function PaymentTable() {
 
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/getpaymentdetails", {
-        params: {
-          generationDate: selectedGenerationDate,
-        },
-      });
+      const response = await axios.get(
+        "http://localhost:3000/getpaymentdetails",
+        {
+          params: {
+            generationDate: selectedGenerationDate,
+          },
+        }
+      );
       if (response.data && Array.isArray(response.data.paymentDetails)) {
         setPayments(response.data.paymentDetails);
+        console.log("Responmse",response.data)
       } else {
-        console.error("Payment details response is not an array:", response.data);
+        console.error(
+          "Payment details response is not an array:",
+          response.data
+        );
         setPayments([]);
       }
     } catch (error) {
@@ -100,7 +126,11 @@ export default function PaymentTable() {
 
     if (roomIds.length > 0) {
       try {
-        const response = await axios.post("http://localhost:3000/generate-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
+        const response = await axios.post(
+          "http://localhost:3000/generate-pdf-multiple",
+          { room_ids: roomIds },
+          { responseType: "blob" }
+        );
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
         const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -126,12 +156,20 @@ export default function PaymentTable() {
 
   const fetchGenerationDates = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getgenerationdate");
+      const response = await axios.get(
+        "http://localhost:3000/getgenerationdate"
+      );
       if (response.data && Array.isArray(response.data.dates)) {
         setGenerationDates(response.data.dates);
+        const sortedDates = [...response.data.dates].sort((a, b) => new Date(b) - new Date(a));
+        setGenerationDates(sortedDates); // Update the state with sorted dates
+        setSelectedGenerationDate(sortedDates[0]); // Set the latest date as default
       } else {
-        console.error("Generation dates response is not an array:", response.data);
-        setGenerationDates([]);
+        console.error(
+          "Generation dates response is not an array:",
+          response.data
+        );
+        // setGenerationDates([]);
       }
     } catch (error) {
       console.error("Failed to fetch generation dates:", error);
@@ -189,9 +227,16 @@ export default function PaymentTable() {
           subject: "Your Monthly Bill",
           message: "Please find your bill details attached.",
         });
-        console.log("Email sent successfully for room:", paymentDetail.room_number);
+        console.log(
+          "Email sent successfully for room:",
+          paymentDetail.room_number
+        );
       } catch (error) {
-        console.error("Failed to send email for room:", paymentDetail.room_number, error);
+        console.error(
+          "Failed to send email for room:",
+          paymentDetail.room_number,
+          error
+        );
       }
     }
   };
@@ -200,6 +245,7 @@ export default function PaymentTable() {
     setOpenDialog(true);
   };
 
+  console.log('Payments',payments)
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
@@ -216,10 +262,21 @@ export default function PaymentTable() {
             <Typography variant="body2" sx={{ opacity: 0.7, marginBottom: 1 }}>
               Send an E-payment slip or print a pdf
             </Typography>
-            <Button variant="contained" color="primary" onClick={handleOpenDialog} disabled={selectedRows.length === 0 || loading}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenDialog}
+              disabled={selectedRows.length === 0 || loading}
+            >
               Send Emails
             </Button>
-            <Button variant="contained" color="primary" onClick={handleOpenPdfDialog} disabled={selectedRows.length === 0 || loading} sx={{ ml: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenPdfDialog}
+              disabled={selectedRows.length === 0 || loading}
+              sx={{ ml: 2 }}
+            >
               Generate PDF
             </Button>
           </Box>
@@ -228,10 +285,11 @@ export default function PaymentTable() {
             {" "}
             <FormControl fullWidth variant="outlined">
               <InputLabel>Select Generation Date</InputLabel>
-              <Select value={selectedGenerationDate} onChange={handleGenerationDateChange} label="Select Generation Date">
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
+              <Select
+                value={selectedGenerationDate}
+                onChange={handleGenerationDateChange}
+                label="Select Generation Date"
+              >
                 {generationDates.map((date, index) => (
                   <MenuItem key={index} value={date}>
                     {new Date(date).toLocaleDateString()}
@@ -243,37 +301,88 @@ export default function PaymentTable() {
         </CardContent>
       </Card>
       <Card sx={{ marginTop: "10px" }}>
-        <DataGrid rows={payments} getRowId={(row) => row.id} columns={columns} pageSize={5} pageSizeOptions={[5, 10]} onSelectionModelChange={handleRowSelection} selectionModel={selectedRows} />
+        <DataGrid
+          rows={payments}
+          getRowId={(row) => row.id}
+          columns={columns}
+          pageSize={5}
+          pageSizeOptions={[5, 10]}
+          onSelectionModelChange={handleRowSelection}
+          selectionModel={selectedRows}
+          sx={{
+            "& .MuiDataGrid-main": { maxHeight: "70vh" },
+          }}
+          autoHeight
+          density="compact"
+          rowHeight={80}
+        />
       </Card>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="dialog-title"
+      >
         <DialogTitle id="dialog-title" sx={{ textAlign: "center" }}>
           Choose Your Option
         </DialogTitle>
         <DialogActions>
-          <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleSendEmailAndClose}
+            color="primary"
+          >
             Payment
           </Button>
-          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+          >
             Receipt
           </Button>
-          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openPdfDialog} onClose={() => setOpenPdfDialog(false)} aria-labelledby="pdf-dialog-title">
+      <Dialog
+        open={openPdfDialog}
+        onClose={() => setOpenPdfDialog(false)}
+        aria-labelledby="pdf-dialog-title"
+      >
         <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
         <DialogActions sx={{ justifyContent: "center" }}>
-          <Button variant="contained" onClick={handleGeneratePdfAndClose} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleGeneratePdfAndClose}
+            color="primary"
+          >
             Generate PDF
           </Button>
-          <Button variant="contained" onClick={() => setOpenPdfDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenPdfDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: "100%" }}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           Email sent successfully!
         </Alert>
       </Snackbar>

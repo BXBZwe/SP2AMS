@@ -31,7 +31,8 @@ const getPaymentDetails = async (req, res) => {
                 tenant_name: `${tenant.first_name} ${tenant.last_name}`,
                 total_bill: bill ? bill.total_amount : 'N/A',
                 payment_status: record.payment_status,
-                id: record.bill_record_id
+                id: record.bill_record_id,
+                invoice_option: tenant.invoice_option
             };
         });
 
