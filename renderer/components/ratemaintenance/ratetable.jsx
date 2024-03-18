@@ -34,14 +34,14 @@ export default function RateTable() {
   };
 
   const columns = [
-    { field: "item_name", headerName: "Item Name", width: '250' },
-    { field: "item_price", headerName: "Item Price", width: '250' },
-    { field: "item_description", headerName: "Item Description", width: '250' },
-    { field: "last_updated", headerName: "Last Updated", width: '250' ,valueFormatter: (params) => formatDate(params.value),},
+    { field: "item_name", headerName: "Item Name", flex: 0.2 },
+    { field: "item_price", headerName: "Item Price", flex:0.2 },
+    { field: "item_description", headerName: "Item Description", flex:0.2 },
+    { field: "last_updated", headerName: "Last Updated", flex:0.2 ,valueFormatter: (params) => formatDate(params.value),},
     {
       field: "actions",
       headerName: "Actions",
-      width: '200',
+      flex:0.2,
       renderCell: (params) => {
         const rateId = params.row.rate_id;
         

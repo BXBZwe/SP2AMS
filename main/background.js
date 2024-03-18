@@ -4,9 +4,7 @@ import serve from 'electron-serve'
 import { createWindow } from './helpers'
 import startServer from './server';
 
-
 const isProd = process.env.NODE_ENV === 'production'
-
 if (isProd) {
   serve({ directory: 'app' })
 } else {

@@ -18,6 +18,8 @@ import {
   DialogActions,
   LinearProgress,
   CircularProgress,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { styled } from '@mui/material/styles';
@@ -25,8 +27,15 @@ import  { linearProgressClasses } from '@mui/material/LinearProgress';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the check circle icon
+require('dotenv').config();
 
 export default function BillingDetails() {
+
+//   const rolloverWater = process.env.ROLLOVER_WATER;
+//   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+// // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
+// // const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
+// console.log('RollOverWater',rolloverWater)
 
   // const router = useRouter();
   // const [openNavDialog, setOpenNavDialog] = useState(false); // State to control the dialog visibility
@@ -188,49 +197,25 @@ export default function BillingDetails() {
     setPreviousReadings(newPreviousReadings);
   };
 
-  // const calculateUnitsDifference = () => {
-  //   const newUnitsDifference = {};
-
-  //   selectedRooms.forEach((room) => {
-  //     const roomId = room.RoomBaseDetails.room_id;
-  //     const currentReading = readingValues[roomId] || 0;
-
-  //     // Determine the previous reading type based on the selectedType state
-  //     let previousReading = 0;
-  //     if (selectedType === "Water Reading") {
-  //       previousReading = previousReadings[roomId]?.water_reading || 0;
-  //     } else if (selectedType === "Electricity Reading") {
-  //       previousReading = previousReadings[roomId]?.electricity_reading || 0;
-  //     }
-
-  //     // Calculate the difference
-  //     const difference = currentReading - previousReading;
-
-  //     newUnitsDifference[roomId] = difference >= 0 ? difference : "N/A"; // Ensure the difference is not negative, or set it to "N/A"
-  //   });
-
-  //   setUnitsDifference(newUnitsDifference);
-  // };
-
   const calculateUnitsDifference = () => {
     const newUnitsDifference = {};
   
     selectedRooms.forEach((room) => {     
       const roomId = room.RoomBaseDetails.room_id;
-      const currentReadingInput = readingValues[roomId]; // Get the input value without defaulting to 0
+      const currentReadingInput = readingValues[roomId]; 
   
       // Only proceed if there's an input for the current reading
       if (currentReadingInput !== undefined && currentReadingInput !== "") {
-        const currentReading = parseFloat(currentReadingInput); // Ensure it's a number
+        const currentReading = parseFloat(currentReadingInput); 
   
         let previousReading = 0;
         let rolloverValue = 0;
         if (selectedType === "Water Reading") {
           previousReading = previousReadings[roomId]?.water_reading || 0;
-          rolloverValue = 10000; // Rollover value for water
+          rolloverValue = 10000; 
         } else if (selectedType === "Meter Reading") {
           previousReading = previousReadings[roomId]?.electricity_reading || 0;
-          rolloverValue = 1000000; // Rollover value for electricity
+          rolloverValue = 1000000; 
         }
   
         // Adjust current reading if it's less than previous (accounting for rollover)
@@ -456,7 +441,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   },
   [`& .${linearProgressClasses.bar}`]: {
     borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
+    backgroundColor: theme.palette.mode === 'light' ? '#4caf50' : '#308fe8',
   },
 }));
 
@@ -465,7 +450,7 @@ function LinearProgressWithLabel(props) {
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ width: '100%', mr: 1 }}>
         {/* Use BorderLinearProgress instead of the default LinearProgress */}
-        <BorderLinearProgress variant="determinate" {...props} />
+        <BorderLinearProgress variant="determinate" {...props}  />
       </Box>
       <Box sx={{ minWidth: 35 }}>
         <Typography variant="body2" color="text.secondary">{`${Math.round(
@@ -543,12 +528,14 @@ function LinearProgressWithLabel(props) {
             </Box>
 
             <Box>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Reading Type</InputLabel>
               <Select
                 label="Reading Type"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
                 variant="outlined"
-                sx={{ width: "100%" }}
+                // sx={{ width: "100%" }}
               >
                 {types.map((item) => (
                   <MenuItem key={item.id} value={item.value}>
@@ -556,6 +543,8 @@ function LinearProgressWithLabel(props) {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+
             </Box>
           </Box>
         </Card>
