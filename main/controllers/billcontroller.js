@@ -227,10 +227,12 @@ const calculateAndGenerateBill = async (req, res) => {
         let currentReading = meterReadings[0] || previousReading;
 
                 // Handle rollover scenario
-                // const rolloverWater = 10000;
-                // const rolloverElectricity = 1000000;
-                                const rolloverWater = process.env.ROLLOVER_WATER;
-                const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+                const rolloverWater = 10000;
+                const rolloverElectricity = 1000000;
+                // const rolloverWater = process.env.ROLLOVER_WATER;
+                // const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+                console.log("Rollover Water:", rolloverWater)
+
 
         if (meterReadings.length === 0) {
             return res.status(400).json({ message: 'No meter readings found for this room.' });
