@@ -5,9 +5,9 @@ export default function printpayment() {
   return (
     <div>
       <Head>
-        <title>printpayment</title>
+        <title>Print Payment</title>
       </Head>
-      <PaymentTable></PaymentTable>
+      <PaymentTable/>
     </div>
   );
 }

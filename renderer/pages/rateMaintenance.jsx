@@ -25,7 +25,10 @@ export default function RateMaintenancePage() {
           {message}
         </Alert>
       </Snackbar>
-      <Ratetable />
+      <Box sx={{ width: "100%", maxWidth: '100vw', boxSizing: 'border-box' }}> {/* Ensure content fits within the viewport width */}
+  <Ratetable />
+</Box>
+
     </>
   );
 }
