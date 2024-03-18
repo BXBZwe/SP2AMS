@@ -31,8 +31,10 @@ require('dotenv').config();
 
 export default function BillingDetails() {
 
-// const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
-// const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
+//   const rolloverWater = process.env.ROLLOVER_WATER;
+//   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+// // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
+// // const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
 // console.log('RollOverWater',rolloverWater)
 
   // const router = useRouter();
@@ -439,7 +441,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   },
   [`& .${linearProgressClasses.bar}`]: {
     borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
+    backgroundColor: theme.palette.mode === 'light' ? '#4caf50' : '#308fe8',
   },
 }));
 
@@ -448,7 +450,7 @@ function LinearProgressWithLabel(props) {
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ width: '100%', mr: 1 }}>
         {/* Use BorderLinearProgress instead of the default LinearProgress */}
-        <BorderLinearProgress variant="determinate" {...props} />
+        <BorderLinearProgress variant="determinate" {...props}  />
       </Box>
       <Box sx={{ minWidth: 35 }}>
         <Typography variant="body2" color="text.secondary">{`${Math.round(

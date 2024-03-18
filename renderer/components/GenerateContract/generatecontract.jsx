@@ -18,6 +18,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip
 } from "@mui/material";
 import Link from "next/link";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -34,7 +35,7 @@ export default function ContractTable() {
   const [filteredContracts, setFilteredContracts] = useState([]);
   const [contracts, setContracts] = useState([]);
 
-  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  // const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTenantId, setSelectedTenantId] = useState(null);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
@@ -43,12 +44,12 @@ export default function ContractTable() {
   const [documentLoading, setDocumentLoading] = useState(false);
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: "300" },
-    { field: "tenant_name", headerName: "Tenant Name", width: "300" },
+    { field: "room_number", headerName: "Room Number", flex:0.25 },
+    { field: "tenant_name", headerName: "Tenant Name", flex:0.25 },
     {
       field: "contract_status",
       headerName: "Contract Status",
-      width: "300",
+      flex:0.25,
       renderCell: (params) => {
         let color;
         switch (params.value.toLowerCase()) {
@@ -65,7 +66,7 @@ export default function ContractTable() {
             color = "default";
             break;
           default:
-            color = "inherit";
+            color = "default";
         }
 
         const handleClick = () => {
@@ -80,16 +81,28 @@ export default function ContractTable() {
         };
 
         return (
-          <Button variant="outlined" color={color} onClick={handleClick}>
-            {params.value}
-          </Button>
+          <Chip
+          label={params.value}
+          color={color}
+          size="small"
+          onClick={handleClick}
+          variant="outlined"
+          style={{
+            width: "80%", // set the width to 100% to fill the cell
+            justifyContent: "center", // center the text inside the chip
+          }}
+        />
+          
+          // <Button variant="outlined" color={color} onClick={handleClick}>
+          //   {params.value}
+          // </Button>
         );
       },
     },
     {
       field: "contract_days_left",
       headerName: "Contract Days Left",
-      width: 200,
+      flex:0.25,
     },
   ];
 
