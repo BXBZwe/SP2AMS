@@ -156,19 +156,20 @@ export default function RequestTable() {
     {
       field: "room_number",
       headerName: "Room Number",
-      width: '200',
+      flex: 0.15,
       valueGetter: (params) => params.row.roomBaseDetails.room_number,
     },
     {
       field: "issue_date",
       headerName: "Issue Date",
-      width: '180',
+      flex: 0.12,
+
       valueFormatter: (params) => formatDate(params.value),
     },
     {
       field: "Request_priority",
       headerName: "Priority",
-      width: '220',
+      flex: 0.2,
       renderCell: (params) => {
         const color = priorityColors[params.value] || "default";
         return (
@@ -188,7 +189,7 @@ export default function RequestTable() {
     {
       field: "Request_status",
       headerName: "Request Status",
-      width: '200',
+      flex: 0.15,
       renderCell: (params) => {
         return (
           <Box
@@ -206,13 +207,15 @@ export default function RequestTable() {
     {
       field: "resolved_date",
       headerName: "Resolved Date",
-      width: '200',
+      flex: 0.15,
+
       valueFormatter: (params) => formatDate(params.value),
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: '150',
+      flex: 0.15,
+
       renderCell: (params) => (
         <>
           <IconButton onClick={() => handleEditClick(params.row)}>

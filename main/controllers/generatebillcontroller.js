@@ -62,7 +62,7 @@ const createGeneratedBillRecord = async (req, res) => {
                 generation_date,
                 rent_month,
                 rent_year,
-                payment_status: "PENDING",
+                payment_status: "Null",
                 RoomBaseDetails: {
                     connect: { room_id },
                 },
