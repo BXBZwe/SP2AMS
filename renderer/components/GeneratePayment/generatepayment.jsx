@@ -40,14 +40,14 @@ export default function PaymentTable() {
   const testRooms = ["109","102","103","104","105","106","107","108","201","202","203","204","205","114","201","202","203","204","205","114","201","202","203","204","205","114","109","102","103","104","105","106","107","108","201","202","203","204","205","114","201","202","203","204","205","114","201","202","203","204","205","114"]
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: 200 },
-    { field: "tenant_name", headerName: "Tenant Name", width: 300 },
-    { field: "total_bill", headerName: "Total Bill", width: 200 },
-    { field: "payment_status", headerName: "Payment Status", width: 200 },
+    { field: "room_number", headerName: "Room Number",flex:0.2 },
+    { field: "tenant_name", headerName: "Tenant Name", flex:0.2 },
+    { field: "total_bill", headerName: "Total Bill", flex:0.2  },
+    { field: "payment_status", headerName: "Payment Status", flex:0.2  },
     {
       field: "checkbox",
       headerName: "",
-      width: 200,
+      flex:0.2 ,
       renderCell: (params) => (
         <Checkbox
           checked={selectedRows.includes(params.id)}

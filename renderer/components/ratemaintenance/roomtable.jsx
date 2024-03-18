@@ -31,10 +31,11 @@ export default function ratetable() {
   const [roomToDelete, setRoomToDelete] = useState(null);
 
   const paymentStatusColors = {
-    PENDING: "default", // grey color
-    OVERDUE: "error", // red color
-    PARTIAL: "warning", // yellow color
-    PAID: "success", // green color
+    Null:'default',
+    PENDING: "default", 
+    OVERDUE: "error", 
+    PARTIAL: "warning", 
+    PAID: "success", 
   };
   const occupancyFilterOptions = [
     { label: "All", value: "all" },
@@ -44,13 +45,13 @@ export default function ratetable() {
   ];
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: '150' },
-    { field: "floor", headerName: "Floor", width: '150' },
-    { field: "room_type", headerName: "Room Type", width: '200' },
+    { field: "room_number", headerName: "Room Number", flex:0.12 },
+    { field: "floor", headerName: "Floor", flex:0.12 },
+    { field: "room_type", headerName: "Room Type", flex:0.15 },
     {
       field: "occupancy_status",
       headerName: "Occupancy",
-      width: '150',
+      flex:0.15,
       renderCell: (params) => {
         // Accessing occupancy_status from the nested statusDetails object
         return params.row.statusDetails.occupancy_status;
@@ -59,7 +60,7 @@ export default function ratetable() {
     {
       field: "is_reserved",
       headerName: "Reservation",
-      width: '150',
+      flex:0.12,
       renderCell: (params) => {
         // Accessing is_reserved from the nested statusDetails object
         return (
@@ -78,7 +79,7 @@ export default function ratetable() {
     {
       field: "paymentstatus",
       headerName: "Payment",
-      width: '200',
+      flex:0.15,
       renderCell: (params) => {
         const color = paymentStatusColors[params.row.paymentStatus] || "default"; // Assuming paymentStatusColors is a predefined object mapping statuses to colors
         return (
@@ -98,7 +99,7 @@ export default function ratetable() {
     {
       field: "actions",
       headerName: "Actions",
-      width: '200',
+      flex:0.13,
       renderCell: (params) => {
         // Assuming the room ID is stored in the row data under a property named 'room_id'
         const roomId = params.row.room_id;

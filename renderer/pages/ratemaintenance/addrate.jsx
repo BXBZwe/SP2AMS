@@ -231,7 +231,7 @@ export default function AddRate() {
                 Back
               </Button>
               <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleAddClick}>
-                Save
+                Add
               </Button>
             </>
           ) : (
