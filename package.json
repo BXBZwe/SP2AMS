@@ -1,9 +1,9 @@
 {
   "private": true,
-  "name": "my-nextron-app",
-  "description": "My application description",
+  "name": "ps-park",
+  "description": "PS Park is a Senior 2 level project",
   "version": "1.0.0",
-  "author": "Yoshihide Shiono <shiono.yoshihide@gmail.com>",
+  "author": "Zwe Min Maw <zweminmaw2003@gmail.com>",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
