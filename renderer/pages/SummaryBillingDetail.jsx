@@ -6,7 +6,7 @@ export default function SummaryBilling() {
   return (
     <div>
       <Head>
-        <title>Summary Billing Details</title>
+        <title>Summary Billing Detail</title>
       </Head>
 
       <RoomDetailsTable />

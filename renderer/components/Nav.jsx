@@ -130,7 +130,7 @@ const navigationItems4 = [
     icon: <ReceiptLongIcon />,
   },
   {
-    label: "Summary billing Details",
+    label: "Summary Billing Detail",
     link: "/SummaryBillingDetail",
     icon: <ReceiptIcon />,
   },

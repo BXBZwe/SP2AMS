@@ -276,15 +276,17 @@ export default function updatetenant() {
       setSnackbarSeverity("error");
       setSnackbarMessage("Please fill out all required fields.");
       setSnackbarOpen(true);
-      return; // Stop the function if validation fails
+      return; // Prevent form submission if validation fails
     }
+
     setLoading(true);
     setMessage("");
-    setConfirmDialogOpen(false);
+    setConfirmDialogOpen(false); // Close the confirmation dialog
+    
     const updatedTenantData = { ...tenantData, account_status: accountStatus };
 
     const formdata = new FormData();
-
+    
     Object.keys(updatedTenantData).forEach((key) => {
       if (key === "addresses" || key === "contacts") {
         Object.keys(updatedTenantData[key]).forEach((subKey) => {
@@ -299,7 +301,7 @@ export default function updatetenant() {
 
     if (tenantImage) formdata.append("tenant_image", tenantImage);
     if (NationalCardImage) formdata.append("nationalcard_image", NationalCardImage);
-    formdata.append("issue_date", selectedDate.toISOString()); // Convert dayjs object to ISO string
+    formdata.append("issue_date", selectedDate.toISOString());
     formdata.append("expiration_date", selectedEndDate.toISOString());
 
     try {
@@ -310,46 +312,31 @@ export default function updatetenant() {
       });
 
       if (response.status === 200) {
-        console.log("Tenant updated successfully:", response.data);
-        setMessage("Tenant updated successfully");
-      } else {
-        throw new Error("An error occurred while updating the tenant");
-      }
-    } catch (error) {
-      console.error("Error updating tenant:", error);
-      setMessage(error.response?.data?.message || error.message || "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-
-    // Validate form before submitting
-    try {
-      const response = await axios.put(`http://localhost:3000/updatetenants/${tenant_id}`, formdata, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status === 200) {
-        // On success, show a success snackbar
+        // Show a success message using Snackbar
         setSnackbarSeverity("success");
         setSnackbarMessage("Tenant updated successfully.");
         setSnackbarOpen(true);
+        // Use setTimeout to delay navigation, allowing the user to read the message
+        setTimeout(() => {
+          router.back(); // Navigate back to the previous page
+        }, 2000); // Delay of 2000 milliseconds (2 seconds)
       } else {
-        // If the response is not successful, show an error snackbar
+        // If the response is not successful, show an error message
         setSnackbarSeverity("error");
         setSnackbarMessage("An error occurred while updating the tenant.");
         setSnackbarOpen(true);
       }
     } catch (error) {
-      // On catch, show an error snackbar
+      // On catch, log the error and show an error message
+      console.error("Error updating tenant:", error);
       setSnackbarSeverity("error");
       setSnackbarMessage(error.response?.data?.message || error.message || "An error occurred");
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
-  };
+};
+
 
   const handleTenantImageChange = (e) => {
     settenantImage(e.target.files[0]);
@@ -402,10 +389,9 @@ export default function updatetenant() {
             <TextField id="first_name" name="first_name" label="First Name" value={tenantData.first_name} onChange={handleChange} error={!!errors.first_name} helperText={errors.first_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             <TextField id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} onChange={handleChange} error={!!errors.last_name} helperText={errors.last_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
-            <RadioGroup aria-label="gender" name="gender" value={tenantData.gender} onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })}>
+            <RadioGroup aria-label="gender" name="gender" value={tenantData.gender} onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })} >
               <FormControlLabel value="Male" control={<Radio />} label="Male" />
               <FormControlLabel value="Female" control={<Radio />} label="Female" />
-              {/* Add any other genders as needed */}
             </RadioGroup>
 
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
@@ -424,13 +410,13 @@ export default function updatetenant() {
             <TextField id="email" name="contacts.email" label="Email" value={tenantData.contacts.email} onChange={handleChange} error={!!errors.email} helperText={errors.email || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6, marginLeft: -1.7 }} />
             <TextField id="line_id" name="contacts.line_id" label="Line ID" value={tenantData.contacts.line_id} onChange={handleChange} error={!!errors.line_id} helperText={errors.line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker label="Issue Date" value={selectedDate} onChange={(newValue) => setSelectedDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />} />
-              <DatePicker label="Expiration Date" value={selectedEndDate} onChange={(newValue) => setSelectedEndDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />} />
+              <DatePicker label="Issue Date" value={selectedDate} onChange={(newValue) => setSelectedDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+              <DatePicker label="Expiration Date" value={selectedEndDate} onChange={(newValue) => setSelectedEndDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div>
-              <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between" }}>
-                <TextField id="addressnumber" name="addresses.addressnumber" label="No." value={tenantData.addresses.addressnumber} onChange={handleChange} error={!!errors.addressnumber} helperText={errors.addressnumber} variant="outlined" sx={{ width: "calc(50% - 8px)", marginRight: "0.5rem" }} />
+              <div style={{ marginBottom: "0.7rem" }}>
+                <TextField id="addressnumber" name="addresses.addressnumber" label="No." value={tenantData.addresses.addressnumber} onChange={handleChange} error={!!errors.addressnumber} helperText={errors.addressnumber} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
                 <TextField
                   id="street"
                   name="addresses.street"
@@ -440,11 +426,11 @@ export default function updatetenant() {
                   error={!!errors.street}
                   helperText={errors.street || ""}
                   variant="outlined"
-                  sx={{ width: "calc(50% - 8px)" }} // Adjusting width to fit in half
+                  sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
 
-              <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ marginBottom: "0.7rem" }}>
                 <TextField
                   id="district"
                   name="addresses.district"
@@ -454,7 +440,7 @@ export default function updatetenant() {
                   error={!!errors.district}
                   helperText={errors.district || ""}
                   variant="outlined"
-                  sx={{ width: "calc(50% - 8px)", marginRight: "0.5rem" }} // Adjusting width to fit in half minus margin
+                  sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half minus margin
                 />
                 <TextField
                   id="province"
@@ -465,11 +451,11 @@ export default function updatetenant() {
                   error={!!errors.province}
                   helperText={errors.province || ""}
                   variant="outlined"
-                  sx={{ width: "calc(50% - 8px)" }} // Adjusting width to fit in half
+                  sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
 
-              <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ marginBottom: "0.7rem" }}>
                 <TextField
                   id="postal_code"
                   name="addresses.postal_code"
@@ -479,7 +465,7 @@ export default function updatetenant() {
                   error={!!errors.postal_code}
                   helperText={errors.postal_code || ""}
                   variant="outlined"
-                  sx={{ width: "calc(50% - 8px)", marginRight: "0.5rem" }} // Adjusting width to fit in half minus margin
+                  sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half minus margin
                 />
                 <TextField
                   id="sub_district"
@@ -490,7 +476,7 @@ export default function updatetenant() {
                   error={!!errors.sub_district}
                   helperText={errors.sub_district || ""}
                   variant="outlined"
-                  sx={{ width: "calc(50% - 8px)" }} // Adjusting width to fit in half
+                  sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
             </div>

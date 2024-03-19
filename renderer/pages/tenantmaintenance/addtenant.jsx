@@ -28,8 +28,8 @@ export default function addtenant() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
   const type = [{ label: "+93" }, { label: "+66" }, { label: "+10" }];
-  const [startDate, setStartDate] = useState(dayjs());
-  const [endDate, setEndDate] = useState(dayjs().add(5, "year"));
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const [tenantData, setTenantData] = useState({
     first_name: "",
@@ -247,24 +247,36 @@ export default function addtenant() {
               renderInput={(params) => <TextField {...params} error={!!errors.invoice_option} helperText={errors.invoice_option} label="Invoice Option" />}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker label="Issue Date" value={startDate} onChange={(newValue) => setStartDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />} />
+              <DatePicker
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+                label="Issue Date"
+                value={startDate} // This is now null initially
+                onChange={(newValue) => setStartDate(newValue)}
+                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate}/>}
+              />
 
-              <DatePicker label="Expiration Date" value={endDate} onChange={(newValue) => setEndDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />} />
+              <DatePicker
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+                label="Expiration Date"
+                value={endDate} // This is now null initially
+                onChange={(newValue) => setEndDate(newValue)}
+                renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />}
+              />
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ marginBottom: "0.7rem" }}>
               <TextField id="addressnumber" name="addresses.addressnumber" label="No." variant="outlined" value={tenantData.addressnumber} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.addressnumber} helperText={errors.addressnumber} />
 
               <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270 }} error={!!errors.street} helperText={errors.street} />
             </div>
 
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{  marginBottom: "0.7rem" }}>
               <TextField id="district" name="addresses.district" label="District" variant="outlined" value={tenantData.district} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.district} helperText={errors.district} />
 
               <TextField id="sub_district" name="addresses.sub_district" label="Sub District" variant="outlined" value={tenantData.sub_district} onChange={handleChange} sx={{ width: 270 }} error={!!errors.sub_district} helperText={errors.sub_district} />
             </div>
 
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{  marginBottom: "0.7rem" }}>
               <TextField id="province" name="addresses.province" label="Province" variant="outlined" value={tenantData.province} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.province} helperText={errors.province} />
 
               <TextField id="postal_code" name="addresses.postal_code" label="Postal Code" variant="outlined" value={tenantData.postal_code} onChange={handleChange} sx={{ width: 270 }} error={!!errors.postal_code} helperText={errors.postal_code} />
