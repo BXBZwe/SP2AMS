@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography, Button, Card, CardContent, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
+import { Typography, Button, Card, CardContent, FormControl, InputLabel, Select, MenuItem, Box, IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import Link from "next/link";
 
 export default function RoomDetailsTable() {
   const [rooms, setRooms] = useState([]);
@@ -55,17 +57,15 @@ export default function RoomDetailsTable() {
     {
       field: "actions",
       headerName: "Actions",
-      width: "150",
+      flex: 0.13,
       renderCell: (params) => {
-        const tenant_id = params.row.id;
+        const roomId = params.row.room_id;
         return (
-          <>
-            <Link href={`/tenantmaintenance/UpdateTenant/${tenant_id}`} passHref>
-              <IconButton component="a">
-                <EditIcon />
-              </IconButton>
-            </Link>
-          </>
+          <Link href={`/summarybillingdetails/${roomId}`} passHref>
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </Link>
         );
       },
     },
@@ -76,7 +76,7 @@ export default function RoomDetailsTable() {
       <Box sx={{ marginBottom: 2 }}>
         <Card>
           <CardContent>
-            <Typography variant="h5">Room Details</Typography>
+            <Typography variant="h5">Summary billing Details</Typography>
             <FormControl fullWidth margin="normal">
               <InputLabel>Generation Date</InputLabel>
               <Select value={selectedGenerationDate} label="Generation Date" onChange={(e) => setSelectedGenerationDate(e.target.value)}>

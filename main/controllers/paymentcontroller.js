@@ -6,7 +6,6 @@ const getPaymentDetails = async (req, res) => {
     try {
         const { generationDate } = req.query;
 
-
         const billRecords = await prisma.generatedBillRecord.findMany({
             where: {
                 generation_date: new Date(generationDate)
@@ -22,6 +21,19 @@ const getPaymentDetails = async (req, res) => {
         });
 
         const paymentDetails = billRecords.map(record => {
+            if (!record.RoomBaseDetails.tenants || record.RoomBaseDetails.tenants.length === 0) {
+                console.log(`No tenants found for RoomBaseDetails ID: ${record.RoomBaseDetails.room_id}`);
+                return {
+                    room_id: record.RoomBaseDetails.room_id,
+                    room_number: record.RoomBaseDetails.room_number,
+                    tenant_name: 'No tenant',
+                    total_bill: record.Bill ? record.Bill.total_amount : 'N/A',
+                    payment_status: record.payment_status,
+                    id: record.bill_record_id,
+                    invoice_option: 'N/A'
+                };
+            }
+
             const tenant = record.RoomBaseDetails.tenants[0];
             const bill = record.Bill;
 
@@ -43,7 +55,8 @@ const getPaymentDetails = async (req, res) => {
         console.error('Error fetching payment details:', error);
         res.status(500).send(error.message);
     }
-}
+};
+
 
 const getgenerationdate = async (req, res) => {
     try {
