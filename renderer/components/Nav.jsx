@@ -129,6 +129,11 @@ const navigationItems4 = [
     link: "/billingdetails",
     icon: <ReceiptLongIcon />,
   },
+  {
+    label: "Summary billing Details",
+    link: "/SummaryBillingDetail",
+    icon: <ReceiptIcon />,
+  },
   { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
 ];
 const navigationItems5 = [

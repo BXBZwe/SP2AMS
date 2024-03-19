@@ -18,6 +18,7 @@ import pdfroute from './routes/pdfgenerationroute';
 import readingpdfroute from './routes/readingspdfroute';
 import billingReportRoute from './routes/periodicbillingreportroute';
 import accuralroute from './routes/accuralbillingreportroute';
+import summarybillingdetailroute from './routes/summarybillingdetailroute';
 
 const app = express();
 app.use(express.json());
@@ -55,6 +56,7 @@ app.use(pdfroute);
 app.use(readingpdfroute);
 app.use(billingReportRoute);
 app.use(accuralroute);
+app.use(summarybillingdetailroute);
 
 export default function startServer() {
   const port = 3000;
