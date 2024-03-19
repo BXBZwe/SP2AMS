@@ -34,6 +34,7 @@ export default function ContractTable() {
   const [statusFilter, setStatusFilter] = useState("");
   const [filteredContracts, setFilteredContracts] = useState([]);
   const [contracts, setContracts] = useState([]);
+  const [openNewDialog, setOpenNewDialog] = useState(false); // New state for handling "New" dialog
 
   // const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDialog, setOpenDialog] = useState(false);
@@ -72,7 +73,7 @@ export default function ContractTable() {
         const handleClick = () => {
           setSelectedTenantId(params.row.id);
           if (params.value.toLowerCase() === "new") {
-            setOpenDialog(true);
+            setOpenNewDialog(true); // Open the new dialog for "New" status
           } else if (["ongoing", "due", "warning"].includes(params.value.toLowerCase())) {
             setOpenUpdateDialog(true);
           }
@@ -80,20 +81,16 @@ export default function ContractTable() {
 
         return (
           <Chip
-          label={params.value}
-          color={color}
-          size="small"
-          onClick={handleClick}
-          variant="outlined"
-          style={{
-            width: "80%", // set the width to 100% to fill the cell
-            justifyContent: "center", // center the text inside the chip
-          }}
-        />
-          
-          // <Button variant="outlined" color={color} onClick={handleClick}>
-          //   {params.value}
-          // </Button>
+            label={params.value}
+            color={color}
+            size="small"
+            onClick={handleClick}
+            variant="outlined"
+            style={{
+              width: "80%", // Adjust as needed
+              justifyContent: "center",
+            }}
+          />
         );
       },
     },
@@ -137,15 +134,17 @@ export default function ContractTable() {
   }, [searchText, statusFilter, contracts]);
 
   const handleGenerateDocument = async (language) => {
-    setOpenDialog(false);
-    setOpenUpdateDialog(false);
+    // Before trying to generate the document, close whichever dialog is open
+    setOpenDialog(false); // Assuming this is for another dialog you might have
+    setOpenUpdateDialog(false); // Close the update dialog
+    setOpenNewDialog(false); // Close the new contract dialog
     setDocumentLoading(true);
-
+  
     try {
       const response = await axios.get(`http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`, {
         responseType: "blob",
       });
-
+  
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, "_blank");
@@ -314,6 +313,19 @@ export default function ContractTable() {
             Please wait...
           </Typography>
         </Box>
+      </Dialog>
+      <Dialog open={openNewDialog} onClose={() => setOpenNewDialog(false)} fullWidth>
+        <DialogTitle>New Contract</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This is a new contract. Please select an option to generate the contract document.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleGenerateDocument("english")}>English Contract</Button>
+          <Button onClick={() => handleGenerateDocument("thai")}>Thai Contract</Button>
+          <Button onClick={() => setOpenNewDialog(false)}>Close</Button>
+        </DialogActions>
       </Dialog>
     </>
   );
