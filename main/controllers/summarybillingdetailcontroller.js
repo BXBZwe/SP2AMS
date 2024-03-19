@@ -120,6 +120,8 @@ const getRoomBillingDetails = async (req, res) => {
                 last_updated: rate.rates.last_updated,
             })),
             meter_reading: {
+                water_reading: meterDetails ? meterDetails.water_reading : 'N/A',
+                electricity_reading: meterDetails ? meterDetails.electricity_reading : 'N/A',
                 water_usage: billDetails ? billDetails.water_usage : 'N/A',
                 water_cost: billDetails ? billDetails.water_cost : 'N/A',
                 electricity_usage: billDetails ? billDetails.electricity_usage : 'N/A',
@@ -135,4 +137,41 @@ const getRoomBillingDetails = async (req, res) => {
     }
 };
 
-export { getbillingdetails, getRoomBillingDetails };
+// Controller function to apply temporary rate adjustments
+const applyTemporaryRateAdjustment = async (req, res) => {
+    const { rate_id, room_id, bill_record_id, temporary_price } = req.body;
+
+    try {
+        // Here you would write logic to either create or update the temporary adjustment
+        const adjustment = await prisma.temporaryRateAdjustments.upsert({
+            where: {
+                rate_id_room_id_bill_record_id: {
+                    rate_id: rate_id,
+                    room_id: room_id,
+                    bill_record_id: bill_record_id,
+                },
+            },
+            update: {
+                temporary_price: temporary_price,
+                applied: false, // set to false to indicate it hasn't been applied yet
+                // Optionally update expiration_date if your logic requires
+            },
+            create: {
+                rate_id: rate_id,
+                room_id: room_id,
+                bill_record_id: bill_record_id,
+                temporary_price: temporary_price,
+                applied: false, // set to false to indicate it hasn't been applied yet
+                // Optionally set expiration_date if your logic requires
+            },
+        });
+
+        return res.status(200).json({ message: 'Temporary rate adjustment applied successfully', adjustment });
+    } catch (error) {
+        console.error('Error applying temporary rate adjustment:', error);
+        return res.status(500).json({ message: 'Error applying temporary rate adjustment', error });
+    }
+};
+
+
+export { getbillingdetails, getRoomBillingDetails, applyTemporaryRateAdjustment };
