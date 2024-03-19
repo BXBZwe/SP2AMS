@@ -5,6 +5,7 @@ import { SnackbarProvider } from "../components/snackBar/SnackbarContent";
 import { APIProvider } from "../components/ratemaintenance/apiContent";
 import theme from '../theme';
 import { ThemeProvider } from '@mui/material';
+import '../public/global.css'; // Import global styles
 
 export const AuthContext = createContext({
   isLoggedIn: false,

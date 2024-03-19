@@ -51,13 +51,13 @@ export default function RoomDetailsTable() {
   };
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: 130 },
-    { field: "tenant_name", headerName: "Tenant Name", width: 200 },
-    { field: "total_bill", headerName: "Total Bill", width: 130 },
+    { field: "room_number", headerName: "Room Number", width: 330 },
+    { field: "tenant_name", headerName: "Tenant Name", width: 330 },
+    { field: "total_bill", headerName: "Total Bill", width: 330 },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 0.13,
+      width: 250,
       renderCell: (params) => {
         const roomId = params.row.room_id;
         return (
@@ -74,22 +74,32 @@ export default function RoomDetailsTable() {
   return (
     <div style={{ height: 400, width: "100%" }}>
       <Box sx={{ marginBottom: 2 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5">Summary billing Details</Typography>
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Generation Date</InputLabel>
-              <Select value={selectedGenerationDate} label="Generation Date" onChange={(e) => setSelectedGenerationDate(e.target.value)}>
-                {generationDates.map((date, index) => (
-                  <MenuItem key={index} value={date}>
-                    {new Date(date).toLocaleDateString()}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </CardContent>
-        </Card>
-      </Box>
+  <Card>
+    <CardContent>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <Typography variant="h4" sx={{ flexGrow: 1 }}>
+          Summary Billing Details
+        </Typography>
+        <Box sx={{ width: 300, maxWidth: '100%' }}> {/* Adjust the width as needed */}
+          <FormControl fullWidth margin="normal">
+                <InputLabel>Generation Date</InputLabel>
+                <Select 
+                  value={selectedGenerationDate} 
+                  label="Generation Date" 
+                  onChange={(e) => setSelectedGenerationDate(e.target.value)}
+                >
+                  {generationDates.map((date, index) => (
+                    <MenuItem key={index} value={date}>
+                      {new Date(date).toLocaleDateString()}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
       <DataGrid rows={rooms} columns={columns} pageSize={5} rowsPerPageOptions={[5, 10, 20]} loading={loading} />
     </div>
   );
