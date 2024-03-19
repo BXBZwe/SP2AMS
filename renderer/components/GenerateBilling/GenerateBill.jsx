@@ -32,8 +32,32 @@ export default function GenerateBill() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Can be "error", "warning", "info", "success"
+  const [selectedGenerationDate, setSelectedGenerationDate] = useState(null);
 
   const filteredRooms = rooms.filter((room) => (selectedOccupancyFilter === "all" ? true : room.statusDetails.occupancy_status === selectedOccupancyFilter));
+
+  const getroomsforbilling = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/generatebill");
+      const billedrooms = response.data.billRecords;
+
+      const allDates = billedrooms.map(
+        (item) => new Date(item.generation_date).toISOString().split("T")[0]
+      );
+
+      // console.log('Generation Date', response.data)
+      const uniqueDates = [...new Set(allDates)];
+      const sortedDates = uniqueDates.sort((a, b) => new Date(b) - new Date(a));
+      const latestDate = sortedDates[0];
+      setSelectedGenerationDate(latestDate);
+    } catch (error) {
+      console.error("Failed to fetch rooms:", error);
+    }
+  };
+
+  useEffect(() => {
+    getroomsforbilling();
+  }, []);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -173,6 +197,9 @@ export default function GenerateBill() {
     setGenerateButtonClicked(false);
   };
 
+  const dateObject = new Date(selectedGenerationDate);
+const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', month: 'short', day: 'numeric' });
+
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -207,7 +234,7 @@ export default function GenerateBill() {
               }}
             >
               <Box>
-                <Card sx={{ width: "50vw" }}>
+                <Card sx={{ width: "45vw" }}>
                   <CardContent>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                     <Typography variant="h6" sx={{ marginBottom: "10px" }}>
@@ -234,6 +261,10 @@ export default function GenerateBill() {
                         </MenuItem>
                       ))}
                     </Select>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Checkbox onClick={handleAddAllClick} checked={addAllChecked} />
+                        <Typography variant="body2">All Rooms</Typography>
+                      </Box>
                     </Box>
                       <br></br>
                     <Box
@@ -269,10 +300,6 @@ export default function GenerateBill() {
                       <Button variant="contained" size="small" sx={{ width: "10vw" }} onClick={handleAddButtonClick}>
                         Add
                       </Button>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Checkbox onClick={handleAddAllClick} checked={addAllChecked} />
-                        <Typography variant="body2">All Rooms</Typography>
-                      </Box>
                     </Box>
                   </CardContent>
                 </Card>
@@ -339,19 +366,26 @@ export default function GenerateBill() {
                     height: "100%",
                   }}
                 >
-                  <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                  <Box sx={{alignItems:'center',display:'flex',justifyContent:'space-between'}}>
+                  <Typography variant="subtitle1" sx={{ marginBottom: "10px" }}>
                     Invoice Date
                   </Typography>
+                  {/* <Typography variant="body1" sx={{ marginBottom: "10px",opacity:0.8 }}>
+                    {formattedDate}
+                  </Typography> */}
+                  </Box>
+                  <TextField id="monthId" label="Previous Generation Date" value={formattedDate} sx={{ width: "100%", marginBottom: "10px" }} InputProps={{ readOnly: true }} />
+
                   <DatePicker
                     id="billingdateId"
-                    label="Generation Date"
+                    label="New Generation Date"
                     value={billingDate}
                     onChange={handleBillingDateChange}
                     sx={{ width: "100%", marginBottom: "10px" }}
                     renderInput={(params) => <TextField {...params} error={generateButtonClicked && !billingDate} helperText={generateButtonClicked && !billingDate ? "Billing date is required!" : ""} />}
                   />
 
-                  <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                  <Typography variant="subtitle1" sx={{ marginBottom: "10px" }}>
                     For Month/Year
                   </Typography>
                   <Box sx={{ display: "flex", gap: "10px" }}>

@@ -280,7 +280,7 @@ export default function CheckIn() {
                         -
                       </Typography>
 
-                      <DatePicker id="moveoutdateId" label="Move Out" value={moveOutDate} onChange={() => {}} renderInput={(props) => <TextField {...props} />} readOnly inputFormat="YYYY-MM-DD" sx={{ width: "40vw" }} />
+                      <DatePicker disabled id="moveoutdateId" label="Move Out" value={moveOutDate} onChange={() => {}} renderInput={(props) => <TextField {...props} />} readOnly inputFormat="YYYY-MM-DD" sx={{ width: "40vw" }} />
                     </Box>
 
                     <Box
