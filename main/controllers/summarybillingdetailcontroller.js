@@ -138,12 +138,10 @@ const getRoomBillingDetails = async (req, res) => {
     }
 };
 
-// Controller function to apply temporary rate adjustments
 const applyTemporaryRateAdjustment = async (req, res) => {
     const { rate_id, room_id, bill_id, temporary_price } = req.body;
 
     try {
-        // Here you would write logic to either create or update the temporary adjustment
         const adjustment = await prisma.temporaryRateAdjustments.upsert({
             where: {
                 rate_id_room_id_bill_id: {
@@ -154,16 +152,14 @@ const applyTemporaryRateAdjustment = async (req, res) => {
             },
             update: {
                 temporary_price: temporary_price,
-                applied: false, // set to false to indicate it hasn't been applied yet
-                // Optionally update expiration_date if your logic requires
+                applied: false,
             },
             create: {
                 rate_id: rate_id,
                 room_id: room_id,
                 bill_id: bill_id,
                 temporary_price: temporary_price,
-                applied: false, // set to false to indicate it hasn't been applied yet
-                // Optionally set expiration_date if your logic requires
+                applied: false,
             },
         });
 
@@ -175,14 +171,15 @@ const applyTemporaryRateAdjustment = async (req, res) => {
 };
 
 const recalculateAndUpdateBill = async (req, res) => {
-    const { bill_id } = req.body;
+    const { bill_id, previousWaterReading,
+        previousElectricityReading,
+        currentWaterReading,
+        currentElectricityReading } = req.body;
 
     console.log(`Recalculating bill for bill_id: ${bill_id}`);
 
     try {
-        // Begin a transaction
         const updatedBill = await prisma.$transaction(async (prisma) => {
-            // Fetch the existing bill
             const existingBill = await prisma.bills.findUnique({
                 where: { bill_id: bill_id },
             });
@@ -193,7 +190,6 @@ const recalculateAndUpdateBill = async (req, res) => {
                 throw new Error('Bill not found');
             }
 
-            // Fetch the room details for the base rent
             const roomDetails = await prisma.roomBaseDetails.findUnique({
                 where: { room_id: existingBill.room_id },
             });
@@ -204,40 +200,79 @@ const recalculateAndUpdateBill = async (req, res) => {
                 throw new Error('Room details not found for the bill');
             }
 
-            let updatedTotalAmount = Number(roomDetails.base_rent); // Convert to number to ensure arithmetic addition
+            const rolloverWater = 10000;
+            const rolloverElectricity = 1000000;
+
+            const newWaterUsage = currentWaterReading < previousWaterReading
+                ? (currentWaterReading + rolloverWater) - previousWaterReading
+                : currentWaterReading - previousWaterReading;
+            const newElectricityUsage = currentElectricityReading < previousElectricityReading
+                ? (currentElectricityReading + rolloverElectricity) - previousElectricityReading
+                : currentElectricityReading - previousElectricityReading;
+
+
+            if (newWaterUsage !== 0 || newElectricityUsage !== 0) {
+                await prisma.meter_readings.create({
+                    data: {
+                        room_id: existingBill.room_id,
+                        water_reading: currentWaterReading,
+                        electricity_reading: currentElectricityReading,
+                        reading_date: new Date(),
+                    }
+                });
+            }
+
+
+            let updatedTotalAmount = Number(roomDetails.base_rent);
             console.log(`Initial total amount (base rent): ${updatedTotalAmount}`);
 
-            // Fetch temporary rate adjustments for the bill
             const adjustments = await prisma.temporaryRateAdjustments.findMany({
                 where: { bill_id: bill_id, applied: false },
             });
 
-            // Assuming room_rates is related to RoomBaseDetails and contains the rates
             const roomRates = await prisma.room_rates.findMany({
                 where: { room_id: existingBill.room_id },
                 include: { rates: true }
             });
 
+            let additionalRatesTotal = 0;
+            let newWaterCost = 0;
+            let newElectricityCost = 0;
+
             roomRates.forEach(roomRate => {
                 const adjustment = adjustments.find(a => a.rate_id === roomRate.rate_id);
-                const price = Number(adjustment ? adjustment.temporary_price : roomRate.rates.item_price); // Ensure price is treated as a number
+                let price = Number(adjustment ? adjustment.temporary_price : roomRate.rates.item_price);
                 let totalForRate;
-                // For water and electricity, use usage from the bill
-                if (roomRate.rates.item_name === "Water" /* water */ || roomRate.rates.item_name === "Electricity" /* electricity */) {
-                    let usage = roomRate.rate_id === 10 ? Number(existingBill.water_usage) : Number(existingBill.electricity_usage);
-                    totalForRate = price * usage;
+
+
+                if (roomRate.rates.item_name === "Water") {
+                    newWaterCost = newWaterUsage * price
+                    totalForRate = newWaterCost
+                } else if (roomRate.rates.item_name === "Electricity") {
+                    newElectricityCost = newElectricityUsage * price
+                    totalForRate = newElectricityCost
+
                 } else {
                     totalForRate = price * Number(roomRate.quantity);
+                    additionalRatesTotal += totalForRate;
+
                 }
-                updatedTotalAmount += totalForRate; // Ensure correct addition
+
+                updatedTotalAmount += totalForRate;
             });
 
             console.log(`Final updatedTotalAmount: ${updatedTotalAmount}`);
 
-            // Update the bill record with the new total
             const updatedBill = await prisma.bills.update({
                 where: { bill_id: bill_id },
-                data: { total_amount: updatedTotalAmount }
+                data: {
+                    water_usage: newWaterUsage,
+                    water_cost: newWaterCost,
+                    electricity_usage: newElectricityUsage,
+                    electricity_cost: newElectricityCost,
+                    additional_rates_cost: additionalRatesTotal,
+                    total_amount: updatedTotalAmount
+                }
             });
 
             for (const adjustment of adjustments) {
