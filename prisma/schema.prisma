@@ -8,20 +8,21 @@ datasource db {
 }
 
 model bills {
-  bill_id               Int                   @id @default(autoincrement())
-  room_id               Int
-  water_usage           Decimal               @db.Decimal(10, 2)
-  water_cost            Decimal               @db.Decimal(10, 2)
-  electricity_usage     Decimal               @db.Decimal(10, 2)
-  electricity_cost      Decimal               @db.Decimal(10, 2)
-  additional_rates_cost Decimal               @db.Decimal(10, 2)
-  billing_date          DateTime              @db.Date
-  baserent_month        String                @db.VarChar(20)
-  baserent_year         Int
-  total_amount          Decimal               @db.Decimal(10, 2)
-  billing_number        String?               @db.VarChar(20)
-  RoomBaseDetails       RoomBaseDetails       @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
-  GeneratedBillRecord   GeneratedBillRecord[]
+  bill_id                  Int                        @id @default(autoincrement())
+  room_id                  Int
+  water_usage              Decimal                    @db.Decimal(10, 2)
+  water_cost               Decimal                    @db.Decimal(10, 2)
+  electricity_usage        Decimal                    @db.Decimal(10, 2)
+  electricity_cost         Decimal                    @db.Decimal(10, 2)
+  additional_rates_cost    Decimal                    @db.Decimal(10, 2)
+  billing_date             DateTime                   @db.Date
+  baserent_month           String                     @db.VarChar(20)
+  baserent_year            Int
+  total_amount             Decimal                    @db.Decimal(10, 2)
+  billing_number           String?                    @db.VarChar(20)
+  RoomBaseDetails          RoomBaseDetails            @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
+  GeneratedBillRecord      GeneratedBillRecord[]
+  TemporaryRateAdjustments TemporaryRateAdjustments[]
 }
 
 model BillSequence {
@@ -41,7 +42,6 @@ model GeneratedBillRecord {
   payment_status           PaymentStatus              @default(PENDING)
   RoomBaseDetails          RoomBaseDetails            @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
   Bill                     bills?                     @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade, onUpdate: NoAction)
-  TemporaryRateAdjustments TemporaryRateAdjustments[]
 
   @@unique([generation_date, room_id])
 }
@@ -248,15 +248,14 @@ model TemporaryRateAdjustments {
   temp_adjustment_id Int       @id @default(autoincrement())
   rate_id            Int
   room_id            Int
-  bill_record_id     Int
+  bill_id            Int
   temporary_price    Decimal   @db.Decimal(10, 2)
   applied            Boolean   @default(false)
   creation_date      DateTime  @default(now())
   expiration_date    DateTime?
+  rates                             rates                @relation(fields: [rate_id], references: [rate_id])
+  RoomBaseDetails                   RoomBaseDetails      @relation(fields: [room_id], references: [room_id])
+  Bill                              bills                @relation(fields: [bill_id], references: [bill_id])
 
-  rates               rates               @relation(fields: [rate_id], references: [rate_id])
-  RoomBaseDetails     RoomBaseDetails     @relation(fields: [room_id], references: [room_id])
-  GeneratedBillRecord GeneratedBillRecord @relation(fields: [bill_record_id], references: [bill_record_id])
-
-  @@unique([rate_id, room_id, bill_record_id])
+  @@unique([rate_id, room_id, bill_id])
 }

@@ -15,7 +15,9 @@ export default function RoomBillingDetail() {
       const fetchBillingDetails = async () => {
         try {
           const response = await axios.get(`http://localhost:3000/getroombillingdetailforonegenerationdate/${roomId}`);
-          setBillingDetails(response.data.detailedBilling);
+          // setBillingDetails(response.data.detailedBilling);
+          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id });
+
           const generationDate = response.data.detailedBilling.generation_date;
           const previousReadingResponse = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}?generation_date=${generationDate}`);
           setPreviousReading(previousReadingResponse.data.data);
@@ -53,6 +55,85 @@ export default function RoomBillingDetail() {
     }
   };
 
+  // const handleSave = async () => {
+  //   if (!selectedRate || !roomId) return;
+
+  //   const adjustmentData = {
+  //     rate_id: selectedRate.rate_id,
+  //     room_id: billingDetails.room_id,
+  //     bill_id: billingDetails.bill_id,
+  //     temporary_price: Number(selectedRate.per_unit_price), // Convert string to number
+  //   };
+
+  //   try {
+  //     const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
+  //     if (adjustmentResponse.status === 200) {
+  //       console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
+  //     } else {
+  //       console.error("Failed to save the temporary rate adjustment");
+  //     }
+
+  //     try {
+  //       // Trigger bill recalculation on the backend
+  //       const updatedBillResponse = await axios.post(`http://localhost:3000/recalculatebillandupdate`, { bill_id: billingDetails.bill_id });
+
+  //       if (updatedBillResponse.status === 200) {
+  //         // Update your local state with the new billing details
+  //         setBillingDetails(updatedBillResponse.data.updatedBill);
+
+  //         // Or if you prefer to refetch from the backend
+  //         // fetchBillingDetails();
+  //       } else {
+  //         console.error("Failed to recalculate the bill");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error during bill recalculation:", error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving the temporary rate adjustment:", error);
+  //   }
+  // };
+
+  const handleSave = async () => {
+    if (!selectedRate || !roomId) return;
+
+    const adjustmentData = {
+      rate_id: selectedRate.rate_id,
+      room_id: billingDetails.room_id,
+      bill_id: billingDetails.bill_id,
+      temporary_price: Number(selectedRate.per_unit_price),
+    };
+
+    try {
+      const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
+      if (adjustmentResponse.status === 200) {
+        console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
+
+        // Optionally: Update local UI state if needed, without triggering re-fetches or additional useEffect runs
+        // Consider selectively updating parts of the state or using a status message
+      } else {
+        console.error("Failed to save the temporary rate adjustment");
+      }
+
+      // Trigger bill recalculation on the backend
+      try {
+        const updatedBillResponse = await axios.post(`http://localhost:3000/recalculatebillandupdate`, { bill_id: billingDetails.bill_id });
+
+        if (updatedBillResponse.status === 200) {
+          // Update your local state with the new billing details selectively
+          // setBillingDetails((prev) => ({ ...prev, ...updatedBillResponse.data.updatedBill }));
+          console.log(" Updated the recalculated bill:", updatedBillResponse);
+        } else {
+          console.error("Failed to recalculate the bill");
+        }
+      } catch (error) {
+        console.error("Error during bill recalculation:", error);
+      }
+    } catch (error) {
+      console.error("Error saving the temporary rate adjustment:", error);
+    }
+  };
+
   return (
     <>
       <Card sx={{ marginBottom: 2 }}>
@@ -83,7 +164,7 @@ export default function RoomBillingDetail() {
                 <TableHead>
                   <TableRow>
                     <TableCell>Fee</TableCell>
-                    <TableCell align="right">Per Unit</TableCell>
+                    <TableCell align="right">Price Per Unit</TableCell>
                     <TableCell align="right">Quantity</TableCell>
                     <TableCell align="right">Total</TableCell>
                   </TableRow>
@@ -125,7 +206,7 @@ export default function RoomBillingDetail() {
                   fullWidth
                   InputProps={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? { readOnly: true } : {}}
                 />
-                <TextField label="Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
+                <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
                 {selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? (
                   <>
                     <TextField label="Previous Meter Reading" value={previousReading[`${selectedRate.item_name.toLowerCase()}_reading`]} margin="normal" fullWidth InputProps={{ readOnly: true }} />
@@ -134,7 +215,7 @@ export default function RoomBillingDetail() {
                 ) : null}
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
                   <Button variant="outlined">Cancel</Button>
-                  <Button variant="contained" color="primary">
+                  <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
                   </Button>
                 </Box>
