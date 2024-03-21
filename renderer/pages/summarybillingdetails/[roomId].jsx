@@ -75,6 +75,7 @@ export default function RoomBillingDetail() {
       room_id: billingDetails.room_id,
       bill_id: billingDetails.bill_id,
       temporary_price: Number(selectedRate.per_unit_price),
+      generationDate: billingDetails.generation_date,
     };
 
     try {

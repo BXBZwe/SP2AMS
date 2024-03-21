@@ -139,9 +139,19 @@ const getRoomBillingDetails = async (req, res) => {
 };
 
 const applyTemporaryRateAdjustment = async (req, res) => {
-    const { rate_id, room_id, bill_id, temporary_price } = req.body;
+    const { rate_id, room_id, bill_id, temporary_price, bill_record_id } = req.body;
 
     try {
+        // const generatedBillRecord = await prisma.generatedBillRecord.findFirst({
+        //     where: {
+        //         generation_date: new Date(generationDate),
+        //         room_id: room_id
+        //     }
+        // });
+
+        // if (!generatedBillRecord) {
+        //     throw new Error('Generated bill record not found for the given generation date and room ID');
+        // }
         const adjustment = await prisma.temporaryRateAdjustments.upsert({
             where: {
                 rate_id_room_id_bill_id: {
@@ -153,6 +163,7 @@ const applyTemporaryRateAdjustment = async (req, res) => {
             update: {
                 temporary_price: temporary_price,
                 applied: false,
+                bill_record_id: bill_record_id,
             },
             create: {
                 rate_id: rate_id,
@@ -160,6 +171,7 @@ const applyTemporaryRateAdjustment = async (req, res) => {
                 bill_id: bill_id,
                 temporary_price: temporary_price,
                 applied: false,
+                bill_record_id: bill_record_id,
             },
         });
 
