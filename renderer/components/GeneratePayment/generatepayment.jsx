@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Card, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box, DialogContent, TextField, DialogContentText } from "@mui/material";
+import {
+  Button,
+  Card,
+  Tab,
+  Tabs,
+  CardContent,
+  Typography,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  DialogContent,
+  TextField,
+  DialogContentText,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
@@ -19,9 +38,43 @@ export default function PaymentTable() {
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openGenerateDialog, setOpenGenerateDialog] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [filteredPayments, setFilteredPayments] = useState([]);
 
-  const testRooms = ["109", "102", "103", "104", "105", "106", "107", "108", "201", "202", "203", "204", "205", "114", "201", "202", "203", "204", "205", "114", "201", "202", "203", "204", "205", "114", "109", "102", "103", "104", "105", "106", "107", "108", "201", "202", "203", "204", "205", "114", "201", "202", "203", "204", "205", "114", "201", "202", "203", "204", "205", "114"];
+  useEffect(() => {
+    switch (selectedTab) {
+      case 0: // GenerateBill
+        setFilteredPayments(
+          payments.filter((payment) => payment.payment_status === "Null")
+        );
+        break;
+      case 1: // Pending
+        setFilteredPayments(
+          payments.filter((payment) => payment.payment_status === "PENDING")
+        );
+        break;
+      case 2: // Paid
+        setFilteredPayments(
+          payments.filter((payment) => payment.payment_status === "PAID")
+        );
+        break;
+      default:
+        // Other
+        setFilteredPayments(
+          payments.filter(
+            (payment) =>
+              payment.payment_status !== "Null" &&
+              payment.payment_status !== "PENDING" &&
+              payment.payment_status !== "PAID"
+          )
+        );
+    }
+  }, [selectedTab, payments]);
 
+  console.log("Selected tab: " + selectedTab,payments);
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  };
   const columns = [
     { field: "room_number", headerName: "Room Number", flex: 0.2 },
     { field: "tenant_name", headerName: "Tenant Name", flex: 0.2 },
@@ -31,7 +84,12 @@ export default function PaymentTable() {
       field: "checkbox",
       headerName: "",
       flex: 0.2,
-      renderCell: (params) => <Checkbox checked={selectedRows.includes(params.id)} onChange={() => handleRowSelectionToggle(params.id)} />,
+      renderCell: (params) => (
+        <Checkbox
+          checked={selectedRows.includes(params.id)}
+          onChange={() => handleRowSelectionToggle(params.id)}
+        />
+      ),
     },
   ];
 
@@ -40,16 +98,22 @@ export default function PaymentTable() {
 
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/getpaymentdetails", {
-        params: {
-          generationDate: selectedGenerationDate,
-        },
-      });
+      const response = await axios.get(
+        "http://localhost:3000/getpaymentdetails",
+        {
+          params: {
+            generationDate: selectedGenerationDate,
+          },
+        }
+      );
       if (response.data && Array.isArray(response.data.paymentDetails)) {
         setPayments(response.data.paymentDetails);
         console.log("Responmse", response.data);
       } else {
-        console.error("Payment details response is not an array:", response.data);
+        console.error(
+          "Payment details response is not an array:",
+          response.data
+        );
         setPayments([]);
       }
     } catch (error) {
@@ -106,7 +170,11 @@ export default function PaymentTable() {
 
     if (roomIds.length > 0) {
       try {
-        const response = await axios.post("http://localhost:3000/generate-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
+        const response = await axios.post(
+          "http://localhost:3000/generate-pdf-multiple",
+          { room_ids: roomIds },
+          { responseType: "blob" }
+        );
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
         const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -135,7 +203,11 @@ export default function PaymentTable() {
     const roomIds = selectedRows
       .map((rowId) => {
         const paymentDetail = payments.find((payment) => payment.id === rowId);
-        if (paymentDetail && (paymentDetail.invoice_option === "PAPER" || paymentDetail.invoice_option === "BOTH")) {
+        if (
+          paymentDetail &&
+          (paymentDetail.invoice_option === "PAPER" ||
+            paymentDetail.invoice_option === "BOTH")
+        ) {
           return paymentDetail.room_id;
         }
         return null;
@@ -144,7 +216,11 @@ export default function PaymentTable() {
 
     if (roomIds.length > 0) {
       try {
-        const response = await axios.post("http://localhost:3000/generate-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
+        const response = await axios.post(
+          "http://localhost:3000/generate-pdf-multiple",
+          { room_ids: roomIds },
+          { responseType: "blob" }
+        );
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
         const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -163,14 +239,21 @@ export default function PaymentTable() {
 
   const fetchGenerationDates = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/getgenerationdate");
+      const response = await axios.get(
+        "http://localhost:3000/getgenerationdate"
+      );
       if (response.data && Array.isArray(response.data.dates)) {
         setGenerationDates(response.data.dates);
-        const sortedDates = [...response.data.dates].sort((a, b) => new Date(b) - new Date(a));
+        const sortedDates = [...response.data.dates].sort(
+          (a, b) => new Date(b) - new Date(a)
+        );
         setGenerationDates(sortedDates); // Update the state with sorted dates
         setSelectedGenerationDate(sortedDates[0]); // Set the latest date as default
       } else {
-        console.error("Generation dates response is not an array:", response.data);
+        console.error(
+          "Generation dates response is not an array:",
+          response.data
+        );
         // setGenerationDates([]);
       }
     } catch (error) {
@@ -241,17 +324,86 @@ export default function PaymentTable() {
   //   }
   // };
 
+  // const handleAllPaymentGenerate = async () => {
+  //   setOpenGenerateDialog(false);
+  //   await handleSendEmail();
+  //   await handleGeneratePdf();
+  //   await hanldeUpdatePaymentStatus();
+  // };
+
   const handleAllPaymentGenerate = async () => {
     setOpenGenerateDialog(false);
-    await handleSendEmail();
-    await handleGeneratePdf();
-    // const emailSuccess = await handleSendEmail();
+    const emailSuccess = await handleSendEmail();
+    const pdfSuccess = await handleGeneratePdf();
+    const updateSuccess = await handleUpdatePaymentStatus();
 
-    // if (emailSuccess) {
-    //   setOpenSnackbar(true);
-    //   setOpenGenerateDialog(false);
-    // }
+    if (emailSuccess && pdfSuccess && updateSuccess) {
+      setOpenSnackbar(true);
+      // Set a message to indicate all operations were successful
+      setSnackbarMessage(
+        "Emails sent, PDFs generated, and payment statuses updated successfully."
+      );
+    }
   };
+
+  const handleUpdatePaymentStatus = async () => {
+    const rowsToUpdate = selectedRows
+      .filter((rowId) => {
+        const paymentDetail = payments.find((payment) => payment.id === rowId);
+        return paymentDetail && paymentDetail.payment_status === "Null";
+      })
+      .map((rowId) => payments.find((payment) => payment.id === rowId).room_id);
+
+    if (rowsToUpdate.length > 0) {
+      try {
+        await axios.put("http://localhost:3000/updatepaymentstatus", {
+          roomIds: rowsToUpdate, // Send an array of roomIds to update
+        });
+        console.log(
+          "Payment statuses updated successfully for selected rooms."
+        );
+        await fetchPaymentsdetails();
+        return true;
+      } catch (error) {
+        console.error(
+          "Failed to update payment statuses for selected rooms:",
+          error
+        );
+        return false;
+      }
+    }
+    return true; // Return true if there's nothing to update
+  };
+
+  // const handleUpdatePaymentStatus = async () => {
+  //   let updateSuccess = true; // Initialize success flag
+
+  //   // Filter selected rows with payment status as Null
+  //   const rowsToUpdate = selectedRows.filter((rowId) => {
+  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
+  //     return paymentDetail && paymentDetail.payment_status === "Null";
+  //   });
+
+  //   for (const rowId of rowsToUpdate) {
+  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
+  //     if (!paymentDetail) continue; // Skip if no payment detail found
+  //     console.log("Room ID", paymentDetail.room_id)
+  //     try {
+  //       await axios.put("http://localhost:3000/updatepaymentstatus", {
+  //         room_id: paymentDetail.room_id,
+  //         new_status: "PENDING",
+  //       });
+  //       setOpenSnackbar(true);
+  //       console.log("Room ID", paymentDetail.room_id)
+  //       console.log(`Payment status updated successfully for room: ${paymentDetail.room_number}`);
+  //     } catch (error) {
+  //       console.error(`Failed to update payment status for room: ${paymentDetail.room_number}`, error);
+  //       updateSuccess = false; // Update success flag on failure
+  //     }
+  //   }
+
+  //   return updateSuccess; // Return the overall success status
+  // };
 
   const handleSendEmail = async () => {
     let emailSuccess = true; // Initialize success flag
@@ -260,7 +412,11 @@ export default function PaymentTable() {
     // Filter selected rows by invoice option
     const emailRows = selectedRows.filter((rowId) => {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
-      return paymentDetail && (paymentDetail.invoice_option === "EMAIL" || paymentDetail.invoice_option === "BOTH");
+      return (
+        paymentDetail &&
+        (paymentDetail.invoice_option === "EMAIL" ||
+          paymentDetail.invoice_option === "BOTH")
+      );
     });
 
     for (const rowId of emailRows) {
@@ -276,7 +432,11 @@ export default function PaymentTable() {
         setOpenSnackbar(true);
         // console.log("Email sent successfully for room:", paymentDetail.room_number);
       } catch (error) {
-        console.error("Failed to send email for room:", paymentDetail.room_number, error);
+        console.error(
+          "Failed to send email for room:",
+          paymentDetail.room_number,
+          error
+        );
         emailSuccess = false; // Update success flag on failure
       }
     }
@@ -342,9 +502,13 @@ export default function PaymentTable() {
     .join(", ");
 
   const dateObject = new Date(selectedGenerationDate);
-  const formattedDate = dateObject.toLocaleDateString("en-UK", { year: "numeric", month: "short", day: "numeric" });
+  const formattedDate = dateObject.toLocaleDateString("en-UK", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
-  console.log("Payments", payments);
+  // console.log("Payments", payments);
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
@@ -378,21 +542,64 @@ export default function PaymentTable() {
             >
               Generate PDF
             </Button> */}
-            <Button
-              // sx={{ ml: 2 }}
-              variant="contained"
-              color="primary"
-              onClick={handleOpenGenerateDialog}
-              disabled={selectedRows.length === 0 || loading}
-            >
-              Generate Payments
-            </Button>
+      {selectedTab === 0 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenGenerateDialog}
+          disabled={              payments.filter((payment) => payment.payment_status === "Null")
+          .length === 0 }
+        >
+          Generate Payments
+        </Button>
+      )}
+
+      {selectedTab === 1 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUpdatePaymentStatus}
+          disabled={              payments.filter((payment) => payment.payment_status === "PENDING")
+          .length === 0 }
+        >
+          Update Payment Status
+        </Button>
+      )}
+
+{selectedTab === 2 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUpdatePaymentStatus}
+          disabled={              payments.filter((payment) => payment.payment_status === "PAID")
+          .length === 0 }
+        >
+          Print Invoice
+        </Button>
+      )}
+
+{selectedTab === 3 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUpdatePaymentStatus}
+          disabled={              payments.filter((payment) => payment.payment_status === "OTHER")
+          .length === 0 }
+        >
+          Update Payment Status
+        </Button>
+      )}
+
           </Box>
 
           <Box sx={{ width: "30%" }}>
             <FormControl fullWidth variant="outlined">
               <InputLabel>Select Generation Date</InputLabel>
-              <Select value={selectedGenerationDate} onChange={handleGenerationDateChange} label="Select Generation Date">
+              <Select
+                value={selectedGenerationDate}
+                onChange={handleGenerationDateChange}
+                label="Select Generation Date"
+              >
                 {generationDates.map((date, index) => (
                   <MenuItem key={index} value={date}>
                     {new Date(date).toLocaleDateString()}
@@ -403,9 +610,37 @@ export default function PaymentTable() {
           </Box>
         </CardContent>
       </Card>
-      <Card sx={{ marginTop: "10px" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", marginTop: "10px" }}>
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          aria-label="payment status tabs"
+        >
+          <Tab
+            label={`Generate Bill (${
+              payments.filter((payment) => payment.payment_status === "Null")
+                .length
+            })`}
+          />
+          <Tab
+            label={`Pending (${
+              payments.filter((payment) => payment.payment_status === "PENDING")
+                .length
+            })`}
+          />
+          <Tab
+            label={`Paid (${
+              payments.filter((payment) => payment.payment_status === "PAID")
+                .length
+            })`}
+          />
+          <Tab label="Other" />
+        </Tabs>
+      </Box>
+      <Card sx={{ marginTop: "4px" }}>
         <DataGrid
-          rows={payments}
+          // rows={payments}
+          rows={filteredPayments}
           getRowId={(row) => row.id}
           columns={columns}
           pageSize={5}
@@ -420,29 +655,57 @@ export default function PaymentTable() {
           rowHeight={80}
         />
       </Card>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="dialog-title">
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="dialog-title"
+      >
         <DialogTitle id="dialog-title" sx={{ textAlign: "center" }}>
           Choose Your Option
         </DialogTitle>
         <DialogActions>
-          <Button variant="contained" onClick={handleSendEmailAndClose} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleSendEmailAndClose}
+            color="primary"
+          >
             Payment
           </Button>
-          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+          >
             Receipt
           </Button>
-          <Button variant="contained" onClick={() => setOpenDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openPdfDialog} onClose={() => setOpenPdfDialog(false)} aria-labelledby="pdf-dialog-title">
+      <Dialog
+        open={openPdfDialog}
+        onClose={() => setOpenPdfDialog(false)}
+        aria-labelledby="pdf-dialog-title"
+      >
         <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
         <DialogActions sx={{ justifyContent: "center" }}>
-          <Button variant="contained" onClick={handleGeneratePdfAndClose} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleGeneratePdfAndClose}
+            color="primary"
+          >
             Generate PDF
           </Button>
-          <Button variant="contained" onClick={() => setOpenPdfDialog(false)} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => setOpenPdfDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
@@ -464,11 +727,22 @@ export default function PaymentTable() {
           </DialogContentText>
   </Box> */}
 
-        <DialogTitle id="dialog-title" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <DialogTitle
+          id="dialog-title"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Typography variant="h6" component="div">
             Generate Payment For Selected Rooms
           </Typography>
-          <Typography variant="subtitle1" component="div" sx={{ textAlign: "right", opacity: "0.8", alignSelf: "flex-end" }}>
+          <Typography
+            variant="subtitle1"
+            component="div"
+            sx={{ textAlign: "right", opacity: "0.8", alignSelf: "flex-end" }}
+          >
             {formattedDate}
           </Typography>
         </DialogTitle>
@@ -488,17 +762,34 @@ export default function PaymentTable() {
           />
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={handleAllPaymentGenerate} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleAllPaymentGenerate}
+            color="primary"
+          >
             Confirm
           </Button>
-          <Button variant="outlined" onClick={() => setOpenGenerateDialog(false)} color="primary">
+          <Button
+            variant="outlined"
+            onClick={() => setOpenGenerateDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: "100%" }}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           Email sent successfully!
         </Alert>
       </Snackbar>
