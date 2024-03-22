@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { Input, Box, Button, FormControl, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
 
 export default function RoomBillingDetail() {
   const router = useRouter();
   const { roomId } = router.query;
   const [billingDetails, setBillingDetails] = useState(null);
+  const [selectedRate, setSelectedRate] = useState(null);
+  const [previousReading, setPreviousReading] = useState({ water_reading: 0, electricity_reading: 0 });
+  const [currentReading, setCurrentReadings] = useState({ water_reading: 0, electricity_reading: 0 });
 
   useEffect(() => {
     if (roomId) {
       const fetchBillingDetails = async () => {
         try {
           const response = await axios.get(`http://localhost:3000/getroombillingdetailforonegenerationdate/${roomId}`);
-          setBillingDetails(response.data.detailedBilling);
-          console.log("billing details:", response.data.detailedBilling);
+          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id, bill_record_id: response.data.bill_record_id });
+
+          const currentMeterReading = response.data.detailedBilling.meter_reading;
+          setCurrentReadings({
+            water_reading: currentMeterReading.water_reading,
+            electricity_reading: currentMeterReading.electricity_reading,
+          });
+
+          const generationDate = response.data.detailedBilling.generation_date;
+          const previousReadingResponse = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}?generation_date=${generationDate}`);
+          setPreviousReading(previousReadingResponse.data.data);
         } catch (error) {
           console.error("Error fetching billing details:", error);
         }
@@ -30,103 +42,173 @@ export default function RoomBillingDetail() {
 
   const formattedTotalBill = parseFloat(billingDetails.total_bill).toFixed(2);
 
+  const handleRateSelect = (item) => {
+    setSelectedRate({ ...item });
+  };
+
+  const handleChange = (name, value, itemName = null) => {
+    if (itemName === "Water" || itemName === "Electricity") {
+      if (name === "previous_reading") {
+        setPreviousReading((prev) => ({
+          ...prev,
+          [`${itemName.toLowerCase()}_reading`]: value,
+        }));
+      } else if (name === "current_reading") {
+        setCurrentReadings((prev) => ({
+          ...prev,
+          [`${itemName.toLowerCase()}_reading`]: value,
+        }));
+      }
+    } else {
+      setSelectedRate((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedRate || !roomId) return;
+
+    const adjustmentData = {
+      rate_id: selectedRate.rate_id,
+      room_id: billingDetails.room_id,
+      bill_id: billingDetails.bill_id,
+      temporary_price: Number(selectedRate.per_unit_price),
+      // generationDate: billingDetails.generation_date,
+      bill_record_id: billingDetails.bill_record_id,
+    };
+
+    try {
+      const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
+      if (adjustmentResponse.status === 200) {
+        console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
+      } else {
+        console.error("Failed to save the temporary rate adjustment");
+      }
+
+      const updateData = {
+        bill_id: billingDetails.bill_id,
+        previousWaterReading: Number(previousReading.water_reading),
+        previousElectricityReading: Number(previousReading.electricity_reading),
+        currentWaterReading: Number(currentReading.water_reading),
+        currentElectricityReading: Number(currentReading.electricity_reading),
+      };
+
+      try {
+        const updatedBillResponse = await axios.post(`http://localhost:3000/recalculatebillandupdate`, updateData);
+
+        if (updatedBillResponse.status === 200) {
+          setBillingDetails((prev) => ({ ...prev, ...updatedBillResponse.data.updatedBill }));
+          console.log(" Updated the recalculated bill:", updatedBillResponse);
+        } else {
+          console.error("Failed to recalculate the bill");
+        }
+      } catch (error) {
+        console.error("Error during bill recalculation:", error);
+      }
+    } catch (error) {
+      console.error("Error saving the temporary rate adjustment:", error);
+    }
+  };
+
   return (
     <>
-      <Card sx={{ marginBottom: 2 }
-      }>
+      <Card sx={{ marginBottom: 2 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            <Typography variant="h4">Billing Details</Typography>
-            <Box sx={{ width: 300, maxWidth: '100%' }}> {/* Adjust the width as needed */}
-              <Typography variant="body1"><b>Generation Date:</b> {new Date(billingDetails.generation_date).toLocaleDateString()}</Typography>
-
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+            <Typography variant="h4">Summary Billing Details</Typography>
+            <Box sx={{ width: 300, maxWidth: "100%" }}>
+              {" "}
+              <Typography variant="body1">
+                <b>Generation Date:</b> {new Date(billingDetails.generation_date).toLocaleDateString()}
+              </Typography>
             </Box>
           </Box>
         </CardContent>
       </Card>
 
       <div style={{ minHeight: 400, width: "100%" }}>
-
         <Card sx={{ width: "100%", padding: 1 }}>
-          <Card>
-
-            <Typography variant="p" sx={{ padding: 1 }}><b>Tenant:</b> {billingDetails.tenant_name},</Typography>
-            <Typography variant="p"><b>Room:</b> {billingDetails.room_number}</Typography>
-
-
+          <CardContent>
+            <Typography variant="p" sx={{ padding: 1 }}>
+              <b>Tenant:</b> {billingDetails.tenant_name},
+            </Typography>
+            <Typography variant="p">
+              <b>Room:</b> {billingDetails.room_number}
+            </Typography>
             <TableContainer component={Paper}>
               <Table aria-label="billing details">
                 <TableHead>
                   <TableRow>
                     <TableCell>Fee</TableCell>
-                    <TableCell align="right">Per Unit</TableCell>
+                    <TableCell align="right">Price Per Unit</TableCell>
                     <TableCell align="right">Quantity</TableCell>
                     <TableCell align="right">Total</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {billingDetails.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.item_name}</TableCell>
-                      <TableCell align="right">{item.per_unit_price}</TableCell>
-                      <TableCell align="right">{item.item_name === "Water" || item.item_name === "Electricity" ? billingDetails.meter_reading[`${item.item_name.toLowerCase()}_usage`] : item.quantity}</TableCell>
-                      <TableCell align="right">{typeof item.total === "number" ? item.total.toFixed(2) : "N/A"}</TableCell>
-                    </TableRow>
-                  ))}
+                  {billingDetails.items.map((item, index) => {
+                    let quantity, total;
+                    if (item.item_name === "Water" || item.item_name === "Electricity") {
+                      quantity = billingDetails.meter_reading[`${item.item_name.toLowerCase()}_usage`];
+                      total = parseFloat(billingDetails.meter_reading[`${item.item_name.toLowerCase()}_cost`]).toFixed(2);
+                    } else {
+                      quantity = item.quantity;
+                      total = item.total.toFixed(2);
+                    }
 
-                  <Box className="electricity-bill-form" sx={{ width: "100%", p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="h6" sx={{ mb: 1, width: '100%' }}>Electricity Bill</Typography>
-                    <Box className="meter-readings" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%' }}>
-                      <Typography>Meter:</Typography>
-                      <TextField
-                        type="text"
-                        className="meter-start"
-                        value="33666"
-                        InputProps={{ readOnly: true }}
-                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', height: 'auto', padding: '8px 12px', width: '40px' } }}
-                      />
-                      <Typography>-</Typography>
-                      <TextField
-                        type="text"
-                        className="meter-end"
-                        value="33969"
-                        InputProps={{ readOnly: true }}
-                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', height: 'auto', padding: '8px 12px', width: '40px'  } }}
-                      />
-                    </Box>
-                    <Box className="quantity" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%' }}>
-                      <Typography>Quantity:</Typography>
-                      <TextField
-                        type="text"
-                        value="303"
-                        InputProps={{ readOnly: true }}
-                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', height: 'auto', padding: '8px 12px' } }}
-                      />
-                    </Box>
-                    <Box className="unit-price" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%' }}>
-                      <Typography>Per unit:</Typography>
-                      <TextField
-                        type="text"
-                        value="700"
-                        sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', height: 'auto', padding: '8px 12px' } }}
-                      />
-                    </Box>
-                    <Box className="total" sx={{ pt: 1, width: '100%' }}>
-                      <Typography><b>Total Bill:</b> ${formattedTotalBill}</Typography>
-                    </Box>
-                    <Box className="actions" sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1, width: '100%' }}>
-                      <Button variant="outlined" sx={{ width: "100px", height: "36px", fontSize: '0.75rem' }}>Cancel</Button>
-                      <Button variant="contained" sx={{ width: "100px", height: "36px", fontSize: '0.75rem' }}>Save</Button>
-                    </Box>
-                  </Box>
-
-
+                    return (
+                      <TableRow key={index} hover onClick={() => handleRateSelect(item)}>
+                        <TableCell>{item.item_name}</TableCell>
+                        <TableCell align="right">{item.per_unit_price}</TableCell>
+                        <TableCell align="right">{quantity}</TableCell>
+                        <TableCell align="right">{total}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
-          </Card>
+
+            {selectedRate && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6">{selectedRate.item_name} Details</Typography>
+                <TextField
+                  label="Quantity"
+                  type="number"
+                  value={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? billingDetails.meter_reading[`${selectedRate.item_name.toLowerCase()}_usage`] : selectedRate.quantity}
+                  onChange={(e) => handleChange("quantity", e.target.value)}
+                  margin="normal"
+                  fullWidth
+                  InputProps={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? { readOnly: true } : {}}
+                />
+                <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
+                {selectedRate && (selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity") && (
+                  <>
+                    <TextField label="Previous Meter Reading" type="number" value={previousReading[`${selectedRate.item_name.toLowerCase()}_reading`]} onChange={(e) => handleChange("previous_reading", e.target.value, selectedRate.item_name)} margin="normal" fullWidth />
+                    <TextField label="Current Meter Reading" type="number" value={currentReading[`${selectedRate.item_name.toLowerCase()}_reading`]} onChange={(e) => handleChange("current_reading", e.target.value, selectedRate.item_name)} margin="normal" fullWidth />
+                  </>
+                )}
+
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+                  <Button variant="outlined">Cancel</Button>
+                  <Button variant="contained" color="primary" onClick={handleSave}>
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </CardContent>
         </Card>
       </div>
+
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="h6">
+          Total Bill: {"\u0E3F"}
+          {formattedTotalBill}
+        </Typography>
+      </Box>
     </>
   );
 }
