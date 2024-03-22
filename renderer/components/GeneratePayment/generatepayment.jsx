@@ -128,80 +128,6 @@ export default function PaymentTable() {
       setLoading(false);
     }
   };
-  const handleOpenPdfDialog = () => {
-    setOpenPdfDialog(true);
-  };
-  // const handleGeneratePdfAndClose = async () => {
-  //   console.log("Generating PDF for selected rows:", selectedRows);
-
-  //   for (const rowId of selectedRows) {
-  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //     if (!paymentDetail) {
-  //       // console.error("Payment detail not found for id:", rowId);
-  //       continue;
-  //     }
-
-  //     try {
-  //       const response = await axios.post(
-  //         "http://localhost:3000/generate-pdf",
-  //         {
-  //           room_id: paymentDetail.room_id,
-  //         },
-  //         { responseType: "blob" }
-  //       );
-
-  //       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-
-  //       const pdfUrl = URL.createObjectURL(pdfBlob);
-
-  //       window.open(pdfUrl);
-
-  //       console.log("PDF generated successfully for room:", paymentDetail.room_number);
-  //     } catch (error) {
-  //       console.error("Failed to generate PDF for room:", paymentDetail.room_number, error);
-  //     }
-  //   }
-
-  //   setOpenPdfDialog(false);
-  // };
-
-  const handleGeneratePdfAndClose = async () => {
-    const roomIds = selectedRows
-      .map((rowId) => {
-        const paymentDetail = payments.find((payment) => payment.id === rowId);
-        return paymentDetail.room_id;
-      })
-      .filter((roomId) => roomId != null);
-
-    if (roomIds.length > 0) {
-      try {
-        const response = await axios.post(
-          "http://localhost:3000/generate-pdf-multiple",
-          { room_ids: roomIds },
-          { responseType: "blob" }
-        );
-
-        const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        window.open(pdfUrl);
-
-        // const link = document.createElement("a");
-        // link.href = pdfUrl;
-        // link.setAttribute("download", `payment_details.pdf`); // or any other filename
-        // document.body.appendChild(link);
-        // link.click();
-        // link.parentNode.removeChild(link);
-
-        console.log("PDF generated successfully for selected rooms.");
-      } catch (error) {
-        console.error("Failed to generate PDF for selected rooms:", error);
-      }
-    } else {
-      console.log("No rooms selected for PDF generation.");
-    }
-
-    setOpenPdfDialog(false);
-  };
 
   const handleGeneratePdf = async () => {
     // Filter roomIds based on invoice_option
@@ -223,6 +149,46 @@ export default function PaymentTable() {
       try {
         const response = await axios.post(
           "http://localhost:3000/generate-pdf-multiple",
+          { room_ids: roomIds },
+          { responseType: "blob" }
+        );
+
+        const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl);
+
+        console.log("PDF generated successfully for selected rooms.");
+      } catch (error) {
+        console.error("Failed to generate PDF for selected rooms:", error);
+      }
+    } else {
+      console.log("No rooms selected for PDF generation.");
+    }
+
+    setOpenPdfDialog(false);
+  };
+
+  const handleGeneratePaidInvoicePdf = async () => {
+    // Filter roomIds based on invoice_option
+    console.log("Paid Invoice")
+    const roomIds = selectedRows
+      .map((rowId) => {
+        const paymentDetail = payments.find((payment) => payment.id === rowId);
+        if (
+          paymentDetail &&
+          (paymentDetail.invoice_option === "PAPER" ||
+            paymentDetail.invoice_option === "BOTH")
+        ) {
+          return paymentDetail.room_id;
+        }
+        return null;
+      })
+      .filter((roomId) => roomId != null); // Ensure that only valid roomIds are included
+
+    if (roomIds.length > 0) {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/generateinvoice-pdf-multiple",
           { room_ids: roomIds },
           { responseType: "blob" }
         );
@@ -285,16 +251,6 @@ export default function PaymentTable() {
     setSelectedRows(ids);
   };
 
-  // const handleRowSelectionToggle = (id) => {
-  //   setSelectedRows((prevSelectedRows) => {
-  //     if (prevSelectedRows.includes(id)) {
-  //       return prevSelectedRows.filter((rowId) => rowId !== id);
-  //     } else {
-  //       return [...prevSelectedRows, id];
-  //     }
-  //   });
-  // };
-
   const handleRowSelectionToggle = (id) => {
     setSelectedRows((prevSelectedRows) => {
       let newSelectedRows;
@@ -321,23 +277,6 @@ export default function PaymentTable() {
     });
   };
 
-  // const handleAllPaymentGenerate = async () => {
-  //   setOpenGenerateDialog(false);
-  //   const emailSuccess = await handleSendEmail();
-  //   const pdfSuccess = await handleGeneratePdfAndClose();
-  //   if (emailSuccess && pdfSuccess) {
-  //     setOpenSnackbar(true);
-  //     setOpenGenerateDialog(false);
-  //   }
-  // };
-
-  // const handleAllPaymentGenerate = async () => {
-  //   setOpenGenerateDialog(false);
-  //   await handleSendEmail();
-  //   await handleGeneratePdf();
-  //   await hanldeUpdatePaymentStatus();
-  // };
-
   const handleAllPaymentGenerate = async () => {
     setOpenGenerateDialog(false);
     const emailSuccess = await handleSendEmail();
@@ -353,34 +292,16 @@ export default function PaymentTable() {
     }
   };
 
-  // const handleUpdatePaymentStatus = async () => {
-  //   const rowsToUpdate = selectedRows
-  //     .filter((rowId) => {
-  //       const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //       return paymentDetail && paymentDetail.payment_status === "Null";
-  //     })
-  //     .map((rowId) => payments.find((payment) => payment.id === rowId).room_id);
-
-  //   if (rowsToUpdate.length > 0) {
-  //     try {
-  //       await axios.put("http://localhost:3000/updatepaymentstatus", {
-  //         roomIds: rowsToUpdate, // Send an array of roomIds to update
-  //       });
-  //       console.log(
-  //         "Payment statuses updated successfully for selected rooms."
-  //       );
-  //       await fetchPaymentsdetails();
-  //       return true;
-  //     } catch (error) {
-  //       console.error(
-  //         "Failed to update payment statuses for selected rooms:",
-  //         error
-  //       );
-  //       return false;
-  //     }
-  //   }
-  //   return true; // Return true if there's nothing to update
-  // };
+  const handleAllPaidPaymentInvoiceGenerate = async () => {
+    setOpenGenerateDialog(false);
+    const pdfSuccess = await handleGeneratePaidInvoicePdf();
+    if (pdfSuccess) {
+      setOpenSnackbar(true);
+      setSnackbarMessage(
+        "Emails sent, PDFs generated, and payment statuses updated successfully."
+      );
+    }
+  };
 
   const handleUpdatePaymentStatus = async () => {
     const rowsToUpdate = selectedRows
@@ -410,36 +331,6 @@ export default function PaymentTable() {
     }
     return true; // Return true if there's nothing to update
   };
-
-  // const handleUpdatePaymentStatus = async () => {
-  //   let updateSuccess = true; // Initialize success flag
-
-  //   // Filter selected rows with payment status as Null
-  //   const rowsToUpdate = selectedRows.filter((rowId) => {
-  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //     return paymentDetail && paymentDetail.payment_status === "Null";
-  //   });
-
-  //   for (const rowId of rowsToUpdate) {
-  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //     if (!paymentDetail) continue; // Skip if no payment detail found
-  //     console.log("Room ID", paymentDetail.room_id)
-  //     try {
-  //       await axios.put("http://localhost:3000/updatepaymentstatus", {
-  //         room_id: paymentDetail.room_id,
-  //         new_status: "PENDING",
-  //       });
-  //       setOpenSnackbar(true);
-  //       console.log("Room ID", paymentDetail.room_id)
-  //       console.log(`Payment status updated successfully for room: ${paymentDetail.room_number}`);
-  //     } catch (error) {
-  //       console.error(`Failed to update payment status for room: ${paymentDetail.room_number}`, error);
-  //       updateSuccess = false; // Update success flag on failure
-  //     }
-  //   }
-
-  //   return updateSuccess; // Return the overall success status
-  // };
 
   const handleSendEmail = async () => {
     let emailSuccess = true; // Initialize success flag
@@ -490,39 +381,6 @@ export default function PaymentTable() {
     }
   };
 
-  // const handleSendEmail = async () => {
-  //   console.log("Sending emails to selected rows:", selectedRows);
-  //   for (const rowId of selectedRows) {
-  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //     if (!paymentDetail) {
-  //       // console.error("Payment detail not found for id:", rowId);
-  //       continue;
-  //     }
-
-  //     try {
-  //       const response = await axios.post("http://localhost:3000/sendemail", {
-  //         room_id: paymentDetail.room_id,
-  //         subject: "Your Monthly Bill",
-  //         message: "Please find your bill details attached.",
-  //       });
-  //       console.log(
-  //         "Email sent successfully for room:",
-  //         paymentDetail.room_number
-  //       );
-  //     } catch (error) {
-  //       console.error(
-  //         "Failed to send email for room:",
-  //         paymentDetail.room_number,
-  //         error
-  //       );
-  //     }
-  //   }
-  // };
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
   const handleOpenUpdatePaymentDialog = () => {
     setOpenUpdatePaymentDialog(true);
   };
@@ -533,31 +391,6 @@ export default function PaymentTable() {
   const handleOpenGenerateDialog = () => {
     setOpenGenerateDialog(true);
   };
-
-  // const handleAllUpdateGeneratedPaymentStatus = async (newStatus) => {
-  //   // Filter selected rows to include only those with a "PENDING" payment status
-  //   const rowsToUpdate = selectedRows.filter((rowId) => {
-  //     const paymentDetail = payments.find((payment) => payment.id === rowId);
-  //     return paymentDetail;
-  //   }).map((rowId) => payments.find((payment) => payment.id === rowId).room_id);
-
-  //   if (rowsToUpdate.length > 0 && newStatus) {
-  //     try {
-  //       await axios.put("http://localhost:3000/updateallpaymentstatus", {
-  //         roomIds: rowsToUpdate, // Send an array of roomIds to update
-  //         newStatus, // Send the new status selected from the dropdown
-  //       });
-  //       console.log("Payment statuses updated successfully for selected rooms.");
-  //       await fetchPaymentsdetails(); // Fetch updated payment details
-  //       setSelectedRows([]); // Optionally clear selected rows after update
-  //       return true;
-  //     } catch (error) {
-  //       console.error("Failed to update payment statuses for selected rooms:", error);
-  //       return false;
-  //     }
-  //   }
-  //   return true; // Return true if there's nothing to update
-  // };
 
   const handleAllUpdateGeneratedPaymentStatus = async (newStatus) => {
     // Filter selected rows and map to bill_id instead of room_id
@@ -600,11 +433,6 @@ export default function PaymentTable() {
       console.log("No payment status selected.");
     }
   };
-
-  // const sortedRooms = testRooms
-  // .map(room => room.trim())
-  // .sort((a, b) => a - b)
-  // .join(', ');
 
   const sortedRooms = selectedRooms
     .map((room) => room.trim())
@@ -676,7 +504,7 @@ export default function PaymentTable() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleOpenUpdatePaymentDialog}
+                onClick={handleAllPaidPaymentInvoiceGenerate}
                 disabled={
                   payments.filter(
                     (payment) => payment.payment_status === "PAID"
@@ -710,11 +538,14 @@ export default function PaymentTable() {
             <FormControl fullWidth variant="outlined">
               <InputLabel>Select Generation Date</InputLabel>
               <Select
-                value={selectedGenerationDate}
+                value={selectedGenerationDate || ""}
                 onChange={handleGenerationDateChange}
                 label="Select Generation Date"
               >
-                {generationDates.map((date, index) => (
+                <MenuItem value="" disabled>
+                  <em>No Date</em>
+                </MenuItem>
+                {generationDates?.map((date, index) => (
                   <MenuItem key={index} value={date}>
                     {new Date(date).toLocaleDateString()}
                   </MenuItem>
@@ -742,6 +573,12 @@ export default function PaymentTable() {
                 .length
             })`}
           />
+                    <Tab
+            label={`Paid (${
+              payments.filter((payment) => payment.payment_status === "PAID")
+                .length
+            })`}
+          />
 
           <Tab
             label={`Other (${
@@ -754,12 +591,7 @@ export default function PaymentTable() {
             })`}
           />
 
-                    <Tab
-            label={`Paid (${
-              payments.filter((payment) => payment.payment_status === "PAID")
-                .length
-            })`}
-          />
+
         </Tabs>
       </Box>
       <Card sx={{ marginTop: "4px" }}>
@@ -780,61 +612,6 @@ export default function PaymentTable() {
           rowHeight={80}
         />
       </Card>
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        aria-labelledby="dialog-title"
-      >
-        <DialogTitle id="dialog-title" sx={{ textAlign: "center" }}>
-          Choose Your Option
-        </DialogTitle>
-        <DialogActions>
-          <Button
-            variant="contained"
-            onClick={handleSendEmailAndClose}
-            color="primary"
-          >
-            Payment
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => setOpenDialog(false)}
-            color="primary"
-          >
-            Receipt
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => setOpenDialog(false)}
-            color="primary"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={openPdfDialog}
-        onClose={() => setOpenPdfDialog(false)}
-        aria-labelledby="pdf-dialog-title"
-      >
-        <DialogTitle id="pdf-dialog-title">Confirm PDF Generation</DialogTitle>
-        <DialogActions sx={{ justifyContent: "center" }}>
-          <Button
-            variant="contained"
-            onClick={handleGeneratePdfAndClose}
-            color="primary"
-          >
-            Generate PDF
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => setOpenPdfDialog(false)}
-            color="primary"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Generate Payment */}
       <Dialog
@@ -843,15 +620,6 @@ export default function PaymentTable() {
         aria-labelledby="dialog-title"
         sx={{ "& .MuiDialog-paper": { minWidth: "45vw", maxWidth: "80vw" } }} // Adjust '300px' and '80vw' as needed
       >
-        {/* <Box sx={{display:'flex',justifyContent:'space-between'}}>
-  <DialogTitle id="dialog-title" sx={{ textAlign: "left" }}>
-   Generate Payment For Selected Rooms 
-  </DialogTitle>
-  <DialogContentText id="alert-dialog-slide-description">
-  {selectedGenerationDate.split('T')[0]}
-          </DialogContentText>
-  </Box> */}
-
         <DialogTitle
           id="dialog-title"
           sx={{

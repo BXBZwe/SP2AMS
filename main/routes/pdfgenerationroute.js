@@ -44,7 +44,7 @@
 
 import express from 'express';
 import PdfPrinter from 'pdfmake';
-import { createPdfDefinition, fonts } from '../controllers/paymentpdfcontroller';
+import { createPdfDefinition, createInvoicePdfDefinition,fonts } from '../controllers/paymentpdfcontroller';
 
 const pdfroute = express.Router();
 
@@ -83,6 +83,42 @@ const generatePdfForMultipleRooms = async (req, res) => {
     pdfDoc.end();
 };
 
+const generateInvoicePdfForMultipleRooms = async (req, res) => {
+    const { room_ids } = req.body;
+
+    const printer = new PdfPrinter(fonts);
+    let docDefinitions = [];
+
+    for (const room_id of room_ids) {
+        const docDefinition = await createInvoicePdfDefinition(room_id);
+        if (docDefinition) {
+            docDefinitions.push(docDefinition.content);
+        }
+    }
+
+    const finalDocDefinition = {
+        content: docDefinitions.flat(),
+        styles: docDefinitions[0]?.styles,
+        defaultStyle: {
+            font: 'Roboto'
+        }
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(finalDocDefinition);
+    const pdfChunks = [];
+
+    pdfDoc.on('data', chunk => pdfChunks.push(chunk));
+    pdfDoc.on('end', () => {
+        const result = Buffer.concat(pdfChunks);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="payment_details.pdf"');
+        res.send(result);
+    });
+
+    pdfDoc.end();
+};
+
 pdfroute.post('/generate-pdf-multiple', generatePdfForMultipleRooms);
+pdfroute.post('/generateinvoice-pdf-multiple', generateInvoicePdfForMultipleRooms);
 
 export default pdfroute;
