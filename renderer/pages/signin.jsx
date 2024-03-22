@@ -18,8 +18,6 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useRouter } from "next/router";
 import theme from "../theme";
 
-// const defaultTheme = createTheme();
-
 export default function SignIn() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -43,7 +41,7 @@ export default function SignIn() {
       const result = await response.json();
       if (response.ok) {
         if (typeof window !== "undefined") {
-          localStorage.setItem("sessionInfo", JSON.stringify(result.user));
+          localStorage.setItem("authToken", result.token);
         }
         router.push("/home");
       } else {

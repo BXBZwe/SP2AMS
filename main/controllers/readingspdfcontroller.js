@@ -18,59 +18,53 @@ const getPreviousReading = async (room_id, date) => {
     return previousReading;
 }
 
+
 const createMeterReadingsPdfDefinition = (readings, generationDate, readingType) => {
-    const groupedReadings = readings.reduce((acc, reading) => {
-        const floorKey = `Floor ${reading.RoomBaseDetails.floor}`;
-        if (!acc[floorKey]) acc[floorKey] = { rooms: [] };
-        acc[floorKey].rooms.push([
-            reading.RoomBaseDetails.room_number.toString(),
-            reading.previous_reading.toString(),
-            reading.current_reading.toString()
-        ]);
-        return acc;
-    }, {});
+    const MAX_ROWS_PER_COLUMN = 2;
+    const numberOfColumns = Math.ceil(readings.length / MAX_ROWS_PER_COLUMN);
 
+    const tableHeaders = [];
+    const columnWidths = [];
+    for (let i = 0; i < numberOfColumns; i++) {
+        tableHeaders.push({ text: 'Room', style: 'tableHeader' });
+        tableHeaders.push({ text: 'Previous Measure', style: 'tableHeader' });
+        tableHeaders.push({ text: 'Current Measure', style: 'tableHeader' });
+        columnWidths.push('*', '*', '*');
+    }
 
+    const body = [tableHeaders];
 
-    const content = Object.entries(groupedReadings).reduce((acc, [floor, details], index) => {
-        if (index > 0) {
-            acc.push({ text: '', margin: [0, 10, 0, 0] });
-        }
-        acc.push(
-            { text: floor, style: 'floorHeader' },
-            {
-                style: 'tableStyle',
-                table: {
-                    widths: ['*', '*', '*'],
-                    body: [
-                        [
-                            { text: 'Room', style: 'tableHeader' },
-                            { text: 'Previous Measure', style: 'tableHeader' },
-                            { text: 'Current Measure', style: 'tableHeader' }
-                        ],
-                        ...details.rooms
-                    ]
-                },
-                layout: 'lightHorizontalLines'
+    for (let row = 0; row < MAX_ROWS_PER_COLUMN; row++) {
+        const tableRow = [];
+        for (let col = 0; col < numberOfColumns; col++) {
+            const readingIndex = col * MAX_ROWS_PER_COLUMN + row;
+            if (readingIndex < readings.length) {
+                const reading = readings[readingIndex];
+                tableRow.push(reading.RoomBaseDetails.room_number.toString());
+                tableRow.push(reading.previous_reading.toString());
+                tableRow.push(reading.current_reading.toString());
+            } else {
+                tableRow.push("");
+                tableRow.push("");
+                tableRow.push("");
             }
-        );
-        return acc;
-    }, []);
-
+        }
+        body.push(tableRow);
+    }
 
     return {
         content: [
             { text: 'Meter Readings Report', style: 'header' },
             { text: `Reading Type: ${readingType}`, style: 'subheader' },
             { text: `Generation Date: ${generationDate}`, style: 'subheader' },
-            // {
-            //     style: 'tableStyle',
-            //     table: {
-            //         widths: ['auto', '*', '*'],
-            //         body: tableBody
-            //     }
-            // }
-            ...content
+            {
+                style: 'tableStyle',
+                table: {
+                    widths: columnWidths,
+                    body: body
+                },
+                layout: 'lightHorizontalLines'
+            }
         ],
         styles: {
             header: {
@@ -102,6 +96,8 @@ const createMeterReadingsPdfDefinition = (readings, generationDate, readingType)
         }
     };
 };
+
+
 
 const generateMeterReport = async (readingType, generationDate) => {
     const rooms = await prisma.roomBaseDetails.findMany({
