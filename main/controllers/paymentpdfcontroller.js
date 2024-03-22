@@ -179,6 +179,7 @@ const generateDocDefinition = (roomDetails, managerName) => {
     const { tenants, room_number, base_rent, room_rates, bills } = roomDetails;
     const tenant = tenants[0];
     const latestBill = bills[0];
+    const billingNumber = latestBill.billing_number;
 
     const billingDateFormatted = `${latestBill.billing_date.getDate()} ${latestBill.billing_date.toLocaleString('default', { month: 'short' })}. ${latestBill.billing_date.getFullYear()}`;
 
@@ -200,6 +201,7 @@ const generateDocDefinition = (roomDetails, managerName) => {
         content: [
             { text: 'P.S. Part General Partnership', style: 'header' },
             { text: 'Room Payment Details', style: 'subheader' },
+            { text: `Invoice Number R${billingNumber}`, alignment: 'right' },
             { text: `Date: ${new Date().toLocaleDateString()}`, alignment: 'right' },
             { text: `Tenant: ${tenant.first_name} ${tenant.last_name}`, style: 'subheader' },
             { text: `Room Number: ${room_number}`, style: 'subheader' },
@@ -294,9 +296,10 @@ const generateInvoiceDocDefinition = (roomDetails, managerName) => {
     const { tenants, room_number, base_rent, room_rates, bills } = roomDetails;
     const tenant = tenants[0];
     const latestBill = bills[0];
+    const invoiceNumber = latestBill.invoice_number;
 
     const billingDateFormatted = `${latestBill.billing_date.getDate()} ${latestBill.billing_date.toLocaleString('default', { month: 'short' })}. ${latestBill.billing_date.getFullYear()}`;
-
+    const paidDate = new Date();
     const billItems = room_rates.map(rateDetail => [
         rateDetail.rates.item_name,
         `฿${rateDetail.rates.item_price.toFixed(2)}`,
@@ -313,8 +316,9 @@ const generateInvoiceDocDefinition = (roomDetails, managerName) => {
 
     const docDefinition = {
         content: [
-            { text: 'P.S. Part General Partnership', style: 'header' },
+            { text: 'P.S. Part General Partnership', style: 'header',fontSize: 20,fontWeight: 'bold' },
             { text: 'Invoice Details', style: 'subheader' },
+            { text: `Invoice Number R${invoiceNumber}`, alignment: 'right' },
             { text: `Date: ${new Date().toLocaleDateString()}`, alignment: 'right' },
             { text: `Tenant: ${tenant.first_name} ${tenant.last_name}`, style: 'subheader' },
             { text: `Room Number: ${room_number}`, style: 'subheader' },
@@ -329,7 +333,12 @@ const generateInvoiceDocDefinition = (roomDetails, managerName) => {
                     ]
                 }
             },
-            { text: `*Please pay by: ${billingDateFormatted}`, style: 'footer' },
+            { text: `Bill Paid: ${paidDate}`,   styles: {
+                footer: {
+                  color: '#00FF00',
+
+                }
+              } },
             { text: `Manager: ${managerName}`, style: 'footer' },
             { text: '', pageBreak: 'after' }
 
@@ -363,6 +372,78 @@ const generateInvoiceDocDefinition = (roomDetails, managerName) => {
             font: 'Roboto'
         }
     };
+
+
+    // const docDefinition = {
+    //     content: [
+    //       { text: 'P.S. Part General Partnership', style: 'title' },
+    //       { text: 'Invoice Details', style: 'subtitle' },
+    //       { text: `Date: ${new Date().toLocaleDateString()}`, alignment: 'right', style: 'dateText' },
+    //       { text: `Tenant: ${tenant.first_name} ${tenant.last_name}`, style: 'bodyBold' },
+    //       { text: `Room Number: ${room_number}`, style: 'bodyBold' },
+    //       {
+    //         style: 'tableExample',
+    //         table: {
+    //           widths: ['*', 'auto', 'auto', 'auto'],
+    //           body: [
+    //             [{ text: 'Item', style: 'tableHeader' }, { text: 'Per Unit', style: 'tableHeader' }, { text: 'Quantity', style: 'tableHeader' }, { text: 'Amount', style: 'tableHeader' }],
+    //             ...billItems,
+    //             [{ text: 'Total Amount', colSpan: 3 }, {}, {}, `฿${latestBill.total_amount.toFixed(2)}`]
+    //           ]
+    //         }
+    //       },
+    //       { text: `Bill Paid: ${paidDate}`, style: 'billPaid' },
+    //       { text: `Manager: ${managerName}`, style: 'footer' },
+    //       { text: '', pageBreak: 'after' }
+    //     ],
+    //     styles: {
+    //       title: {
+    //         fontSize: 22,
+    //         bold: true,
+    //         margin: [0, 0, 0, 20], // Adjust margin as needed
+    //       },
+    //       subtitle: {
+    //         fontSize: 16,
+    //         bold: true,
+    //         margin: [0, 0, 0, 10],
+    //       },
+    //       bodyBold: {
+    //         fontSize: 12,
+    //         bold: true,
+    //         margin: [0, 5, 0, 5], // Adjust margin as needed
+    //       },
+    //       dateText: {
+    //         fontSize: 10,
+    //         italics: true,
+    //       },
+    //       tableExample: {
+    //         margin: [0, 5, 0, 15]
+    //       },
+    //       tableHeader: {
+    //         bold: true,
+    //         fontSize: 13,
+    //         fillColor: '#eeeeee',
+    //       },
+    //       billPaid: {
+    //         color: '#00FF00',
+    //         bold: true,
+    //         fontSize: 12,
+    //       },
+    //       footer: {
+    //         fontSize: 12,
+    //         italics: true,
+    //         margin: [0, 10, 0, 10]
+    //       }
+    //     },
+    //     defaultStyle: {
+    //       font: 'Roboto',
+    //       fontSize: 10, // Default font size for body text that doesn't use a specific style
+    //     }
+    //   };
+      
+    //   return docDefinition;
+      
+
 
     return docDefinition;
 };
