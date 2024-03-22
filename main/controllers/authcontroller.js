@@ -23,7 +23,7 @@ const login = async (req, res) => {
 
         // const { password_hash, ...userInfo } = user;
 
-        const token = jwt.sign({ userId: user.manager_id }, process.env.JWT_TOKEN, { expiresIn: '15s' });
+        const token = jwt.sign({ userId: user.manager_id }, process.env.JWT_TOKEN, { expiresIn: '1day' });
 
         res.json({ message: 'Login successful', token });
     } catch (error) {
