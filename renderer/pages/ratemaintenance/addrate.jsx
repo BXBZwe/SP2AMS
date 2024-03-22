@@ -3,32 +3,61 @@ import Checkbox from "@mui/material/Checkbox";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import TextField from "@mui/material/TextField";
-import { Card, CardContent, Autocomplete, Typography, Button, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Snackbar, Alert, Box, Grid } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Autocomplete,
+  Typography,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
+  Box,
+  Grid,
+} from "@mui/material";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
 import MuiAlert from "@mui/material/Alert";
 import { useAPI } from "../../components/ratemaintenance/apiContent";
 
 export default function AddRate() {
-  const { addRate } = useAPI();
   const [rates, setRates] = useState([]);
   const [errors, setErrors] = useState({});
   const { openSnackbar } = useSnackbarContext();
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [includeVAT, setIncludeVAT] = useState(false);
+  const [disableRate, setDisableRate] = useState(false);
   const [VATPercentage, setVATPercentage] = useState(0);
+  const [bothAdded, setBothAdded] = useState(false);
 
   const itemOptions = useMemo(() => {
     const defaultOptions = ["Water", "Electricity", "Other"];
     const selectedItems = rates.map((rate) => rate.item_name);
     return defaultOptions.filter((option) => !selectedItems.includes(option));
   }, [rates]);
+
   useEffect(() => {
     const fetchRates = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getallrates");
-        setRates(response.data.getRate);
+        const fetchedRates = response.data.getRate;
+
+        // Check if both Water and Electricity are present in the fetched rates
+        const hasWater = fetchedRates.some(
+          (rate) => rate.item_name === "Water"
+        );
+        const hasElectricity = fetchedRates.some(
+          (rate) => rate.item_name === "Electricity"
+        );
+        setBothAdded(hasWater && hasElectricity); // Set to true if both are present
+
+        setRates(fetchedRates);
+        console.log(fetchedRates);
       } catch (error) {
         console.error("Error fetching rates:", error);
       }
@@ -36,7 +65,9 @@ export default function AddRate() {
 
     const fetchLatestVATPercentage = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getLatestVATPercentage");
+        const response = await axios.get(
+          "http://localhost:3000/getLatestVATPercentage"
+        );
         setVATPercentage(response.data.latestVATPercentage);
       } catch (error) {
         console.error("Error fetching latest VAT percentage:", error);
@@ -54,13 +85,21 @@ export default function AddRate() {
     let tempErrors = {};
 
     if (isOtherSelected) {
-      tempErrors.custom_item_name = isEditing.item_name.trim() ? "" : "Custom Item Name is required.";
+      tempErrors.custom_item_name = isEditing.item_name.trim()
+        ? ""
+        : "Custom Item Name is required.";
     } else {
-      tempErrors.item_name = isEditing.item_name.trim() ? "" : "Item Name is required.";
+      tempErrors.item_name = isEditing.item_name.trim()
+        ? ""
+        : "Item Name is required.";
     }
 
-    tempErrors.item_price = isEditing.item_price.trim() ? "" : "Item Price is required.";
-    tempErrors.item_description = isEditing.item_description.trim() ? "" : "Item Description is required.";
+    tempErrors.item_price = isEditing.item_price.trim()
+      ? ""
+      : "Item Price is required.";
+    tempErrors.item_description = isEditing.item_description.trim()
+      ? ""
+      : "Item Description is required.";
 
     setErrors(tempErrors);
 
@@ -133,15 +172,24 @@ export default function AddRate() {
   };
 
   const handleAddClick = () => {
-    if (isEditing.item_name.trim() !== "" && isEditing.item_price.trim() !== "" && isEditing.item_description.trim() !== "") {
+    if (
+      isEditing.item_name.trim() !== "" &&
+      isEditing.item_price.trim() !== "" &&
+      isEditing.item_description.trim() !== ""
+    ) {
       setOpenDialog(true);
     } else {
       setSnackbarOpen(true);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        item_name: isEditing.item_name.trim() === "" ? "Item Name is required." : "",
-        item_price: isEditing.item_price.trim() === "" ? "Item Price is required." : "",
-        item_description: isEditing.item_description.trim() === "" ? "Item Description is required." : "",
+        item_name:
+          isEditing.item_name.trim() === "" ? "Item Name is required." : "",
+        item_price:
+          isEditing.item_price.trim() === "" ? "Item Price is required." : "",
+        item_description:
+          isEditing.item_description.trim() === ""
+            ? "Item Description is required."
+            : "",
       }));
     }
   };
@@ -155,6 +203,7 @@ export default function AddRate() {
     const payload = {
       ...isEditing,
       VAT_Percentage: includeVAT ? VATPercentage : 0,
+      disable_rate: disableRate,
     };
     axios
       .post("http://localhost:3000/addrates", payload)
@@ -193,23 +242,7 @@ export default function AddRate() {
     setAlertOpen(false);
   };
 
-  // const saveVATPercentage = async (req, res) => {
-  //   const { rate_id, VAT_Percentage } = req.body;
-
-  //   try {
-  //     const updatedRate = await prisma.rates.update({
-  //       where: { rate_id },
-  //       data: {
-  //         VAT_Percentage,
-  //         last_updated: new Date(), // Update the timestamp to now
-  //       },
-  //     });
-  //     res.status(200).json({ message: "VAT percentage updated successfully", data: updatedRate });
-  //   } catch (error) {
-  //     res.status(500).send(error.message);
-  //   }
-  // };
-
+  console.log('disable Rate', disableRate);
   return (
     <>
       <Card sx={{ width: "100%", display: "flex" }}>
@@ -227,15 +260,27 @@ export default function AddRate() {
         <CardContent>
           {isEditing ? (
             <>
-              <Button variant="outlined" sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }} onClick={handleCancelClick}>
+              <Button
+                variant="outlined"
+                sx={{ width: "110px", marginTop: "15px", marginRight: "10px" }}
+                onClick={handleCancelClick}
+              >
                 Back
               </Button>
-              <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleAddClick}>
+              <Button
+                variant="contained"
+                sx={{ width: "110px", marginTop: "15px" }}
+                onClick={handleAddClick}
+              >
                 Add
               </Button>
             </>
           ) : (
-            <Button variant="contained" sx={{ width: "110px", marginTop: "15px" }} onClick={handleEditClick}>
+            <Button
+              variant="contained"
+              sx={{ width: "110px", marginTop: "15px" }}
+              onClick={handleEditClick}
+            >
               Edit
             </Button>
           )}
@@ -249,85 +294,148 @@ export default function AddRate() {
           display: "flex",
         }}
       >
-        <CardContent sx={{ display: "inline-block", width: "60vw" }}>
-          {" "}
-          <Box sx={{ width: "100%", marginBottom: 1.5 }}>
-            <Autocomplete options={itemOptions} value={isOtherSelected ? "Other" : isEditing.item_name || ""} onChange={handleItemChange} renderInput={(params) => <TextField {...params} label="Item Name" error={!!errors.item_name} helperText={errors.item_name || ""} />} freeSolo />
-            {isOtherSelected && <TextField sx={{ mt: 1.5 }} label="Custom Item Name" value={isEditing.item_name} onChange={handleCustomItemChange} fullWidth error={!!errors.item_name} helperText={errors.item_name || ""} />}
-          </Box>
-          <TextField
-            id="item_price"
-            label="Item Price"
-            variant="outlined"
-            type="number"
-            value={isEditing.item_price}
-            error={!!errors.item_price}
-            helperText={errors.item_price || ""}
-            sx={{
-              width: "100%",
-              marginBottom: 1.5,
-              marginRight: 5,
-              display: "flex",
-            }}
-            onChange={handleItemPriceChange}
-            disabled={!isEditing}
-          />
-          <TextField
-            id="item_description"
-            label="Item Description"
-            variant="outlined"
-            value={isEditing.item_description}
-            error={!!errors.item_description}
-            helperText={errors.item_description || ""}
-            sx={{
-              width: "100%",
-              marginBottom: 1,
-              marginRight: 5,
-              display: "flex",
-            }}
-            multiline
-            rows={4}
-            margin="dense"
-            onChange={handleItemDescriptionChange}
-            disabled={!isEditing}
-          />
-        </CardContent>
-        <CardContent>
-          <Grid container spacing={0.5}>
-            <Grid item xs={12}>
-              <Typography variant="h6">Options</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox
-                checked={includeVAT}
-                onChange={(e) => {
-                  setIncludeVAT(e.target.checked);
+        <CardContent sx={{ display: "inline-block", width: "100%" }}>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: "15px" }}>
+            <Box sx={{ width: "45vw" }}>
+              <Box sx={{ width: "100%", marginBottom: 1.5 }}>
+                {bothAdded === false ? (
+                  <>
+                    <Autocomplete
+                      options={itemOptions}
+                      value={
+                        isOtherSelected ? "Other" : isEditing.item_name || ""
+                      }
+                      onChange={handleItemChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Item Name"
+                          error={!!errors.item_name}
+                          helperText={errors.item_name || ""}
+                        />
+                      )}
+                      freeSolo
+                    />
+                    {isOtherSelected && (
+                      <TextField
+                        sx={{ mt: 1.5 }}
+                        label="Custom Item Name"
+                        value={isEditing.item_name}
+                        onChange={handleCustomItemChange}
+                        fullWidth
+                        error={!!errors.item_name}
+                        helperText={errors.item_name || ""}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <TextField
+                    label="Custom Item Name"
+                    value={isEditing.item_name}
+                    onChange={handleCustomItemChange}
+                    fullWidth
+                    error={!!errors.item_name}
+                    helperText={errors.item_name || ""}
+                  />
+                )}
+              </Box>
+              <TextField
+                id="item_price"
+                label="Item Price"
+                variant="outlined"
+                type="number"
+                value={isEditing.item_price}
+                error={!!errors.item_price}
+                helperText={errors.item_price || ""}
+                sx={{
+                  width: "100%",
+                  marginBottom: 1.5,
+                  marginRight: 5,
+                  display: "flex",
                 }}
+                onChange={handleItemPriceChange}
                 disabled={!isEditing}
               />
-              <Typography variant="body2" component="span">
-                VAT
-              </Typography>
-              {includeVAT && <TextField type="number" label="VAT Percentage" value={VATPercentage} onChange={(e) => setVATPercentage(e.target.value)} disabled={!isEditing} />}
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Not Use Item
-              </Typography>
-            </Grid>
-          </Grid>
+              <TextField
+                id="item_description"
+                label="Item Description"
+                variant="outlined"
+                value={isEditing.item_description}
+                error={!!errors.item_description}
+                helperText={errors.item_description || ""}
+                sx={{
+                  width: "100%",
+                  marginBottom: 1,
+                  marginRight: 5,
+                  display: "flex",
+                }}
+                multiline
+                rows={4}
+                margin="dense"
+                onChange={handleItemDescriptionChange}
+                disabled={!isEditing}
+              />
+            </Box>
+            <Box>
+              <Typography variant="h6">Options</Typography>
+              <Box>
+                <Checkbox
+                  checked={includeVAT}
+                  onChange={(e) => {
+                    setIncludeVAT(e.target.checked);
+                  }}
+                  disabled={!isEditing}
+                />
+                <Typography variant="body2" component="span">
+                  VAT
+                </Typography>
+              </Box>
+              <Box>
+                {includeVAT && (
+                  <TextField
+                    sx={{ width: "60%" }}
+                    type="number"
+                    label="VAT Percentage"
+                    value={VATPercentage}
+                    onChange={(e) => setVATPercentage(e.target.value)}
+                    disabled={!isEditing}
+                  />
+                )}
+              </Box>
+              <Checkbox
+  checked={disableRate}
+  disabled={!isEditing}
+  onChange={(e) => {
+    setDisableRate(e.target.checked); // Toggle based on checkbox status
+  }}
+/>
+<Typography variant="body2" component="span">
+  Disable Item
+</Typography>
+
+            </Box>
+          </Box>
         </CardContent>
         <Dialog open={openDialog} onClose={handleDialogClose}>
           <DialogTitle>Add Rate Item</DialogTitle>
           <DialogContent>
-            <DialogContentText>Are you sure you want to add the item?</DialogContentText>
+            <DialogContentText>
+              Are you sure you want to add the item?
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button variant="outlined" onClick={handleDialogClose} color="primary">
+            <Button
+              variant="outlined"
+              onClick={handleDialogClose}
+              color="primary"
+            >
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleConfirmAdd} color="primary">
+            <Button
+              variant="contained"
+              onClick={handleConfirmAdd}
+              color="primary"
+            >
               Confirm Save
             </Button>
           </DialogActions>
@@ -346,8 +454,17 @@ export default function AddRate() {
           </Alert>
         </Snackbar>
       </Card>
-      <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-        <MuiAlert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           Please enter all fields!
         </MuiAlert>
       </Snackbar>

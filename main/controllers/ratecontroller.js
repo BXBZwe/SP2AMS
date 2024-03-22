@@ -38,7 +38,7 @@ const getRateItemById = async (req, res) => {
 
 // Add a new rate item
 const addRateItem = async (req, res) => {
-    const { item_name, item_price, item_description, VAT_Percentage } = req.body;
+    const { item_name, item_price, item_description, VAT_Percentage,disable_rate } = req.body;
 
     try {
         const newRate = await prisma.rates.create({
@@ -46,7 +46,8 @@ const addRateItem = async (req, res) => {
                 item_name,
                 item_price,
                 item_description,
-                VAT_Percentage: parseInt(VAT_Percentage)
+                VAT_Percentage: parseInt(VAT_Percentage),
+                disable_rate
 
             }
         });
@@ -56,26 +57,37 @@ const addRateItem = async (req, res) => {
     }
 };
 
+
 // Update an existing rate item
 const updateRateItem = async (req, res) => {
     const { rate_id } = req.params;
-    const { item_name, item_price, item_description } = req.body;
-
+    const {
+      item_name,
+      item_price,
+      item_description,
+      VAT_Percentage,
+      disable_rate
+    } = req.body;
+  
+    console.log("vat percentage", item_name,VAT_Percentage)
     try {
-        const updatedRate = await prisma.rates.update({
-            where: { rate_id: parseInt(rate_id) },
-            data: {
-                item_name,
-                item_price,
-                item_description,
-                last_updated: new Date()
-            }
-        });
-        res.status(200).json({ message: 'Rate item updated successfully', data: updatedRate });
+      const updatedRate = await prisma.rates.update({
+        where: { rate_id: parseInt(rate_id) },
+        data: {
+          item_name,
+          item_price,
+          item_description,
+          VAT_Percentage: parseInt(VAT_Percentage),
+          disable_rate,   
+          last_updated: new Date()
+        }
+      });
+      res.status(200).json({ message: 'Rate item updated successfully', data: updatedRate });
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-};
+  };
+  
 
 // Delete a rate item
 const deleteRateItem = async (req, res) => {
