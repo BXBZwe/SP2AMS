@@ -24,28 +24,50 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
+import { useAPI } from "../ratemaintenance/apiContent";
 
 export default function CheckOut() {
-  const recentActivity = [
-    {
-      id: "R001",
-      room: "101",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R002",
-      room: "105",
-      date: "20 Tue 2022",
-      status: "Move-In",
-    },
-    {
-      id: "R003",
-      room: "102",
-      date: "21 Wed 2022",
-      status: "Move-Out",
-    },
-  ];
+  const { tenancyRecords, fetchTenancyRecords, refreshTenancyRecords } =
+  useAPI();
+useEffect(() => {
+  fetchTenancyRecords();
+}, [fetchTenancyRecords]);
+
+const recentActivity = tenancyRecords
+.filter((record) => record.tenancy_status === "CHECK_OUT") // Filter for "CHECK_IN" status only
+.map((record) => ({
+  id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
+  room: record.RoomBaseDetails.room_number,
+  date: new Date(record.move_in_date).toLocaleDateString("en-US", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }),
+  moveIn: new Date(record.move_in_date).toISOString().split('T')[0], // Convert to ISO string and take the date part for rendering
+}))
+.sort((a, b) => b.moveIn - a.moveIn);
+
+  // const recentActivity = [
+  //   {
+  //     id: "R001",
+  //     room: "101",
+  //     date: "20 Tue 2022",
+  //     status: "Move-In",
+  //   },
+  //   {
+  //     id: "R002",
+  //     room: "105",
+  //     date: "20 Tue 2022",
+  //     status: "Move-In",
+  //   },
+  //   {
+  //     id: "R003",
+  //     room: "102",
+  //     date: "21 Wed 2022",
+  //     status: "Move-Out",
+  //   },
+  // ];
   const [monthsLeft, setMonthsLeft] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [dayMonth, setDayMonth] = useState("");
@@ -81,6 +103,7 @@ export default function CheckOut() {
           tenant_id: tenantDetails.tenant_id,
         }
       );
+      refreshTenancyRecords();
       console.log(response.data.message);
       setSnackbarMessage(
         response.data.message || "Tenant checked out successfully!"
@@ -394,48 +417,56 @@ export default function CheckOut() {
                   <Typography variant="h6" sx={{ marginBottom: "10px" }}>
                     Recent Activity
                   </Typography>
-                  {recentActivity.map((activity) => (
-                    <Box
-                      key={activity.id}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "10px",
-                        gap: "5px",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          borderRadius: "2px",
-                          border: "1px solid #ccc",
-                          padding: "8px",
-                          display: "flex",
-                          width: "30%",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.room}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          borderRadius: "2px",
-                          border: "1px solid #ccc",
-                          padding: "8px",
-                          display: "flex",
-                          width: "70%",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography sx={{ marginRight: "8px" }}>
-                          {activity.status}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ))}
+                  {recentActivity.length > 0 ? (
+                    recentActivity.slice(0, 6).map(
+                      (
+                        activity 
+                      ) => (
+                        <Box
+                          key={activity.id}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginBottom: "10px",
+                            gap: "5px",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              borderRadius: "2px",
+                              border: "1px solid #ccc",
+                              padding: "8px",
+                              display: "flex",
+                              width: "30%",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography sx={{ marginRight: "8px" }}>
+                              {activity.room}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              borderRadius: "2px",
+                              border: "1px solid #ccc",
+                              padding: "8px",
+                              display: "flex",
+                              width: "70%",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography sx={{ marginRight: "8px" }}>
+                              {activity.moveIn}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      )
+                    )
+                  ) : (
+                    <Typography>No Recent Activity</Typography> // Display when there's no recent activity
+                  )}
                 </CardContent>
               </Card>
             </Box>

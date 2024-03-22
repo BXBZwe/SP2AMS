@@ -742,12 +742,7 @@ export default function PaymentTable() {
                 .length
             })`}
           />
-          <Tab
-            label={`Paid (${
-              payments.filter((payment) => payment.payment_status === "PAID")
-                .length
-            })`}
-          />
+
           <Tab
             label={`Other (${
               payments.filter(
@@ -756,6 +751,13 @@ export default function PaymentTable() {
                   payment.payment_status !== "PENDING" &&
                   payment.payment_status !== "PAID"
               ).length
+            })`}
+          />
+
+                    <Tab
+            label={`Paid (${
+              payments.filter((payment) => payment.payment_status === "PAID")
+                .length
             })`}
           />
         </Tabs>
