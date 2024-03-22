@@ -37,7 +37,8 @@ export default function AddRoom() {
 
   const filteredRates = rates.filter((rate) => rate.item_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const filteredItems = showAll ? filteredRates : filteredRates.slice(0, 3);
+  // const filteredItems = showAll ? filteredRates : filteredRates.slice(0, 5);
+  const filteredItems =  filteredRates ;
 
   const [customRoomType, setCustomRoomType] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -101,35 +102,61 @@ export default function AddRoom() {
   //   fetchRates();
   // }, []);
 
+  // useEffect(() => {
+  //   const fetchRates = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:3000/getallrates");
+  //       const ratesData = response.data.getRate;
+
+  //       // Assuming ratesData is an array of rate objects
+  //       setRates(ratesData);
+  //       console.log("Rates Data", ratesData);
+
+  //       const defaultRates = ratesData.reduce((acc, rate) => {
+  //         console.log(rate.item_name); // Debugging: Log the item name to see what's being processed
+  //         if (rate.item_name === "Water" || rate.item_name === "Electricity") {
+  //           acc.push({ rateId: rate.rate_id, quantity: 1 });
+  //         }
+  //         return acc;
+  //       }, []);
+
+  //       setSelectedRates(defaultRates);
+  //       // console.log(defaultRates);
+  //       // console.log("Inside Fetch",selectedRates);
+  //     } catch (error) {
+  //       console.error("Error fetching rates:", error);
+  //     }
+  //   };
+
+  //   fetchRates();
+  // }, []);
   useEffect(() => {
     const fetchRates = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getallrates");
-        const ratesData = response.data.getRate;
-
-        // Assuming ratesData is an array of rate objects
-        setRates(ratesData);
-        console.log("Rates Data", ratesData);
-
+        let ratesData = response.data.getRate;
+  
+        // Filter out the rates where `disable_rate` is true
+        ratesData = ratesData.filter(rate => !rate.disable_rate);
+          
+        // Proceed with your logic to find default rates, now excluding disabled rates
         const defaultRates = ratesData.reduce((acc, rate) => {
-          console.log(rate.item_name); // Debugging: Log the item name to see what's being processed
           if (rate.item_name === "Water" || rate.item_name === "Electricity") {
             acc.push({ rateId: rate.rate_id, quantity: 1 });
           }
           return acc;
         }, []);
-
+  
+        setRates(ratesData);  // Set state with filtered ratesData
         setSelectedRates(defaultRates);
-        // console.log(defaultRates);
-        // console.log("Inside Fetch",selectedRates);
       } catch (error) {
         console.error("Error fetching rates:", error);
       }
     };
-
+  
     fetchRates();
   }, []);
-  // console.log("Outside Fetch",selectedRates);
+  
 
   const handleCheck = (rateId) => {
     setSelectedRates((prevSelectedRates) => (prevSelectedRates.includes(rateId) ? prevSelectedRates.filter((id) => id !== rateId) : [...prevSelectedRates, rateId]));
@@ -442,11 +469,11 @@ export default function AddRoom() {
             >
               <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
                 <TextField label="Search" value={searchTerm} onChange={handleSearch} size="small" sx={{ mr: 2 }} />
-                {selectedRates.length > 3 && (
+                {/* {selectedRates.length > 1 && (
                   <Button variant="outlined" onClick={() => setShowAll(!showAll)}>
                     {showAll ? "Show Less" : "Show All"}
                   </Button>
-                )}
+                )} */}
               </Box>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Fab size="small" color="primary" onClick={handleOpenDialog} aria-label="add item">
