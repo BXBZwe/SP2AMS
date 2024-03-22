@@ -186,7 +186,7 @@ export default function Nav() {
                 justifyContent: "flex-end",
               }),
               ...(!open && {
-                marginRight: "-4px", // Aligns the icon to the center when drawer is closed
+                marginRight: "0", // Aligns the icon to the center when drawer is closed
                 // Centers the icon when drawer is closed
               }),
             }}

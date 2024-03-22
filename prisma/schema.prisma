@@ -8,25 +8,26 @@ datasource db {
 }
 
 model bills {
-  bill_id               Int                   @id @default(autoincrement())
-  room_id               Int
-  water_usage           Decimal               @db.Decimal(10, 2)
-  water_cost            Decimal               @db.Decimal(10, 2)
-  electricity_usage     Decimal               @db.Decimal(10, 2)
-  electricity_cost      Decimal               @db.Decimal(10, 2)
-  additional_rates_cost Decimal               @db.Decimal(10, 2)
-  billing_date          DateTime              @db.Date
-  baserent_month        String                @db.VarChar(20)
-  baserent_year         Int
-  total_amount          Decimal               @db.Decimal(10, 2)
-  billing_number        String?               @db.VarChar(20)
-  invoice_number        String?               @db.VarChar(20)
-  RoomBaseDetails       RoomBaseDetails       @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
-  GeneratedBillRecord   GeneratedBillRecord[]
+  bill_id                  Int                        @id @default(autoincrement())
+  room_id                  Int
+  water_usage              Decimal                    @db.Decimal(10, 2)
+  water_cost               Decimal                    @db.Decimal(10, 2)
+  electricity_usage        Decimal                    @db.Decimal(10, 2)
+  electricity_cost         Decimal                    @db.Decimal(10, 2)
+  additional_rates_cost    Decimal                    @db.Decimal(10, 2)
+  billing_date             DateTime                   @db.Date
+  baserent_month           String                     @db.VarChar(20)
+  baserent_year            Int
+  total_amount             Decimal                    @db.Decimal(10, 2)
+  billing_number           String?                    @db.VarChar(20)
+  invoice_number           String?                    @db.VarChar(20)
+  RoomBaseDetails          RoomBaseDetails            @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
+  GeneratedBillRecord      GeneratedBillRecord[]
+  TemporaryRateAdjustments TemporaryRateAdjustments[]
 }
 
 model BillSequence {
-  year          Int @id
+  year          Int  @id
   last_sequence Int?
 
   @@map("BillSequence")
@@ -42,30 +43,31 @@ model InvoiceSequence {
 
 
 model GeneratedBillRecord {
-  bill_record_id  Int             @id @default(autoincrement())
-  generation_date DateTime        @db.Date
-  rent_month      String
-  room_id         Int
-  rent_year       Int
-  bill_id         Int?
-  payment_status  PaymentStatus   @default(PENDING)
-  RoomBaseDetails RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
-  Bill            bills?           @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade, onUpdate: NoAction)
+  bill_record_id           Int                        @id @default(autoincrement())
+  generation_date          DateTime                   @db.Date
+  rent_month               String
+  room_id                  Int
+  rent_year                Int
+  bill_id                  Int?
+  payment_status           PaymentStatus              @default(PENDING)
+  RoomBaseDetails          RoomBaseDetails            @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
+  Bill                     bills?                     @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade, onUpdate: NoAction)
+  TemporaryRateAdjustments TemporaryRateAdjustments[]
 
   @@unique([generation_date, room_id])
 }
 
 model tenancy_records {
-  record_id        Int             @id @default(autoincrement())
-  tenant_id        Int
-  room_id          Int
-  move_in_date     DateTime        @db.Date
-  move_out_date    DateTime?       @db.Date
-  period_of_stay   Int?
-  deposit          Decimal?        @db.Decimal(10, 2)
-  tenancy_status   TenancyStatus   @default(CHECK_IN)
-  RoomBaseDetails  RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
-  tenants          tenants         @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+  record_id       Int             @id @default(autoincrement())
+  tenant_id       Int
+  room_id         Int
+  move_in_date    DateTime        @db.Date
+  move_out_date   DateTime?       @db.Date
+  period_of_stay  Int?
+  deposit         Decimal?        @db.Decimal(10, 2)
+  tenancy_status  TenancyStatus   @default(CHECK_IN)
+  RoomBaseDetails RoomBaseDetails @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  tenants         tenants         @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum TenancyStatus {
@@ -93,14 +95,15 @@ model meter_readings {
 }
 
 model rates {
-  rate_id          Int          @id @default(autoincrement())
-  item_name        String       @db.VarChar(255)
-  item_price       Decimal      @db.Decimal(10, 2)
-  item_description String?
-  last_updated     DateTime?    @default(now()) @db.Timestamptz(6)
-  room_rates       room_rates[]
-  VAT_Percentage   Int              @default(0)
-  disable_rate     Boolean          @default(false)
+  rate_id                  Int                        @id @default(autoincrement())
+  item_name                String                     @db.VarChar(255)
+  item_price               Decimal                    @db.Decimal(10, 2)
+  item_description         String?
+  last_updated             DateTime?                  @default(now()) @db.Timestamptz(6)
+  room_rates               room_rates[]
+  VAT_Percentage           Int                        @default(0)
+  disable_rate             Boolean                    @default(false)
+  TemporaryRateAdjustments TemporaryRateAdjustments[]
 }
 
 model room_rates {
@@ -114,21 +117,22 @@ model room_rates {
 }
 
 model RoomBaseDetails {
-  room_id              Int                   @id @default(autoincrement())
-  room_number          String                @db.VarChar(50)
-  floor                Int
-  base_rent            Decimal               @db.Decimal(10, 2) @default(0)
-  room_type            String                @db.VarChar(50)
-  deposit              Decimal               @db.Decimal(10, 2)
-  statusDetails        RoomStatusDetails     @relation(fields: [statusDetailsId], references: [status_id], onDelete: Cascade)
-  statusDetailsId      Int                   @unique
-  bills                bills[]
-  tenancy_records      tenancy_records[]
-  meter_readings       meter_readings[]
-  room_rates           room_rates[]
-  tenants              tenants[]
-  Request              Request[]
-  generatedBillRecords GeneratedBillRecord[]
+  room_id                  Int                        @id @default(autoincrement())
+  room_number              String                     @db.VarChar(50)
+  floor                    Int
+  base_rent                Decimal                    @default(0) @db.Decimal(10, 2)
+  room_type                String                     @db.VarChar(50)
+  deposit                  Decimal                    @db.Decimal(10, 2)
+  statusDetails            RoomStatusDetails          @relation(fields: [statusDetailsId], references: [status_id], onDelete: Cascade)
+  statusDetailsId          Int                        @unique
+  bills                    bills[]
+  tenancy_records          tenancy_records[]
+  meter_readings           meter_readings[]
+  room_rates               room_rates[]
+  tenants                  tenants[]
+  Request                  Request[]
+  generatedBillRecords     GeneratedBillRecord[]
+  TemporaryRateAdjustments TemporaryRateAdjustments[]
 }
 
 model RoomStatusDetails {
@@ -171,7 +175,7 @@ model tenants {
   first_name             String            @db.VarChar(100)
   last_name              String            @db.VarChar(100)
   personal_id            String            @unique @db.VarChar(255)
-  contract_status        ContractStatus?    
+  contract_status        ContractStatus?
   gender                 String            @db.VarChar(10)
   issue_date             DateTime
   expiration_date        DateTime
@@ -187,15 +191,15 @@ model tenants {
 }
 
 model addresses {
-  address_id   Int     @id @default(autoincrement())
-  tenant_id    Int
-  addressnumber       String  @db.VarChar(5)
-  street       String  @db.VarChar(255)
-  sub_district String  @db.VarChar(255)
-  district     String  @db.VarChar(255)
-  province     String  @db.VarChar(255)
-  postal_code  String  @db.VarChar(20)
-  tenants      tenants @relation(fields: [tenant_id], references: [tenant_id], onDelete: Cascade)
+  address_id    Int     @id @default(autoincrement())
+  tenant_id     Int
+  addressnumber String  @db.VarChar(5)
+  street        String  @db.VarChar(255)
+  sub_district  String  @db.VarChar(255)
+  district      String  @db.VarChar(255)
+  province      String  @db.VarChar(255)
+  postal_code   String  @db.VarChar(20)
+  tenants       tenants @relation(fields: [tenant_id], references: [tenant_id], onDelete: Cascade)
 
   @@unique([tenant_id])
 }
@@ -232,7 +236,7 @@ model Request {
   request_id       Int             @id @default(autoincrement())
   room_id          Int
   issue_date       DateTime        @default(now())
-  resolved_date    DateTime?        
+  resolved_date    DateTime?
   request_details  String
   Request_priority RequestPriority
   Request_status   RequestStatus   @default(UNRESOLVED)
@@ -249,4 +253,21 @@ model service_contacts {
   image              String  @db.VarChar(255)
   manager_id         Int
   manager            manager @relation(fields: [manager_id], references: [manager_id], onDelete: Cascade)
+}
+
+model TemporaryRateAdjustments {
+  temp_adjustment_id  Int                  @id @default(autoincrement())
+  rate_id             Int
+  room_id             Int
+  bill_id             Int
+  bill_record_id      Int?
+  temporary_price     Decimal              @db.Decimal(10, 2)
+  applied             Boolean              @default(false)
+  creation_date       DateTime             @default(now())
+  rates               rates                @relation(fields: [rate_id], references: [rate_id])
+  RoomBaseDetails     RoomBaseDetails      @relation(fields: [room_id], references: [room_id])
+  Bill                bills                @relation(fields: [bill_id], references: [bill_id])
+  GeneratedBillRecord GeneratedBillRecord? @relation(fields: [bill_record_id], references: [bill_record_id])
+
+  @@unique([rate_id, room_id, bill_id])
 }
