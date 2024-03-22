@@ -157,4 +157,19 @@ const checkOut = async (req, res) => {
   }
 };
 
-export { checkIn, checkOut, getaTenancyrecord };
+
+const getAllTenancyRecords = async (req, res) => {
+  try {
+    const records = await prisma.tenancy_records.findMany({
+      include: {
+        RoomBaseDetails: true, 
+      }
+    });
+    res.status(200).json(records);
+  } catch (error) {
+    console.error("Failed to fetch tenancy records:", error);
+    res.status(500).json({ error: "Failed to fetch tenancy records" });
+  }
+};
+
+export { checkIn, checkOut, getaTenancyrecord,getAllTenancyRecords };

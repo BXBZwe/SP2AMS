@@ -8,6 +8,29 @@ export const APIProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
   const [requests, setRequests] = useState([]);
 
+  const [tenancyRecords, setTenancyRecords] = useState([]);
+
+  const fetchTenancyRecords = useCallback(async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/getalltenancyrecord");
+      if (response.data && Array.isArray(response.data)) {
+        // Assuming the response directly contains an array of tenancy records
+        console.log(response.data)
+        const recordsWithIds = response.data.map((record, index) => ({
+          ...record,
+          id: index + 1, // Adding an id property if it's not already included
+        }));
+        setTenancyRecords(recordsWithIds);
+      }
+    } catch (error) {
+      console.error("Error fetching tenancy records:", error);
+    }
+  }, []);
+
+  const refreshTenancyRecords = useCallback(async () => {
+    await fetchTenancyRecords(); // Re-fetch the tenancy records
+  }, [fetchTenancyRecords]);
+
   const fetchRates = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:3000/getallrates");
@@ -82,6 +105,9 @@ export const APIProvider = ({ children }) => {
         requests,
         fetchRequests,
         refreshRequests,
+        tenancyRecords,
+        fetchTenancyRecords,
+        refreshTenancyRecords,
       }}
     >
       {children}
