@@ -26,6 +26,8 @@ import { styled } from '@mui/material/styles';
 import  { linearProgressClasses } from '@mui/material/LinearProgress';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
+
+
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the check circle icon
 require('dotenv').config();
 
@@ -87,7 +89,11 @@ export default function BillingDetails() {
     { id: "2", value: "Meter Reading" },
   ];
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false); // New state for the second dialog
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  // Add your other state and effect hooks here
 
+  // Custom hook call
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -196,7 +202,25 @@ export default function BillingDetails() {
 
     setPreviousReadings(newPreviousReadings);
   };
-
+  
+  const useProtectRoute = (hasUnsavedChanges) => {
+    const router = useRouter();
+  
+    useEffect(() => {
+      const handleRouteChangeStart = (url) => {
+        if (router.pathname !== url && hasUnsavedChanges && !confirm("You have unsaved changes. Are you sure you want to leave?")) {
+          router.events.emit('routeChangeError');
+          throw 'Abort route change. Please ignore this error.';
+        }
+      };
+  
+      router.events.on('routeChangeStart', handleRouteChangeStart);
+  
+      return () => {
+        router.events.off('routeChangeStart', handleRouteChangeStart);
+      };
+    }, [hasUnsavedChanges, router]);
+  };
   const calculateUnitsDifference = () => {
     const newUnitsDifference = {};
   

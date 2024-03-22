@@ -1,7 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import Typography from "@mui/material/Typography";
-import { Card, CardContent, Button, Grid, Stack, Box } from "@mui/material";
-
+import {
+  Card,
+  CardContent,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+  Grid,
+  Paper,
+  Button,
+  Container
+} from '@mui/material';
 import axios from "axios";
 
 export default function TrendGraph() {
@@ -92,25 +103,59 @@ export default function TrendGraph() {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <select
-          value={selectedUtilityType}
-          onChange={(e) => setSelectedUtilityType(e.target.value)}
-        >
-          <option value="water">Water</option>
-          <option value="electricity">Electricity</option>
-        </select>
-        <select
-          value={selectedGranularity}
-          onChange={(e) => setSelectedGranularity(e.target.value)}
-        >
-          <option value="building">Building</option>
-          <option value="room">Room</option>
-        </select>
-        <Card sx={{ marginTop: "10px", padding: "20px" }}>
-          <div ref={chartRef} style={{ height: "500px", width: "100%" }} />
-        </Card>
-      </div>
+      <Box sx={{ width: '100%', overflowX: 'hidden', margin: 0}}>
+      <Container maxWidth={false}>
+        <Paper elevation={3} sx={{ p: 4, marginTop: 4, width: '100%' }}>
+          <Box sx={{  width: '63%' }}>
+            <Typography variant="h5" gutterBottom>
+              Utility Usage Trends
+            </Typography>
+            <Grid container spacing={2} alignItems="center" justifyContent="center">
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="utility-type-label">Utility Type</InputLabel>
+                  <Select
+                    labelId="utility-type-label"
+                    id="utility-type"
+                    value={selectedUtilityType}
+                    label="Utility Type"
+                    onChange={(e) => setSelectedUtilityType(e.target.value)}
+                  >
+                    <MenuItem value="water">Water</MenuItem>
+                    <MenuItem value="electricity">Electricity</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="granularity-label">Granularity</InputLabel>
+                  <Select
+                    labelId="granularity-label"
+                    id="granularity"
+                    value={selectedGranularity}
+                    label="Granularity"
+                    onChange={(e) => setSelectedGranularity(e.target.value)}
+                  >
+                    <MenuItem value="building">Building</MenuItem>
+                    <MenuItem value="room">Room</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Box
+                      ref={chartRef}
+                      sx={{ height: 500, width: '100%' }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
     </>
   );
 }
