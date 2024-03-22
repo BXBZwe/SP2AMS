@@ -53,14 +53,16 @@ export default function CheckIn() {
         const response = await axios.get("http://localhost:3000/getalltenants");
         const tenants = response.data.getTenant;
         if (Array.isArray(tenants)) {
-          const filteredTenants = tenants.filter((tenant) => tenant.account_status === "ACTIVE" );
-          console.log("Filtered tenants:", filteredTenants);
+          // Filter tenants where account_status is "ACTIVE" and RoomBaseDetails is null
+          const filteredTenants = tenants.filter((tenant) => tenant.account_status === "ACTIVE" && tenant.roomBaseDetailsRoom_id === null);
+          console.log("Filtered new tenants:", filteredTenants);
           setNewTenants(filteredTenants);
         }
       } catch (error) {
         console.error("Failed to fetch tenants:", error);
       }
     };
+    
 
     fetchAvailableRooms();
     fetchNewTenants();
