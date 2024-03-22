@@ -270,110 +270,6 @@ const calculateAndGenerateBill = async (req, res) => {
 //   };
   
 
-
-// const UpdateAllPaymentStatus = async (req, res) => {
-//     const { billIds, newStatus } = req.body;
-//     console.log('Bill IDs', billIds);
-  
-//     const updateInvoiceSequence = async (year) => {
-//       const invoiceSequence = await prisma.invoiceSequence.upsert({
-//         where: { year },
-//         update: { last_sequence: { increment: 1 } },
-//         create: { year, last_sequence: 1 },
-//       });
-//       return invoiceSequence.last_sequence;
-//     };
-  
-//     const generateInvoiceNumber = async () => {
-//       const invoiceYear = new Date().getFullYear();
-//       const sequenceNumber = await updateInvoiceSequence(invoiceYear);
-//       return `${invoiceYear}/${sequenceNumber.toString().padStart(4, '0')}`;
-//     };
-  
-//     try {
-//       const transactionPromises = await Promise.all(billIds.map(async (billId) => {
-//         let updateData = { payment_status: newStatus };
-  
-//         if (newStatus === "PAID") {
-//           const invoiceNumber = await generateInvoiceNumber();
-//           updateData.invoice_number = invoiceNumber;
-//         }
-  
-//         return prisma.generatedBillRecord.update({
-//           where: { bill_record_id: billId },
-//           data: updateData,
-//         });
-//       }));
-  
-//       await prisma.$transaction(transactionPromises);
-//       res.json({ message: "Payment statuses and invoice numbers updated successfully." });
-//     } catch (error) {
-//       console.error("Failed to update payment statuses and invoice numbers:", error);
-//       res.status(500).json({ message: "Failed to update payment statuses and invoice numbers." });
-//     }
-//   };
-
-
-
-
-// const UpdateAllPaymentStatus = async (req, res) => {
-//     const { billIds, newStatus } = req.body;
-//     console.log('Bill Record IDs', billIds);
-  
-//     const updateInvoiceSequence = async (year) => {
-//       const invoiceSequence = await prisma.invoiceSequence.upsert({
-//         where: { year },
-//         update: { last_sequence: { increment: 1 } },
-//         create: { year, last_sequence: 1 },
-//       });
-//       return invoiceSequence.last_sequence;
-//     };
-
-//     // const generatedBill = await prisma.generatedBillRecord.findFirst({
-//     //     where: { room_id: parseInt(room_id) },
-//     //     orderBy: { generation_date: 'desc' },
-//     // });
-
-  
-//     const generateInvoiceNumber = async () => {
-//         // const invoiceYear = prisma.bills.billingDate.getFullYear();
-//         // const invoiceYear = generatedBill.generation_date.getFullYear();
-//       const invoiceYear = new Date().getFullYear();
-//       const sequenceNumber = await updateInvoiceSequence(invoiceYear);
-//       return `${invoiceYear}/${sequenceNumber.toString().padStart(4, '0')}`;
-//     };
-  
-//     try {
-//       const operations = billIds.map(async (billId) => {
-//         // Update the payment status in the GeneratedBillRecord
-//         const updatedBillRecord = await prisma.generatedBillRecord.update({
-//           where: { bill_record_id: billId },
-//           data: { payment_status: newStatus },
-//         });
-  
-//         console.log('Updated Bill Record', updatedBillRecord);
-  
-//         // If the new status is "PAID", generate an invoice number and update the associated bill
-//         if (newStatus === "PAID" && updatedBillRecord.bill_id) {
-//           const invoiceNumber = await generateInvoiceNumber();
-//           return prisma.bills.update({
-//             where: { bill_id: updatedBillRecord.bill_id },
-//             data: { invoice_number: invoiceNumber },
-//           });
-//         }
-//       });
-  
-//       // Await all operations within the transaction
-//       await prisma.$transaction(operations);
-  
-//       res.json({ message: "Payment statuses and invoice numbers updated successfully." });
-//     } catch (error) {
-//       console.error("Failed to update payment statuses and invoice numbers:", error);
-//       res.status(500).json({ message: "Failed to update payment statuses and invoice numbers." });
-//     }
-//   };
-  
-
 const UpdateAllPaymentStatus = async (req, res) => {
     const { billIds, newStatus } = req.body;
     console.log('Bill Record IDs', billIds);
@@ -432,5 +328,6 @@ const UpdateAllPaymentStatus = async (req, res) => {
         res.status(500).json({ message: "Failed to update payment statuses and invoice numbers." });
     }
 };
+
 
 export { calculateAndGenerateBill,UpdatePaymentStatus,UpdateAllPaymentStatus };
