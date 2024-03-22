@@ -195,6 +195,7 @@ const UpdatePaymentStatus = async (req, res) => {
 const UpdateAllPaymentStatus = async (req, res) => {
     const { billIds, newStatus } = req.body;
     console.log('Bill Record IDs', billIds);
+    
 
     try {
         const billRecordsWithYears = await Promise.all(billIds.map(async (billId) => {
