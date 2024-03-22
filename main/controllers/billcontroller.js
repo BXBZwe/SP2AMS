@@ -5,20 +5,17 @@ const prisma = new PrismaClient();
 const calculateAndGenerateBill = async (req, res) => {
     const { room_id } = req.body;
 
-    // Helper function to update or insert the current year's sequence in the BillSequence table
     const updateBillSequence = async (year) => {
         let billSequence = await prisma.billSequence.findUnique({
             where: { year }
         });
 
         if (billSequence) {
-            // If a sequence exists for the current year, increment it
             billSequence = await prisma.billSequence.update({
                 where: { year },
                 data: { last_sequence: { increment: 1 } }
             });
         } else {
-            // If no sequence exists for the current year, start a new one
             billSequence = await prisma.billSequence.create({
                 data: { year, last_sequence: 1 }
             });
@@ -32,7 +29,6 @@ const calculateAndGenerateBill = async (req, res) => {
         orderBy: { generation_date: 'desc' },
     });
 
-    // Generate billing number using the year and sequence number
     const generateBillingNumber = async (billingDate) => {
         const billingYear = generatedBill.generation_date.getFullYear();
         const sequenceNumber = await updateBillSequence(billingYear);
@@ -40,7 +36,6 @@ const calculateAndGenerateBill = async (req, res) => {
     };
 
     try {
-        // Your existing logic to calculate waterCost, electricityCost, additionalRatesCost...
         const meterReadings = await prisma.meter_readings.findMany({
             where: { room_id: parseInt(room_id) },
             orderBy: { reading_date: 'desc' },
@@ -56,12 +51,11 @@ const calculateAndGenerateBill = async (req, res) => {
         let previousReading = meterReadings[1] || { water_reading: 0, electricity_reading: 0 };
         let currentReading = meterReadings[0] || previousReading;
 
-                // Handle rollover scenario
-                const rolloverWater = 10000;
-                const rolloverElectricity = 1000000;
-                // const rolloverWater = process.env.ROLLOVER_WATER;
-                // const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
-                console.log("Rollover Water:", rolloverWater)
+        const rolloverWater = 10000;
+        const rolloverElectricity = 1000000;
+        // const rolloverWater = process.env.ROLLOVER_WATER;
+        // const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+        console.log("Rollover Water:", rolloverWater)
 
 
         if (meterReadings.length === 0) {
@@ -75,12 +69,12 @@ const calculateAndGenerateBill = async (req, res) => {
         console.log("Current Reading: ", currentReading);
         console.log("Previous Reading:", previousReading);
 
-        const waterUsage = currentReading.water_reading < previousReading.water_reading ? 
-                           (currentReading.water_reading + rolloverWater) - previousReading.water_reading :
-                           currentReading.water_reading - previousReading.water_reading;
-        const electricityUsage = currentReading.electricity_reading < previousReading.electricity_reading ? 
-                                 (currentReading.electricity_reading + rolloverElectricity) - previousReading.electricity_reading :
-                                 currentReading.electricity_reading - previousReading.electricity_reading;
+        const waterUsage = currentReading.water_reading < previousReading.water_reading ?
+            (currentReading.water_reading + rolloverWater) - previousReading.water_reading :
+            currentReading.water_reading - previousReading.water_reading;
+        const electricityUsage = currentReading.electricity_reading < previousReading.electricity_reading ?
+            (currentReading.electricity_reading + rolloverElectricity) - previousReading.electricity_reading :
+            currentReading.electricity_reading - previousReading.electricity_reading;
         console.log("water usage:", waterUsage)
         console.log("electricity usage:", electricityUsage)
 
@@ -142,8 +136,8 @@ const calculateAndGenerateBill = async (req, res) => {
         console.log("Total Amount:", Number(waterCost) + Number(electricityCost) + Number(additionalRatesCost) + Number(roombaserent));
 
 
-        const billingDate = new Date(); // Assuming the billing date is the current date. Adjust as needed.
-        const billingNumber = await generateBillingNumber(billingDate); // Generate billing number using billingDate
+        const billingDate = new Date();
+        const billingNumber = await generateBillingNumber(billingDate);
 
         const newBill = await prisma.bills.create({
             data: {
@@ -157,11 +151,10 @@ const calculateAndGenerateBill = async (req, res) => {
                 billing_date: generatedBill.generation_date,
                 baserent_month: generatedBill.rent_month,
                 baserent_year: generatedBill.rent_year,
-                billing_number: billingNumber, // Set the generated billing number here
+                billing_number: billingNumber,
             },
         });
 
-        // Your existing logic to update the generatedBillRecord...
         await prisma.generatedBillRecord.update({
             where: { bill_record_id: generatedBill.bill_record_id },
             data: { bill_id: newBill.bill_id },
@@ -174,106 +167,66 @@ const calculateAndGenerateBill = async (req, res) => {
     }
 };
 
-  const UpdatePaymentStatus = async (req, res) => {
-    const { billIds } = req.body; // Expect an array of room IDs
-  
+const UpdatePaymentStatus = async (req, res) => {
+    const { billIds } = req.body;
+
     try {
-      await prisma.$transaction(
-        billIds.map((billId) =>
-          prisma.generatedBillRecord.updateMany({
-            where: {
-                bill_record_id: billId,
-              payment_status: 'Null', // Target records with 'Null' status
-              // You might want to include a check for invoice_option here if needed
-            },
-            data: {
-              payment_status: 'PENDING',
-            },
-          })
-        )
-      );
-      res.json({ message: "Payment statuses updated successfully." });
+        await prisma.$transaction(
+            billIds.map((billId) =>
+                prisma.generatedBillRecord.updateMany({
+                    where: {
+                        bill_record_id: billId,
+                        payment_status: 'Null',
+                    },
+                    data: {
+                        payment_status: 'PENDING',
+                    },
+                })
+            )
+        );
+        res.json({ message: "Payment statuses updated successfully." });
     } catch (error) {
-      console.error("Failed to update payment statuses:", error);
-      res.status(500).json({ message: "Failed to update payment statuses." });
+        console.error("Failed to update payment statuses:", error);
+        res.status(500).json({ message: "Failed to update payment statuses." });
     }
-  };
+};
 
-
-// const UpdateAllPaymentStatus = async (req, res) => {
-//     const { billIds, newStatus } = req.body; // Expect an array of bill IDs and the new status
-//   console.log('BIll ID',billIds);
-//     try {
-//       await prisma.$transaction(
-//         billIds.map((billId) =>
-//           prisma.generatedBillRecord.update({
-//             where: {
-//                 bill_record_id: billId, // Update using bill_id
-//             },
-//             data: {
-//               payment_status: newStatus, // Update to the new status provided
-//             },
-//           })
-//         )
-//       );
-//       res.json({ message: "Payment statuses updated successfully." });
-//     } catch (error) {
-//       console.error("Failed to update payment statuses:", error);
-//       res.status(500).json({ message: "Failed to update payment statuses." });
-//     }
-//   };
-  
 
 const UpdateAllPaymentStatus = async (req, res) => {
     const { billIds, newStatus } = req.body;
     console.log('Bill Record IDs', billIds);
 
-    const updateInvoiceSequence = async (year) => {
-        const invoiceSequence = await prisma.invoiceSequence.upsert({
-            where: { year },
-            update: { last_sequence: { increment: 1 } },
-            create: { year, last_sequence: 1 },
-        });
-        return invoiceSequence.last_sequence;
-    };
-
-    const generateInvoiceNumber = async (invoiceYear) => {
-        const sequenceNumber = await updateInvoiceSequence(invoiceYear);
-        return `${invoiceYear}/${sequenceNumber.toString().padStart(4, '0')}`;
-    };
-
     try {
-        const operations = billIds.map(async (billId) => {
-            // Fetch the bill record to get the generation_date
+        const billRecordsWithYears = await Promise.all(billIds.map(async (billId) => {
             const billRecord = await prisma.generatedBillRecord.findUnique({
                 where: { bill_record_id: billId },
             });
-
             if (!billRecord) {
                 console.log(`Bill record not found for ID: ${billId}`);
-                return;
+                return null;
             }
-
-            // Extract the year from the generation_date
             const invoiceYear = billRecord.generation_date.getFullYear();
+            return { billId, invoiceYear, billRecord };
+        }));
 
-            // Update the payment status in the GeneratedBillRecord
-            await prisma.generatedBillRecord.update({
+        const operations = billRecordsWithYears.filter(billRecord => billRecord !== null).map(({ billId, invoiceYear, billRecord }) => {
+            const updateStatusOp = prisma.generatedBillRecord.update({
                 where: { bill_record_id: billId },
                 data: { payment_status: newStatus },
             });
 
-            // If the new status is "PAID", generate an invoice number using the invoiceYear
             if (newStatus === "PAID" && billRecord.bill_id) {
-                const invoiceNumber = await generateInvoiceNumber(invoiceYear);
-                return prisma.bills.update({
+                const invoiceNumber = `${invoiceYear}/${(Math.random() * 1000).toFixed(0).padStart(4, '0')}`;
+                const updateInvoiceOp = prisma.bills.update({
                     where: { bill_id: billRecord.bill_id },
                     data: { invoice_number: invoiceNumber },
                 });
+                return [updateStatusOp, updateInvoiceOp];
+            } else {
+                return updateStatusOp;
             }
-        });
+        }).flat();
 
-        // Await all operations within the transaction
         await prisma.$transaction(operations);
 
         res.json({ message: "Payment statuses and invoice numbers updated successfully." });
@@ -284,4 +237,4 @@ const UpdateAllPaymentStatus = async (req, res) => {
 };
 
 
-export { calculateAndGenerateBill,UpdatePaymentStatus,UpdateAllPaymentStatus };
+export { calculateAndGenerateBill, UpdatePaymentStatus, UpdateAllPaymentStatus };
