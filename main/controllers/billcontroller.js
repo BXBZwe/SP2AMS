@@ -191,32 +191,100 @@ const UpdatePaymentStatus = async (req, res) => {
     }
 };
 
+// const UpdateAllPaymentStatus = async (req, res) => {
+//     const { billIds, newStatus } = req.body;
+//     console.log('Bill Record IDs', billIds);
+
+//     const updateInvoiceSequence = async (year) => {
+//         const invoiceSequence = await prisma.invoiceSequence.upsert({
+//             where: { year },
+//             update: { last_sequence: { increment: 1 } },
+//             create: { year, last_sequence: 1 },
+//         });
+//         return invoiceSequence.last_sequence;
+//     };
+
+//     const generateInvoiceNumber = async (invoiceYear) => {
+//         const sequenceNumber = await updateInvoiceSequence(invoiceYear);
+//         return `${invoiceYear}/${sequenceNumber.toString().padStart(4, '0')}`;
+//     };
+
+//     try {
+//         const operations = billIds.map(async (billId) => {
+//             // Fetch the bill record to get the generation_date
+//             const billRecord = await prisma.generatedBillRecord.findUnique({
+//                 where: { bill_record_id: billId },
+//             });
+
+//             if (!billRecord) {
+//                 console.log(`Bill record not found for ID: ${billId}`);
+//                 return;
+//             }
+
+//             // Extract the year from the generation_date
+//             const invoiceYear = billRecord.generation_date.getFullYear();
+
+//             // Update the payment status in the GeneratedBillRecord
+//             await prisma.generatedBillRecord.update({
+//                 where: { bill_record_id: billId },
+//                 data: { payment_status: newStatus },
+//             });
+
+//             // If the new status is "PAID", generate an invoice number using the invoiceYear
+//             if (newStatus === "PAID" && billRecord.bill_id) {
+//                 const invoiceNumber = await generateInvoiceNumber(invoiceYear);
+//                 return prisma.bills.update({
+//                     where: { bill_id: billRecord.bill_id },
+//                     data: { invoice_number: invoiceNumber },
+//                 });
+//             }
+//         });
+
+//         // Await all operations within the transaction
+//         await prisma.$transaction(operations);
+
+//         res.json({ message: "Payment statuses and invoice numbers updated successfully." });
+//     } catch (error) {
+//         console.error("Failed to update payment statuses and invoice numbers:", error);
+//         res.status(500).json({ message: "Failed to update payment statuses and invoice numbers." });
+//     }
+// };
+
 
 const UpdateAllPaymentStatus = async (req, res) => {
     const { billIds, newStatus } = req.body;
-    console.log('Bill Record IDs', billIds);
 
     try {
-        const billRecordsWithYears = await Promise.all(billIds.map(async (billId) => {
-            const billRecord = await prisma.generatedBillRecord.findUnique({
-                where: { bill_record_id: billId },
-            });
-            if (!billRecord) {
-                console.log(`Bill record not found for ID: ${billId}`);
-                return null;
-            }
-            const invoiceYear = billRecord.generation_date.getFullYear();
-            return { billId, invoiceYear, billRecord };
-        }));
+        const yearSequences = await Promise.all(
+            billIds.map(async (billId) => {
+                const billRecord = await prisma.generatedBillRecord.findUnique({
+                    where: { bill_record_id: billId },
+                });
+                if (!billRecord) {
+                    console.log(`Bill record not found for ID: ${billId}`);
+                    return null;
+                }
+                const invoiceYear = billRecord.generation_date.getFullYear();
 
-        const operations = billRecordsWithYears.filter(billRecord => billRecord !== null).map(({ billId, invoiceYear, billRecord }) => {
+                const invoiceSequence = await prisma.invoiceSequence.upsert({
+                    where: { year: invoiceYear },
+                    update: { last_sequence: { increment: 1 } },
+                    create: { year: invoiceYear, last_sequence: 1 },
+                });
+
+                const invoiceNumber = `${invoiceYear}/${invoiceSequence.last_sequence.toString().padStart(4, '0')}`;
+
+                return { billId, invoiceNumber, billRecord };
+            })
+        );
+
+        const operations = yearSequences.filter(item => item !== null).map(({ billId, invoiceNumber, billRecord }) => {
             const updateStatusOp = prisma.generatedBillRecord.update({
                 where: { bill_record_id: billId },
                 data: { payment_status: newStatus },
             });
 
             if (newStatus === "PAID" && billRecord.bill_id) {
-                const invoiceNumber = `${invoiceYear}/${(Math.random() * 1000).toFixed(0).padStart(4, '0')}`;
                 const updateInvoiceOp = prisma.bills.update({
                     where: { bill_id: billRecord.bill_id },
                     data: { invoice_number: invoiceNumber },
