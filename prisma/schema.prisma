@@ -20,6 +20,7 @@ model bills {
   baserent_year         Int
   total_amount          Decimal               @db.Decimal(10, 2)
   billing_number        String?               @db.VarChar(20)
+  invoice_number        String?               @db.VarChar(20)
   RoomBaseDetails       RoomBaseDetails       @relation(fields: [room_id], references: [room_id], onDelete: Cascade, onUpdate: NoAction)
   GeneratedBillRecord   GeneratedBillRecord[]
 }
@@ -30,6 +31,14 @@ model BillSequence {
 
   @@map("BillSequence")
 }
+
+model InvoiceSequence {
+  year          Int @id
+  last_sequence Int?
+
+  @@map("InvoiceSequence")
+}
+
 
 
 model GeneratedBillRecord {
