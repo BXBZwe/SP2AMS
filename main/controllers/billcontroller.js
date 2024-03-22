@@ -174,52 +174,6 @@ const calculateAndGenerateBill = async (req, res) => {
     }
 };
 
-// const UpdatePaymentStatus = async (req, res) => {
-//     const { room_id } = req.params;
-//     const { new_status } = req.body;
-//     console.log("RoomID and Stauts",room_id, new_status);
-//     try {
-//       // Assuming you have a Payment model or similar to update payment details
-//       const updatedPayment = await prisma.generatedBillRecord.update({
-//         where: {
-//           room_id: room_id,
-//         },
-//         data: {
-//           payment_status: new_status,
-//         },
-//       });
-//       res.json({ message: "Payment status updated successfully", updatedPayment });
-//     } catch (error) {
-//       console.error(`Failed to update payment status for room ID: ${room_id}`, error);
-//       res.status(500).json({ message: "Failed to update payment status", error: error.message });
-//     }
-//   };
-  
-// const UpdatePaymentStatus = async (req, res) => {
-//     const { roomIds } = req.body; // Expect an array of room IDs
-  
-//     try {
-//       await prisma.$transaction(
-//         roomIds.map((roomId) =>
-//           prisma.generatedBillRecord.updateMany({
-//             where: {
-//               room_id: roomId,
-//               payment_status: 'Null', // Target records with 'Null' status
-//               // You might want to include a check for invoice_option here if needed
-//             },
-//             data: {
-//               payment_status: 'PENDING',
-//             },
-//           })
-//         )
-//       );
-//       res.json({ message: "Payment statuses updated successfully." });
-//     } catch (error) {
-//       console.error("Failed to update payment statuses:", error);
-//       res.status(500).json({ message: "Failed to update payment statuses." });
-//     }
-//   };
-
   const UpdatePaymentStatus = async (req, res) => {
     const { billIds } = req.body; // Expect an array of room IDs
   
