@@ -35,7 +35,7 @@ export default function RateTable() {
 
   const columns = [
     { field: "item_name", headerName: "Item Name", flex: 0.2 },
-    { field: "item_price", headerName: "Item Price", flex:0.2 },
+    { field: "item_price", headerName: "Item Price ฿", flex:0.2 },
     { field: "item_description", headerName: "Item Description", flex:0.2 },
     { field: "last_updated", headerName: "Last Updated", flex:0.2 ,valueFormatter: (params) => formatDate(params.value),},
     {

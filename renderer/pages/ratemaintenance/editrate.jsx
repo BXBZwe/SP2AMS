@@ -16,6 +16,7 @@ import {
   Checkbox,
   CardActions,
   Grid,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
@@ -34,6 +35,9 @@ export default function EditRate() {
   const [errors, setErrors] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [includeVAT, setIncludeVAT] = useState(false);
+  const [disableRate, setDisableRate] = useState(false);
+  const [VATPercentage, setVATPercentage] = useState(0);
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -47,6 +51,9 @@ export default function EditRate() {
         );
         setRateData(response.data.data);
         // console.log(response.data.data);
+        setIncludeVAT(response.data.data.VAT_Percentage > 0);
+        setVATPercentage(response.data.data.VAT_Percentage);
+        setDisableRate(response.data.data.disable_rate);
       } catch (error) {
         console.error("Failed to fetch rate data", error);
         openSnackbar("Failed to fetch rate data", "error");
@@ -60,6 +67,8 @@ export default function EditRate() {
     const { name, value } = event.target;
     setRateData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // console.log("rate data", rateData);
 
   const validateForm = () => {
     let tempErrors = {};
@@ -89,13 +98,37 @@ export default function EditRate() {
     setOpenDialog(false);
   };
 
+  // const handleConfirmSave = async () => {
+  //   // console.log(rateId)
+  //   if (validateForm()) {
+  //     try {
+  //       await axios.put(
+  //         `http://localhost:3000/updaterates/${rateId}`,
+  //         rateData,
+          
+  //       );
+  //       openSnackbar("Rate updated successfully", "success");
+  //       setIsEditing(false);
+  //       router.push("/rateMaintenance");
+  //     } catch (error) {
+  //       console.error("Failed to update rate", error);
+  //       openSnackbar("Failed to update rate", "error");
+  //     }
+  //   }
+  // };
+
+  console.log("VAT",VATPercentage)
   const handleConfirmSave = async () => {
-    // console.log(rateId)
     if (validateForm()) {
       try {
+        const dataToSend = {
+          ...rateData,
+          VAT_Percentage: includeVAT ? VATPercentage : 0,
+          disable_rate: disableRate,
+        };
         await axios.put(
           `http://localhost:3000/updaterates/${rateId}`,
-          rateData
+          dataToSend
         );
         openSnackbar("Rate updated successfully", "success");
         setIsEditing(false);
@@ -106,6 +139,7 @@ export default function EditRate() {
       }
     }
   };
+  
 
   const handleSave = () => {
     if (!validateForm()) {
@@ -176,8 +210,10 @@ export default function EditRate() {
           display: "flex",
         }}
       >
-        <CardContent sx={{ display: "inline-block",width:'60vw' }}>
-          <TextField
+        <CardContent sx={{ display: "inline-block", width: "60vw" }}>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: "15px" }}>
+        <Box sx={{ width: "45vw" }}>
+        <TextField
             label="Item Name"
             name="item_name"
             value={rateData.item_name}
@@ -214,45 +250,47 @@ export default function EditRate() {
             helperText={errors.item_description}
             disabled={!isEditing}
           />
-        </CardContent>
-        <CardContent>
-          <Grid container spacing={0.5}>
-            <Grid item xs={12}>
-              <Typography variant="h6">
-                Options
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
+          </Box>
+          <Box>
+            <Typography variant="h6">Options</Typography>
+            <Box>
+              <Checkbox
+                checked={includeVAT}
+                onChange={(e) => {
+                  setIncludeVAT(e.target.checked);
+                }}
+                disabled={!isEditing}
+              />
               <Typography variant="body2" component="span">
-                Add VAT 7% to Price
+                VAT
               </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Billing After Usage
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Calculate from Meter
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Show Month on Bill
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Checkbox defaultChecked disabled={!isEditing} />
-              <Typography variant="body2" component="span">
-                Not Use Item
-              </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+            <Box>
+              {includeVAT && (
+                <TextField
+                  sx={{ width: "60%" }}
+                  type="number"
+                  label="VAT Percentage"
+                  value={VATPercentage}
+                  onChange={(e) => setVATPercentage(e.target.value)}
+                  disabled={!isEditing}
+                />
+              )}
+            </Box>
+            <Checkbox
+              checked={disableRate}
+              disabled={!isEditing}
+              onChange={(e) => {
+                setDisableRate(e.target.checked);
+              }}
+            />
+            <Typography variant="body2" component="span">
+              Disable Item
+            </Typography>
+          </Box>
+          </Box>
+
+
         </CardContent>
       </Card>
 
