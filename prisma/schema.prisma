@@ -254,7 +254,6 @@ model TemporaryRateAdjustments {
   temporary_price     Decimal              @db.Decimal(10, 2)
   applied             Boolean              @default(false)
   creation_date       DateTime             @default(now())
-  expiration_date     DateTime?
   rates               rates                @relation(fields: [rate_id], references: [rate_id])
   RoomBaseDetails     RoomBaseDetails      @relation(fields: [room_id], references: [room_id])
   Bill                bills                @relation(fields: [bill_id], references: [bill_id])

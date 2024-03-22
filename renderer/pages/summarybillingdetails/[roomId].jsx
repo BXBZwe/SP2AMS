@@ -16,7 +16,7 @@ export default function RoomBillingDetail() {
       const fetchBillingDetails = async () => {
         try {
           const response = await axios.get(`http://localhost:3000/getroombillingdetailforonegenerationdate/${roomId}`);
-          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id });
+          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id, bill_record_id: response.data.bill_record_id });
 
           const currentMeterReading = response.data.detailedBilling.meter_reading;
           setCurrentReadings({
@@ -75,7 +75,8 @@ export default function RoomBillingDetail() {
       room_id: billingDetails.room_id,
       bill_id: billingDetails.bill_id,
       temporary_price: Number(selectedRate.per_unit_price),
-      generationDate: billingDetails.generation_date,
+      // generationDate: billingDetails.generation_date,
+      bill_record_id: billingDetails.bill_record_id,
     };
 
     try {
