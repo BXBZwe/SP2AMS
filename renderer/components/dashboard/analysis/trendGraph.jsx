@@ -103,10 +103,10 @@ export default function TrendGraph() {
 
   return (
     <>
-      <Box sx={{ width: '100%', overflowX: 'hidden', margin: 0}}>
+      <Box sx={{ display: "flex",  overflowX: 'hidden', flex: 1}}>
       <Container maxWidth={false}>
-        <Paper elevation={3} sx={{ p: 4, marginTop: 4, width: '100%' }}>
-          <Box sx={{  width: '63%' }}>
+        <Paper elevation={3} sx={{ p: 4, marginTop: 4, display: "flex", flex: 1 }}>
+          <Box>
             <Typography variant="h5" gutterBottom>
               Utility Usage Trends
             </Typography>
