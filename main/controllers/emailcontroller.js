@@ -143,14 +143,11 @@ const Emailsender = async (req, res) => {
             return res.status(404).send('Room details not found.');
         }
 
-        // Active tenant's information
         const activeTenant = roomDetails.tenants[0];
         if (!activeTenant) {
             return res.status(404).send('Active tenant not found.');
         }
 
-        // Email content formatting
-        const billItems = roomDetails.room_rates.map(rate => `${rate.rates.item_name}: ฿${rate.rates.item_price.toFixed(2)} x ${rate.quantity}`).join('\r\n');
         const { total_amount, billing_date } = roomDetails.bills[0];
         const managerDetails = await prisma.manager.findFirst();
 
@@ -159,32 +156,101 @@ const Emailsender = async (req, res) => {
             day: 'numeric', month: 'long', year: 'numeric'
         });
 
+        const billDetails = roomDetails.bills[0];
+        const roombaserent = roomDetails.base_rent;
+        const billItemsHTML = roomDetails.room_rates.map(rate => {
+            let quantity, costPerUnit;
+
+            if (rate.rates.item_name === 'Water') {
+                quantity = billDetails.water_usage;
+                costPerUnit = rate.rates.item_price;
+            } else if (rate.rates.item_name === 'Electricity') {
+                quantity = billDetails.electricity_usage;
+                costPerUnit = rate.rates.item_price;
+            } else {
+                quantity = rate.quantity;
+                costPerUnit = rate.rates.item_price;
+            }
+
+            const totalCost = (costPerUnit * quantity).toFixed(2);
+
+            return `
+              <tr>
+                <td>${rate.rates.item_name} (${formattedBillingDate})</td>
+                <td style="text-align: right;">฿${costPerUnit.toFixed(2)}</td>
+                <td style="text-align: right;">${quantity.toFixed(2)}</td>
+                <td style="text-align: right;">฿${totalCost}</td>
+              </tr>
+            `;
+        }).join('');
+
+        const DueDate = new Date(billing_date.setDate(billing_date.getDate() + 14));
+
+        const formattedduedate = DueDate.toLocaleDateString('en-US', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        const baseRentRowHTML = `
+<tr>
+  <td>Room Base Rent</td>
+  <td style="text-align: right;">-</td>
+  <td style="text-align: right;">1</td>
+  <td style="text-align: right;">฿${roombaserent.toFixed(2)}</td>
+</tr>
+`;
         const emailContent = `
-P.S. Part General Partnership
-7 Thanomchit Road, Sutthisan Road, Din Daeng District, Bangkok 10400
-Tax ID 099 2 00360768 6
+<html>
+<head>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <p>P.S. Part General Partnership<br>
+  7 Thanomchit Road, Sutthisan Road, Din Daeng District, Bangkok 10400  billing Number R${billDetails.billing_number}<br>
 
-Bill To:
-${activeTenant.first_name} ${activeTenant.last_name} (Room ${roomDetails.room_number})
-${activeTenant.addresses.addressnumber} ${activeTenant.addresses.street}
-${activeTenant.addresses.sub_district}, ${activeTenant.addresses.district}
-${activeTenant.addresses.province} ${activeTenant.addresses.postal_code}
+  <p>Bill To:<br>
+  ${activeTenant.first_name} ${activeTenant.last_name} (Room ${roomDetails.room_number})<br>
+  ${activeTenant.addresses.addressnumber} ${activeTenant.addresses.street}<br>
+  ${activeTenant.addresses.sub_district}, ${activeTenant.addresses.district}<br>
+  ${activeTenant.addresses.province} ${activeTenant.addresses.postal_code}</p>
 
-Statement Date: ${formattedBillingDate}
-Due Date: ${new Date(billing_date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+  <p>Statement Date: ${formattedBillingDate}<br>
+  Due Date: ${formattedduedate}</p>
 
-Bill Details:
-${billItems}
+  <table>
+    <tr>
+      <th>Description</th>
+      <th>Price Per Unit</th>
+      <th>Quantity</th>
+      <th>Amount</th>
+    </tr>
+    ${billItemsHTML}
+    ${baseRentRowHTML}
+  </table>
 
-Total Due: ฿${total_amount.toFixed(2)}
-
-*Please make your payment by the due date.
-
-Thank you for your prompt payment.
-
-Sincerely,
-${managerDetails.name}
-Manager`;
+  <p>Total Due: <strong>฿${total_amount.toFixed(2)}</strong></p>
+  
+  <p>*Please make your payment by the due date.</p>
+  
+  <p>Thank you for your prompt payment.</p>
+  
+  <p>Sincerely,<br>
+  ${managerDetails.name}<br>
+  Manager</p>
+</body>
+</html>`;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -198,7 +264,7 @@ Manager`;
             from: process.env.EMAIL_ACCOUNT,
             to: activeTenant.contacts.email,
             subject: subject,
-            text: emailContent,
+            html: emailContent,
         });
 
         res.status(200).json({ message: 'Email sent successfully.' });

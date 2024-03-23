@@ -201,7 +201,7 @@ const generateDocDefinition = (roomDetails, managerName) => {
         content: [
             { text: 'P.S. Part General Partnership', style: 'header' },
             { text: 'Room Payment Details', style: 'subheader' },
-            { text: `Invoice Number R${billingNumber}`, alignment: 'right' },
+            { text: `Billing Number ${billingNumber}`, alignment: 'right' },
             { text: `Date: ${new Date().toLocaleDateString()}`, alignment: 'right' },
             { text: `Tenant: ${tenant.first_name} ${tenant.last_name}`, style: 'subheader' },
             { text: `Room Number: ${room_number}`, style: 'subheader' },

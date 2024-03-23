@@ -188,6 +188,10 @@ const deleteRoom = async (req, res) => {
         // Start a transaction to ensure data consistency
         await prisma.$transaction(async (prisma) => {
             // Delete related tenancy records
+            await prisma.temporaryRateAdjustments.deleteMany({
+                where: { room_id: parseInt(room_id) },
+            });
+
             await prisma.tenancy_records.deleteMany({
                 where: { room_id: parseInt(room_id) },
             });
@@ -206,4 +210,4 @@ const deleteRoom = async (req, res) => {
 };
 
 
-export { getRooms, createRoom, updateRoom, deleteRoom,getEachRoom };
+export { getRooms, createRoom, updateRoom, deleteRoom, getEachRoom };
