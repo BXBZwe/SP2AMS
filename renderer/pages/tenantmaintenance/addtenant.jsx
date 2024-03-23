@@ -94,10 +94,15 @@ export default function addtenant() {
     if (!startDate || startDate.toString().trim() === "") {
       tempErrors.startDate = "Start date is required";
     }
-
+    if (!startDate || dayjs(startDate).isBefore(dayjs(), 'day')) {
+      tempErrors.startDate = "Start date cannot be in the past";
+    }
     // Add validation for end date
     if (!endDate || endDate.toString().trim() === "") {
       tempErrors.endDate = "End date is required";
+    }
+    if (!endDate || dayjs(endDate).isBefore(dayjs(startDate), 'day')) {
+      tempErrors.endDate = "End date must be after the start date";
     }
     let isFormValid = Object.values(tempErrors).every((x) => x === "");
 
@@ -250,18 +255,21 @@ export default function addtenant() {
               <DatePicker
                 sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
                 label="Issue Date"
-                value={startDate} // This is now null initially
+                value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
-                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate}/>}
+                renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />}
+                minDate={dayjs()} // Ensure this is today's date or your specific date
               />
 
               <DatePicker
                 sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
                 label="Expiration Date"
-                value={endDate} // This is now null initially
+                value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />}
+                minDate={dayjs(startDate).add(1, 'day')} // This ensures the minDate is one day after the start date
               />
+
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div style={{ marginBottom: "0.7rem" }}>
@@ -270,13 +278,13 @@ export default function addtenant() {
               <TextField id="street" name="addresses.street" label="Street" variant="outlined" value={tenantData.street} onChange={handleChange} sx={{ width: 270 }} error={!!errors.street} helperText={errors.street} />
             </div>
 
-            <div style={{  marginBottom: "0.7rem" }}>
+            <div style={{ marginBottom: "0.7rem" }}>
               <TextField id="district" name="addresses.district" label="District" variant="outlined" value={tenantData.district} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.district} helperText={errors.district} />
 
               <TextField id="sub_district" name="addresses.sub_district" label="Sub District" variant="outlined" value={tenantData.sub_district} onChange={handleChange} sx={{ width: 270 }} error={!!errors.sub_district} helperText={errors.sub_district} />
             </div>
 
-            <div style={{  marginBottom: "0.7rem" }}>
+            <div style={{ marginBottom: "0.7rem" }}>
               <TextField id="province" name="addresses.province" label="Province" variant="outlined" value={tenantData.province} onChange={handleChange} sx={{ width: 270, marginRight: 0.5 }} error={!!errors.province} helperText={errors.province} />
 
               <TextField id="postal_code" name="addresses.postal_code" label="Postal Code" variant="outlined" value={tenantData.postal_code} onChange={handleChange} sx={{ width: 270 }} error={!!errors.postal_code} helperText={errors.postal_code} />

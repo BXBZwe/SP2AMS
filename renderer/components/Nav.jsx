@@ -33,7 +33,7 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu"; // Import the MenuIcon
-
+import AssignmentIcon from '@mui/icons-material/Assignment';
 const drawerWidth = 240;
 const isActive = (link) => {
   return router.pathname === link;
@@ -132,7 +132,7 @@ const navigationItems4 = [
   {
     label: "Summary Billing Detail",
     link: "/SummaryBillingDetail",
-    icon: <ReceiptIcon />,
+    icon: <AssignmentIcon />,
   },
   { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
 ];

@@ -20,9 +20,7 @@ export default function Dashboard() {
           }}
         >
           <Typography variant="h4">Dashboard</Typography>
-          <Typography variant="body2" sx={{ opacity: 0.7 }}>
-            03 Jan 2022 22:23
-          </Typography>
+          
         </CardContent>
         <CardContent>
           <div>

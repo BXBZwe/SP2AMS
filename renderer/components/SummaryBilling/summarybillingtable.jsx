@@ -51,13 +51,13 @@ export default function RoomDetailsTable() {
   };
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", width: 330 },
-    { field: "tenant_name", headerName: "Tenant Name", width: 330 },
-    { field: "total_bill", headerName: "Total Bill", width: 330 },
+    { field: "room_number", headerName: "Room Number", flex:0.14, },
+    { field: "tenant_name", headerName: "Tenant Name", flex:0.14, },
+    { field: "total_bill", headerName: "Total Bill", flex:0.14, },
     {
       field: "actions",
       headerName: "Actions",
-      width: 250,
+      flex:0.14,
       renderCell: (params) => {
         const roomId = params.row.room_id;
         return (

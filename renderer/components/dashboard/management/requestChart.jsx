@@ -70,7 +70,7 @@ export default function RequestChart() {
 //   console.log(requests)
   return (
     <div>
-      <Card sx={{ padding: "20px",width:'100%' }}>
+      
         <Typography variant="h6">Request Progress</Typography>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Box sx={{ width: "100%", mr: 1 }}>
@@ -95,7 +95,7 @@ export default function RequestChart() {
         </div>
 
         {/* <Typography variant="caption">Last Updated: {lastUpdated}</Typography> */}
-      </Card>
+    
     </div>
   );
 }

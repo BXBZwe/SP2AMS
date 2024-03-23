@@ -32,7 +32,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the che
 require('dotenv').config();
 
 export default function BillingDetails() {
-
+  
+  
+  
+  
 //   const rolloverWater = process.env.ROLLOVER_WATER;
 //   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
 // // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
@@ -208,18 +211,22 @@ export default function BillingDetails() {
   
     useEffect(() => {
       const handleRouteChangeStart = (url) => {
-        if (router.pathname !== url && hasUnsavedChanges && !confirm("You have unsaved changes. Are you sure you want to leave?")) {
-          router.events.emit('routeChangeError');
-          throw 'Abort route change. Please ignore this error.';
+        if (hasUnsavedChanges) {
+          const confirmMessage = "You have unsaved changes. Are you sure you want to leave?";
+          if (!window.confirm(confirmMessage)) {
+            router.events.emit('routeChangeError');
+            throw new Error('Abort route change. Please ignore this error.');
+          }
         }
       };
   
       router.events.on('routeChangeStart', handleRouteChangeStart);
+
   
       return () => {
         router.events.off('routeChangeStart', handleRouteChangeStart);
       };
-    }, [hasUnsavedChanges, router]);
+    }, [hasUnsavedChanges, router.events]);
   };
   const calculateUnitsDifference = () => {
     const newUnitsDifference = {};

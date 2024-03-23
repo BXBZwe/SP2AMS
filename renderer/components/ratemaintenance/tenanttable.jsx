@@ -10,7 +10,7 @@ import {
   Button, 
   IconButton, 
   FormControl, 
-  InputLabel,
+  InputLabel,  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert
 } from "@mui/material";
 import Link from "next/link";
 import EditIcon from "@mui/icons-material/Edit";
@@ -42,15 +42,18 @@ export default function ratetable() {
                 <EditIcon />
               </IconButton>
             </Link>
-            <IconButton onClick={() => handleDelete(tenant_id)}>
+            <IconButton onClick={() => promptDelete(tenant_id)}>
               <DeleteIcon />
             </IconButton>
+
           </>
         );
       },
     },
   ];
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [currentTenantId, setCurrentTenantId] = useState(null);
   const handleDelete = async (tenant_id) => {
     try {
       await axios.delete(`http://localhost:3000/deletetenants/${tenant_id}`);
@@ -83,7 +86,22 @@ export default function ratetable() {
     const searchText = event.target.value.toLowerCase();
     setSearchQuery(searchText);
   };
-
+  const promptDelete = (tenant_id) => {
+    setOpenDialog(true);
+    setCurrentTenantId(tenant_id);
+  };
+  
+  const handleDeleteConfirmed = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/deletetenants/${currentTenantId}`);
+      setOpenDialog(false);
+      setSnackbarOpen(true);
+      fetchTenants();
+    } catch (error) {
+      console.error(`Error deleting tenant with ID: ${currentTenantId}`, error);
+      setOpenDialog(false);
+    }
+  };
   const handleFilterChange = (event) => {
     setFilterValue(event.target.value);
   };
@@ -166,6 +184,31 @@ export default function ratetable() {
           </Card>
         </CardContent>
       </Card>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this tenant? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button variant="contained" sx={{ bgcolor: 'red'}} onClick={handleDeleteConfirmed} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
+          Tenant deleted successfully!
+        </Alert>
+      </Snackbar>
+
     </>
   );
 }

@@ -127,14 +127,14 @@ export default function OccupancyPie() {
   // console.log(lastUpdated)
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Card sx={{  padding: "20px", width: "fit-content", position: "relative" }}> {/* Ensure position is relative */}
-        <div ref={chartRef} style={{ height: "500px", width: "500px" }} />
+      
+        <div ref={chartRef} style={{ height: "400px", width: "420px" }} />
         <Box sx={{ position: 'absolute', bottom: 0, left: 0, padding: '10px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <Typography variant="caption">
             Last Updated: {lastUpdated}
           </Typography>
         </Box>
-      </Card>
+      
     </div>
   );
 }
