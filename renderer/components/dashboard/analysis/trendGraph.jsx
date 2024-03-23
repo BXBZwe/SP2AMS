@@ -53,7 +53,15 @@ export default function TrendGraph() {
   const fetchFinancialTrends = async () => {
     try {
       const response = await axios.get(`http://localhost:3000/getfinancialsummaryperiod?timeUnit=${timeUnit}&yearsRange=${yearsRange}`);
-      setFinancialData(response.data.data);
+      let data = response.data.data;
+
+      // Check if the time unit is "month" and filter data to only include the current year
+      if (timeUnit === "month") {
+        const currentYear = new Date().getFullYear();
+        data = data.filter((d) => parseInt(d.year) === currentYear);
+      }
+
+      setFinancialData(data);
     } catch (error) {
       console.error("Error fetching financial trends", error);
     }
@@ -94,8 +102,8 @@ export default function TrendGraph() {
               y: sumDf["total_usage_sum"].values,
               type: "scatter",
               mode: "lines+markers",
-              // name: `Room ${selectedRoom}`,
-              name: `Year ${year}`,
+              name: `Room ${selectedRoom}`,
+              // name: `Year ${year}`,
             };
           } else {
             grouped = df.groupby(["year", "month"]);
@@ -105,8 +113,8 @@ export default function TrendGraph() {
               y: sumDf["total_usage_sum"].values,
               type: "scatter",
               mode: "lines+markers",
-              // name: "Total Building Usage",
-              name: `Year ${year}`,
+              name: "Total Building Usage",
+              // name: `Year ${year}`,
             };
           }
           traces.push(trace);

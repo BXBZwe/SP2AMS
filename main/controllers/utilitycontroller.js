@@ -49,11 +49,10 @@ const getUtilityTrends = async (req, res) => {
 function getFinancialSummaryPeriod() {
    const endDate = new Date();
    endDate.setMonth(endDate.getMonth() + 3);
-   const startDate = new Date(new Date().setFullYear(endDate.getFullYear() - 1)); // Same date last year
+   const startDate = new Date(new Date().setFullYear(endDate.getFullYear() - 1));
 
-   // Ensuring that times are set to the start or end of the day
-   startDate.setHours(0, 0, 0, 0); // Set to start of the day
-   endDate.setHours(23, 59, 59, 999); // Set to end of the day
+   startDate.setHours(0, 0, 0, 0);
+   endDate.setHours(23, 59, 59, 999);
 
    return { startDate, endDate };
 }
