@@ -28,6 +28,8 @@ import { Snackbar, Alert } from "@mui/material";
 export default function PaymentTable() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   const theme = useTheme();
 
@@ -43,6 +45,14 @@ export default function PaymentTable() {
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [openUpdatePaymentDialog, setOpenUpdatePaymentDialog] = useState(false);
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState(null);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+
+  // Function to open the snackbar with a message and a severity
+const handleOpenSnackbar = (message, severity ) => {
+  setSnackbarMessage(message);
+  setSnackbarSeverity(severity); // Could be "success", "error", "warning", or "info"
+  setOpenSnackbar(true);
+};
 
   useEffect(() => {
     switch (selectedTab) {
@@ -157,7 +167,9 @@ export default function PaymentTable() {
         const pdfUrl = URL.createObjectURL(pdfBlob);
         window.open(pdfUrl);
 
-        console.log("PDF generated successfully for selected rooms.");
+        // console.log("PDF generated successfully for selected rooms.");
+        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success")
+
       } catch (error) {
         console.error("Failed to generate PDF for selected rooms:", error);
       }
@@ -170,7 +182,7 @@ export default function PaymentTable() {
 
   const handleGeneratePaidInvoicePdf = async () => {
     // Filter roomIds based on invoice_option
-    console.log("Paid Invoice")
+    // console.log("Paid Invoice")
     const roomIds = selectedRows
       .map((rowId) => {
         const paymentDetail = payments.find((payment) => payment.id === rowId);
@@ -197,12 +209,19 @@ export default function PaymentTable() {
         const pdfUrl = URL.createObjectURL(pdfBlob);
         window.open(pdfUrl);
 
-        console.log("PDF generated successfully for selected rooms.");
+        // console.log("PDF generated successfully for selected rooms.");
+        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success")
       } catch (error) {
         console.error("Failed to generate PDF for selected rooms:", error);
       }
     } else {
-      console.log("No rooms selected for PDF generation.");
+      // setOpenSnackbar(true);
+      //   setSnackbarMessage(
+      //     "Please select a room!"
+      //   );
+
+      // handleOpenSnackbar("Please select a room!", "error")
+      // console.log("No rooms selected for PDF generation.");
     }
 
     setOpenPdfDialog(false);
@@ -283,25 +302,60 @@ export default function PaymentTable() {
     const pdfSuccess = await handleGeneratePdf();
     const updateSuccess = await handleUpdatePaymentStatus();
 
-    if (emailSuccess && pdfSuccess && updateSuccess) {
-      setOpenSnackbar(true);
-      // Set a message to indicate all operations were successful
-      setSnackbarMessage(
-        "Emails sent, PDFs generated, and payment statuses updated successfully."
-      );
+    if (emailSuccess || pdfSuccess && updateSuccess) {
+      // setOpenSnackbar(true);
+      // // Set a message to indicate all operations were successful
+      // setSnackbarMessage(
+      //   "Emails sent, PDFs generated, and payment statuses updated successfully."
+      // );
+
+      handleOpenSnackbar("Emails sent, PDFs generated, and payment statuses updated successfully.", "success")
+
     }
   };
 
-  const handleAllPaidPaymentInvoiceGenerate = async () => {
+  const handleGenerateReciept = async () => {
+    if (selectedRows.length === 0) {
+      handleOpenSnackbar("Please select at least one room to proceed.", "error");
+      return; // Exit the function early
+    }
     setOpenGenerateDialog(false);
-    const pdfSuccess = await handleGeneratePaidInvoicePdf();
-    if (pdfSuccess) {
-      setOpenSnackbar(true);
-      setSnackbarMessage(
-        "Emails sent, PDFs generated, and payment statuses updated successfully."
-      );
+    const emailSuccess = await handleSendEmail();
+    const pdfSuccess = await handleGeneratePdf();
+
+    if (pdfSuccess && emailSuccess )  {
+      // setOpenSnackbar(true);
+      // setSnackbarMessage(
+      //   "Reciept PDFs generated,updated successfully."
+      // );
+
+      handleOpenSnackbar("Reciept PDFs generated,updated successfully.", "success")
+
+
+      
     }
   };
+
+// Invoice Email
+  const handleAllPaidPaymentInvoiceGenerate = async () => {
+    setOpenGenerateDialog(false);
+  
+    // Check if no rooms are selected
+    if (selectedRows.length === 0) {
+      handleOpenSnackbar("Please select at least one room to proceed.", "error");
+      return; // Exit the function early
+    }
+  
+    // Proceed with generating PDFs and sending emails if rooms are selected
+    const pdfSuccess = await handleGeneratePaidInvoicePdf();
+    const emailSuccess = await handleSendEmail();
+  
+    // Show success message if both operations succeed
+    if (pdfSuccess && emailSuccess) {
+      handleOpenSnackbar("Invoice PDFs and emails sent successfully.", "success");
+    }
+  };
+  
 
   const handleUpdatePaymentStatus = async () => {
     const rowsToUpdate = selectedRows
@@ -356,7 +410,9 @@ export default function PaymentTable() {
           subject: "Your Monthly Bill",
           message: "Please find your bill details attached.",
         });
-        setOpenSnackbar(true);
+        // setOpenSnackbar(true);
+        handleOpenSnackbar("Email Sent", "success");
+
         // console.log("Email sent successfully for room:", paymentDetail.room_number);
       } catch (error) {
         console.error(
@@ -389,6 +445,10 @@ export default function PaymentTable() {
     setOpenUpdatePaymentDialog(false);
   };
   const handleOpenGenerateDialog = () => {
+    if (selectedRows.length === 0) {
+      handleOpenSnackbar("Please select at least one room to proceed.", "error");
+      return; // Exit the function early
+    }
     setOpenGenerateDialog(true);
   };
 
@@ -450,7 +510,7 @@ export default function PaymentTable() {
     { label: "PAID", value: "PAID" },
     { label: "PARTIAL", value: "PARTIAL" },
     { label: "OVERDUE", value: "OVERDUE" },
-    { label: "Null", value: "Null" },
+    // { label: "Null", value: "Null" },
   ];
 
   // console.log("Payments", payments);
@@ -486,6 +546,16 @@ export default function PaymentTable() {
             )}
 
             {selectedTab === 1 && (
+              <>
+                  <Button                 variant="contained"
+                color="primary"
+                onClick={handleGenerateReciept}
+                sx = {{marginRight: "10px"}}
+                disabled={
+                  payments.filter(
+                    (payment) => payment.payment_status === "PENDING"
+                  ).length === 0
+                }>Generate Payments</Button>
               <Button
                 variant="contained"
                 color="primary"
@@ -498,6 +568,8 @@ export default function PaymentTable() {
               >
                 Update Payments
               </Button>
+
+              </>
             )}
 
             {selectedTab === 2 && (
@@ -730,20 +802,23 @@ export default function PaymentTable() {
         </DialogActions>
       </Dialog>
 
+
+
       <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Email sent successfully!
-        </Alert>
-      </Snackbar>
+    open={openSnackbar}
+    autoHideDuration={4000}
+    onClose={() => setOpenSnackbar(false)}
+    anchorOrigin={{ vertical: "top", horizontal: "right" }}
+  > 
+    <Alert
+      onClose={() => setOpenSnackbar(false)}
+      severity={snackbarSeverity} // Use the dynamic severity
+      sx={{ width: "100%" }}
+    >
+      {snackbarMessage}
+    </Alert>
+  </Snackbar>
+      
     </>
   );
 }

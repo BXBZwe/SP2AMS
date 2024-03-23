@@ -88,7 +88,8 @@ const getaTenancyrecord = async (req, res) => {
 
 const checkOut = async (req, res) => {
   console.log("check out: ", req.body);
-  const { room_id, tenant_id } = req.body;
+  const { roomNumber, tenant_id } = req.body;
+  const room_id = roomNumber
   try {
     const tenancyRecord = await prisma.tenancy_records.findFirst({
       where: {
@@ -114,7 +115,8 @@ const checkOut = async (req, res) => {
       contractStatusUpdate = 'TERMINATED';
     }
 
-    const roomstatus = await prisma.roomBaseDetails.findFirst({
+    console.log("Room ID",room_id)
+    const roomstatus = await prisma.roomBaseDetails.findUnique({
       where: {
         room_id: room_id,
       },
@@ -132,6 +134,7 @@ const checkOut = async (req, res) => {
       data: { tenancy_status: 'CHECK_OUT' },
     });
 
+    console.log( "Status ID to Update",roomstatus.statusDetailsId)
     await prisma.roomStatusDetails.update({
       where: { status_id: roomstatus.statusDetailsId },
       data: { occupancy_status: 'VACANT', is_reserved: false },
