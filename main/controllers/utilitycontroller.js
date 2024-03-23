@@ -47,7 +47,8 @@ const getUtilityTrends = async (req, res) => {
 };
 
 function getFinancialSummaryPeriod() {
-   const endDate = new Date(); // Today's date
+   const endDate = new Date();
+   endDate.setMonth(endDate.getMonth() + 3);
    const startDate = new Date(new Date().setFullYear(endDate.getFullYear() - 1)); // Same date last year
 
    // Ensuring that times are set to the start or end of the day
@@ -58,10 +59,9 @@ function getFinancialSummaryPeriod() {
 }
 
 
-const calculateFinancialSummary = async () => {
+const calculateFinancialSummary = async (req, res) => {
    const { startDate, endDate } = getFinancialSummaryPeriod();
 
-   // Calculate Revenue
    const totalRevenue = await prisma.bills.aggregate({
       _sum: {
          total_amount: true,
@@ -74,12 +74,10 @@ const calculateFinancialSummary = async () => {
       },
    });
 
-   // Calculate Costs
    const totalCosts = await prisma.bills.aggregate({
       _sum: {
          water_cost: true,
          electricity_cost: true,
-         // Add other cost-related fields if any
       },
       where: {
          AND: [
@@ -89,19 +87,69 @@ const calculateFinancialSummary = async () => {
       },
    });
 
-   const calculatedCosts = totalCosts._sum.water_cost + totalCosts._sum.electricity_cost;
+   const calculatedCosts = Number(totalCosts._sum.water_cost) + Number(totalCosts._sum.electricity_cost);
 
-   // Calculate Profit
-   const profit = totalRevenue._sum.total_amount - calculatedCosts;
+   const profit = Number(totalRevenue._sum.total_amount) - Number(calculatedCosts);
 
-   // Construct the summary object
    const financialSummary = {
-      revenue: totalRevenue._sum.total_amount,
+      revenue: Number(totalRevenue._sum.total_amount),
       costs: calculatedCosts,
       profit: profit,
    };
 
-   return financialSummary;
+   res.status(200).json({ message: 'Financial Summary fetched successfully', financialSummary });
+
 }
 
-export { getUtilityTrends, calculateFinancialSummary };
+const getFinancialTrends = async (req, res) => {
+   const { timeUnit, yearsRange } = req.query;
+
+   const validTimeUnits = ['month', 'year'];
+   if (!validTimeUnits.includes(timeUnit)) {
+      return res.status(400).json({ error: 'Invalid time unit' });
+   }
+   if (timeUnit === 'year' && (isNaN(yearsRange) || yearsRange < 1)) {
+      return res.status(400).json({ error: 'Invalid years range' });
+   }
+
+   let query = '';
+   if (timeUnit === 'month') {
+      query = `SELECT
+                    EXTRACT(MONTH FROM billing_date) AS month,
+                    EXTRACT(YEAR FROM billing_date) AS year,
+                    SUM(total_amount) AS revenue,
+                    SUM(water_cost + electricity_cost) AS costs,
+                    SUM(total_amount) - SUM(water_cost + electricity_cost) AS profit
+                 FROM
+                    bills
+                 WHERE
+                    billing_date >= CURRENT_DATE - INTERVAL '1 YEAR'
+                 GROUP BY
+                    year, month
+                 ORDER BY
+                    year, month;`;
+   } else if (timeUnit === 'year') {
+      query = `SELECT
+                    EXTRACT(YEAR FROM billing_date) AS year,
+                    SUM(total_amount) AS revenue,
+                    SUM(water_cost + electricity_cost) AS costs,
+                    SUM(total_amount) - SUM(water_cost + electricity_cost) AS profit
+                 FROM
+                    bills
+                 WHERE
+                    billing_date >= CURRENT_DATE - INTERVAL '${yearsRange} YEARS'
+                 GROUP BY
+                    year
+                 ORDER BY
+                    year;`;
+   }
+
+   try {
+      const trends = await prisma.$queryRawUnsafe(query);
+      res.status(200).json({ message: 'Financial trends fetched successfully', data: trends });
+   } catch (error) {
+      res.status(500).json({ error: error.message });
+   }
+};
+
+export { getUtilityTrends, calculateFinancialSummary, getFinancialTrends };
