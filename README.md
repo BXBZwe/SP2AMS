@@ -1,38 +1,49 @@
-<p align="center"><img src="https://i.imgur.com/X7dSE68.png"></p>
+# Apartment Management System & Dashboard Analysis
 
-## Usage
+A modern, efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
+## External Exposure (PS Park Apartment)
+PS Park Apartment has a management system where they keep track of the tenants and rooms. They have a system where they can generate bills monthly. This system was developed 20+ years ago and now they want a more efficient and modern approach for their system. 
 
-### Create an App
+## Table of Contents
 
-```
-# with npx
-$ npx create-nextron-app my-app --example basic-lang-javascript
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [Team](#team)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
 
-# with yarn
-$ yarn create nextron-app my-app --example basic-lang-javascript
+## Introduction
 
-# with pnpm
-$ pnpm dlx create-nextron-app my-app --example basic-lang-javascript
-```
+Provide a more detailed introduction to your project. Include motivation, potential uses, and challenges addressed by your project.
 
-### Install Dependencies
+## Features
 
-```
-$ cd my-app
+- Feature 1: Describe what it does.
+- Feature 2: Describe what it does.
+- Feature 3: Describe what it does.
+- Add more as needed.
 
-# using yarn or npm
-$ yarn (or `npm install`)
+## Technology Stack
 
-# using pnpm
-$ pnpm install --shamefully-hoist
-```
+Detail the technologies, frameworks, libraries, and tools used in your project.
 
-### Use it
+- **Frontend**: [Tech], [Tech], [Tech]
+- **Backend**: [Tech], [Tech]
+- **Database**: [Tech]
+- **Others**: [Tech], [Tech]
 
-```
-# development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
+## Getting Started
 
-# production build
-$ yarn build (or `npm run build` or `pnpm run build`)
-```
+Instructions for setting up a local development environment.
+
+### Prerequisites
+
+List everything needed to get started with your project.
+
