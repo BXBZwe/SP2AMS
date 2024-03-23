@@ -336,7 +336,7 @@ const handleOpenSnackbar = (message, severity ) => {
     }
   };
 
-// Invoice Email
+// Invoice Email /sendemail-invoice
   const handleAllPaidPaymentInvoiceGenerate = async () => {
     setOpenGenerateDialog(false);
   
@@ -348,7 +348,7 @@ const handleOpenSnackbar = (message, severity ) => {
   
     // Proceed with generating PDFs and sending emails if rooms are selected
     const pdfSuccess = await handleGeneratePaidInvoicePdf();
-    const emailSuccess = await handleSendEmail();
+    const emailSuccess = await handleSendEmailInvoice();
   
     // Show success message if both operations succeed
     if (pdfSuccess && emailSuccess) {
@@ -426,6 +426,49 @@ const handleOpenSnackbar = (message, severity ) => {
 
     return emailSuccess; // Return the overall success status
   };
+
+  const handleSendEmailInvoice = async () => {
+    let emailSuccess = true; // Initialize success flag
+    // console.log("Sending emails to selected rows:", selectedRows);
+
+    // Filter selected rows by invoice option
+    const emailRows = selectedRows.filter((rowId) => {
+      const paymentDetail = payments.find((payment) => payment.id === rowId);
+      return (
+        paymentDetail &&
+        (paymentDetail.invoice_option === "EMAIL" ||
+          paymentDetail.invoice_option === "BOTH")
+      );
+    });
+
+    for (const rowId of emailRows) {
+      const paymentDetail = payments.find((payment) => payment.id === rowId);
+      if (!paymentDetail) continue; // Skip if no payment detail found
+
+      const invoice_date = new Date().toLocaleDateString('en-US')
+      try {
+        await axios.post("http://localhost:3000/sendemail-invoice", {
+          room_id: paymentDetail.room_id,
+          subject: `Your Invoice ${invoice_date}`,
+          message: "Please find your bill details attached.",
+        });
+        // setOpenSnackbar(true);
+        handleOpenSnackbar("Email Sent", "success");
+
+        // console.log("Email sent successfully for room:", paymentDetail.room_number);
+      } catch (error) {
+        console.error(
+          "Failed to send email for room:",
+          paymentDetail.room_number,
+          error
+        );
+        emailSuccess = false; // Update success flag on failure
+      }
+    }
+
+    return emailSuccess; // Return the overall success status
+  };
+
 
   const handleSendEmailAndClose = async () => {
     setOpenSnackbar(true);

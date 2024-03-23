@@ -105,6 +105,7 @@ export default function TrendGraph() {
 
   return (
     <>
+<<<<<<< HEAD
       <Box sx={{ width: "100%", overflowX: "hidden", margin: 0 }}>
         <Container maxWidth={false}>
           <Paper elevation={3} sx={{ p: 4, marginTop: 4, width: "100%" }}>
@@ -117,6 +118,56 @@ export default function TrendGraph() {
                   <Typography variant="h4">${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
                 </CardContent>
               </Card>
+=======
+      <Box sx={{ display: "flex",  overflowX: 'hidden', flex: 1}}>
+      <Container maxWidth={false}>
+        <Paper elevation={3} sx={{ p: 4, marginTop: 4, display: "flex", flex: 1 }}>
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              Utility Usage Trends
+            </Typography>
+            <Grid container spacing={2} alignItems="center" justifyContent="center">
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="utility-type-label">Utility Type</InputLabel>
+                  <Select
+                    labelId="utility-type-label"
+                    id="utility-type"
+                    value={selectedUtilityType}
+                    label="Utility Type"
+                    onChange={(e) => setSelectedUtilityType(e.target.value)}
+                  >
+                    <MenuItem value="water">Water</MenuItem>
+                    <MenuItem value="electricity">Electricity</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="granularity-label">Granularity</InputLabel>
+                  <Select
+                    labelId="granularity-label"
+                    id="granularity"
+                    value={selectedGranularity}
+                    label="Granularity"
+                    onChange={(e) => setSelectedGranularity(e.target.value)}
+                  >
+                    <MenuItem value="building">Building</MenuItem>
+                    <MenuItem value="room">Room</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Box
+                      ref={chartRef}
+                      sx={{ height: 500, width: '100%' }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+>>>>>>> cadde106e24696b675580d03ca353415ac29c92b
             </Grid>
             <Grid item xs={12} md={4}>
               <Card sx={{ textAlign: "center" }}>

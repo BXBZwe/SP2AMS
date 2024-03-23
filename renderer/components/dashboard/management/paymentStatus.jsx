@@ -119,7 +119,7 @@
 
 
 import React, { useEffect, useState, useRef } from "react";
-import { Card, Box, Typography } from "@mui/material";
+import { Card, Grid, Box, Typography } from "@mui/material";
 import axios from "axios";
 
 export default function PaymentStatus() {
@@ -127,7 +127,8 @@ export default function PaymentStatus() {
   const [payments, setPayments] = useState([]);
   const [generationDates, setGenerationDates] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [statusCounts, setStatusCounts] = useState({});
+  
   const fetchGenerationDates = async () => {
     try {
       const response = await axios.get("http://localhost:3000/getgenerationdate");
@@ -177,22 +178,24 @@ export default function PaymentStatus() {
   }, [generationDates]);
 
   useEffect(() => {
+    // Calculate status counts for summary cards and the graph
+    const newStatusCounts = payments.reduce((acc, payment) => {
+      const status = payment.payment_status || 'Null'; // Default to 'Null' if status is undefined
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    setStatusCounts(newStatusCounts); // Update state used for rendering summary cards
+  
     if (chartRef.current) {
       if (payments.length === 0) {
-        // If there are no payments, show "No Payments"
-        chartRef.current.innerHTML = "<p>No Payments</p>";
+        // If no payments, could display a message or handle as needed
+        chartRef.current.innerHTML = "<p style='text-align:center; margin-top:20px;'>No Payments</p>";
       } else {
-        // Count occurrences of each payment status
-        const statusCounts = payments.reduce((acc, payment) => {
-          const status = payment.payment_status || 'Null';
-          acc[status] = (acc[status] || 0) + 1;
-          return acc;
-        }, {});
-
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
-
-        // Dynamically import Plotly inside useEffect
+        // Labels and values for the graph, derived from newStatusCounts
+        const labels = Object.keys(newStatusCounts);
+        const values = Object.values(newStatusCounts);
+  
+        // Dynamically import Plotly for the graph
         import('plotly.js-dist-min').then(({ default: Plotly }) => {
           const data = [{
             values: values,
@@ -204,45 +207,46 @@ export default function PaymentStatus() {
             marker: {
               colors: labels.map(label => {
                 switch (label) {
-                  case 'PAID': return '#66bb6a';
-                  case 'PENDING': return '#ffa726';
-                  case 'OVERDUE': return '#ef5350';
-                  case 'PARTIAL': return '#42a5f5';
-                  default: return '#bdbdbd';
+                  case 'PAID': return '#66bb6a'; 
+                  case 'PENDING': return '#ffa726'; 
+                  case 'OVERDUE': return '#ef5350'; 
+                  case 'PARTIAL': return '#42a5f5'; 
+                  default: return '#bdbdbd'; 
                 }
               })
             }
           }];
-
+  
           const layout = {
             title: "Payment Status Distribution",
             showlegend: true,
-            annotations: [
-              {
-                font: {
-                  size: 16
-                },
-                showarrow: false,
-                text: `No Payments`,
-                x: 0.5,
-                y: 0.5
-              }
-            ]
+            height: 400,
+            width: 500
           };
-
+  
           Plotly.newPlot(chartRef.current, data, layout);
-        }).catch(err => {
-          console.error("Error loading Plotly:", err);
-        });
+        }).catch(err => console.error("Error loading Plotly:", err));
       }
     }
   }, [payments]);
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Card sx={{ padding: "20px", width: "fit-content", position: "relative" }}>
-        <div ref={chartRef} style={{ height: "500px", width: "500px" }} />
+  
+  const StatusSummaryCard = ({ title, count }) => (
+    <Grid item>
+      <Card sx={{ padding: "10px", width: "100px", textAlign: "center" }}>
+        <Typography variant="h6">{count}</Typography>
+        <Typography variant="body2">{title}</Typography>
       </Card>
+    </Grid>
+  );
+  return (
+   
+    <div style={{ display: "flex", flexDirection: "column" }}>
+        <div ref={chartRef} style={{ width: "400px" }} />
+        <div style={{ display: "flex",  }}>
+        <div ref={chartRef} style={{ height: "400px", width: "500px" }} />
+</div>
+      
     </div>
+   
   );
 }

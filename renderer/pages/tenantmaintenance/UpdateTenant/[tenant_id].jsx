@@ -22,6 +22,7 @@ export default function updatetenant() {
   const { tenant_id } = router.query;
   const paymentOptions = ["Select", "EMAIL", "PAPER", "BOTH"];
   const [accountStatus, setAccountStatus] = useState("ACTIVE");
+  const [isEditMode, setIsEditMode] = useState(false);
   // const [tenantImagePreview, setTenantImagePreview] = useState(null);
   // const [nationalIDImagePreview, setNationalIDImagePreview] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -147,7 +148,16 @@ export default function updatetenant() {
   const validateForm = () => {
     const newErrors = {};
     let isValid = true;
+    if (!selectedDate || selectedDate.isBefore(dayjs(), 'day')) {
+      newErrors.startDate = "Issue date cannot be in the past";
+      isValid = false;
+      }
 
+      // Validate Expiration Date
+      if (!selectedEndDate || selectedEndDate.isBefore(selectedDate, 'day')) {
+          newErrors.endDate = "Expiration date must be after the issue date";
+          isValid = false;
+      }
     // Validate first_name
     if (!tenantData.first_name.trim()) {
       newErrors.first_name = "First name is required";
@@ -268,7 +278,26 @@ export default function updatetenant() {
 
     return isValid;
   };
+  const toggleEditMode = () => {
+    setIsEditMode((prevMode) => !prevMode);
+  };
+  const handleSaveChanges = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      // Perform your save operation here
+      handleSaveClick();
+      // After saving, disable edit mode
+      setIsEditMode(false);
+    } else {
+      // Handle validation failure (e.g., show an error message)
+    }
+  };
+  const handleCancelEdit = () => {
+    // Optionally revert any unsaved changes here
 
+    // Disable edit mode without saving changes
+    setIsEditMode(false);
+  };
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
@@ -362,6 +391,8 @@ export default function updatetenant() {
         </CardContent>
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+          {isEditMode ? (
+              <> 
             <Button
               type="submit"
               variant="contained"
@@ -372,7 +403,25 @@ export default function updatetenant() {
             >
               {loading ? "Saving..." : "Save"}
             </Button>
-
+            <Button
+                  variant="outlined"
+                  sx={{ width: "110px", marginTop: "15px" }}
+                  onClick={handleCancelEdit}
+                  // Add any additional props for the Cancel button
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{ width: "110px", marginTop: "15px" }}
+                onClick={toggleEditMode}
+                // Add any additional props for the Edit button
+              >
+                Edit
+              </Button>
+            )}
             <Button variant="contained" color={accountStatus === "ACTIVE" ? "success" : "secondary"} onClick={() => setAccountStatus((prevStatus) => (prevStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE"))} sx={{ marginTop: "15px" }}>
               {accountStatus}
             </Button>
@@ -386,37 +435,66 @@ export default function updatetenant() {
               Tenant Details
             </Typography>
 
-            <TextField id="first_name" name="first_name" label="First Name" value={tenantData.first_name} onChange={handleChange} error={!!errors.first_name} helperText={errors.first_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <TextField id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} onChange={handleChange} error={!!errors.last_name} helperText={errors.last_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="first_name" name="first_name" label="First Name" value={tenantData.first_name} onChange={handleChange} error={!!errors.first_name} helperText={errors.first_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} onChange={handleChange} error={!!errors.last_name} helperText={errors.last_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
-            <RadioGroup aria-label="gender" name="gender" value={tenantData.gender} onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })} >
-              <FormControlLabel value="Male" control={<Radio />} label="Male" />
-              <FormControlLabel value="Female" control={<Radio />} label="Female" />
-            </RadioGroup>
+            <RadioGroup
+                aria-label="gender"
+                name="gender"
+                value={tenantData.gender}
+                onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })}
+                row // This prop aligns the radio buttons in a row
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row', // Align items in a row
+                  justifyContent: 'start', // Adjust this value as needed to align the group within its container
+                  marginBottom: 2,
+                }}
+              >
+                <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                <FormControlLabel value="Female" control={<Radio />} label="Female" />
+              </RadioGroup>
 
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
-              <TextField id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} onChange={handleChange} error={!!errors.personal_id} helperText={errors.personal_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+              <TextField disabled={!isEditMode} id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} onChange={handleChange} error={!!errors.personal_id} helperText={errors.personal_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
-              <TextField id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.contacts.phone_number} onChange={handleChange} error={!!errors.phone_number} helperText={errors.phone_number || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+              <TextField disabled={!isEditMode} id="phone_number" name="contacts.phone_number" label="Phone Number" value={tenantData.contacts.phone_number} onChange={handleChange} error={!!errors.phone_number} helperText={errors.phone_number || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             </Box>
 
-            <Select label="Invoice Option" id="invoice_option" value={tenantData.invoice_option} onChange={(e) => setTenantData({ ...tenantData, invoice_option: e.target.value })} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}>
+            <Select disabled={!isEditMode} label="Invoice Option" id="invoice_option" value={tenantData.invoice_option} onChange={(e) => setTenantData({ ...tenantData, invoice_option: e.target.value })} sx={{ width: 270, marginBottom: 1.5, marginRight: 2.5 }}>
               {paymentOptions.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>
               ))}
             </Select>
-            <TextField id="email" name="contacts.email" label="Email" value={tenantData.contacts.email} onChange={handleChange} error={!!errors.email} helperText={errors.email || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6, marginLeft: -1.7 }} />
-            <TextField id="line_id" name="contacts.line_id" label="Line ID" value={tenantData.contacts.line_id} onChange={handleChange} error={!!errors.line_id} helperText={errors.line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker label="Issue Date" value={selectedDate} onChange={(newValue) => setSelectedDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
-              <DatePicker label="Expiration Date" value={selectedEndDate} onChange={(newValue) => setSelectedEndDate(newValue)} renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+            <br></br>
+            <TextField  disabled={!isEditMode} id="email" name="contacts.email" label="Email" value={tenantData.contacts.email} onChange={handleChange} error={!!errors.email} helperText={errors.email || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="line_id" name="contacts.line_id" label="Line ID" value={tenantData.contacts.line_id} onChange={handleChange} error={!!errors.line_id} helperText={errors.line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <LocalizationProvider  disabled={!isEditMode} dateAdapter={AdapterDayjs}>
+            <DatePicker
+        label="Issue Date"
+        value={selectedDate}
+        onChange={(newValue) => setSelectedDate(newValue)}
+        renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />}
+        minDate={dayjs()}
+        disabled={!isEditMode}
+        sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+    />
+    <DatePicker
+        label="Expiration Date"
+        value={selectedEndDate}
+        onChange={(newValue) => setSelectedEndDate(newValue)}
+        renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />}
+        minDate={selectedDate.add(1, 'day')} // Ensure it's after the issue date
+        disabled={!isEditMode}
+        sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+    />
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div>
               <div style={{ marginBottom: "0.7rem" }}>
-                <TextField id="addressnumber" name="addresses.addressnumber" label="No." value={tenantData.addresses.addressnumber} onChange={handleChange} error={!!errors.addressnumber} helperText={errors.addressnumber} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+                <TextField disabled={!isEditMode} id="addressnumber" name="addresses.addressnumber" label="No." value={tenantData.addresses.addressnumber} onChange={handleChange} error={!!errors.addressnumber} helperText={errors.addressnumber} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
                 <TextField
                   id="street"
                   name="addresses.street"
@@ -426,6 +504,7 @@ export default function updatetenant() {
                   error={!!errors.street}
                   helperText={errors.street || ""}
                   variant="outlined"
+                  disabled={!isEditMode}
                   sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
@@ -440,6 +519,7 @@ export default function updatetenant() {
                   error={!!errors.district}
                   helperText={errors.district || ""}
                   variant="outlined"
+                  disabled={!isEditMode}
                   sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half minus margin
                 />
                 <TextField
@@ -451,6 +531,7 @@ export default function updatetenant() {
                   error={!!errors.province}
                   helperText={errors.province || ""}
                   variant="outlined"
+                  disabled={!isEditMode}
                   sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
@@ -465,6 +546,7 @@ export default function updatetenant() {
                   error={!!errors.postal_code}
                   helperText={errors.postal_code || ""}
                   variant="outlined"
+                  disabled={!isEditMode}
                   sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half minus margin
                 />
                 <TextField
@@ -476,6 +558,7 @@ export default function updatetenant() {
                   error={!!errors.sub_district}
                   helperText={errors.sub_district || ""}
                   variant="outlined"
+                  disabled={!isEditMode}
                   sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} // Adjusting width to fit in half
                 />
               </div>
@@ -485,12 +568,12 @@ export default function updatetenant() {
             <Typography variant="h4" sx={{ marginBottom: 2 }}>
               Emergency Contact
             </Typography>
-            <TextField id="eme_name" name="contacts.eme_name" label="Emergency Contact Name" value={tenantData.contacts.eme_name} onChange={handleChange} error={!!errors.eme_name} helperText={errors.eme_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="eme_name" name="contacts.eme_name" label="Emergency Contact Name" value={tenantData.contacts.eme_name} onChange={handleChange} error={!!errors.eme_name} helperText={errors.eme_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
-            <TextField id="eme_phone" name="contacts.eme_phone" label="Emergency Phone" value={tenantData.contacts.eme_phone} onChange={handleChange} error={!!errors.eme_phone} helperText={errors.eme_phone || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <TextField id="eme_line_id" name="contacts.eme_line_id" label="Emergency Line ID" value={tenantData.contacts.eme_line_id} onChange={handleChange} error={!!errors.eme_line_id} helperText={errors.eme_line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="eme_phone" name="contacts.eme_phone" label="Emergency Phone" value={tenantData.contacts.eme_phone} onChange={handleChange} error={!!errors.eme_phone} helperText={errors.eme_phone || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="eme_line_id" name="contacts.eme_line_id" label="Emergency Line ID" value={tenantData.contacts.eme_line_id} onChange={handleChange} error={!!errors.eme_line_id} helperText={errors.eme_line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
-            <TextField id="eme_relation" name="contacts.eme_relation" label="Emergency Relationship" value={tenantData.contacts.eme_relation} onChange={handleChange} error={!!errors.eme_relation} helperText={errors.eme_relation || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="eme_relation" name="contacts.eme_relation" label="Emergency Relationship" value={tenantData.contacts.eme_relation} onChange={handleChange} error={!!errors.eme_relation} helperText={errors.eme_relation || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
           </Box>
         </Card>
         <Box sx={{ display: "flex", flexDirection: "column", height: "90%" }}>

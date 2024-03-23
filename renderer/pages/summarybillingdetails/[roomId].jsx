@@ -131,12 +131,18 @@ export default function RoomBillingDetail() {
       <div style={{ minHeight: 400, width: "100%" }}>
         <Card sx={{ width: "100%", padding: 1 }}>
           <CardContent>
-            <Typography variant="p" sx={{ padding: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+            <Typography variant="body1" style={{ paddingleft: 1 }}>
               <b>Tenant:</b> {billingDetails.tenant_name},
             </Typography>
-            <Typography variant="p">
-              <b>Room:</b> {billingDetails.room_number}
+            <Typography variant="body1" style={{ marginLeft: 20  }}>
+              <b>Room:</b> {billingDetails.room_number},
             </Typography>
+            <Typography variant="body1" style={{ marginLeft: 20  }}>
+              <b>Total Bill:</b> {"\u0E3F"}{formattedTotalBill}
+            </Typography>
+          </div>
+
             <TableContainer component={Paper}>
               <Table aria-label="billing details">
                 <TableHead>
@@ -181,8 +187,9 @@ export default function RoomBillingDetail() {
                   onChange={(e) => handleChange("quantity", e.target.value)}
                   margin="normal"
                   fullWidth
-                  InputProps={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? { readOnly: true } : {}}
+                  disabled
                 />
+
                 <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
                 {selectedRate && (selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity") && (
                   <>
@@ -204,10 +211,7 @@ export default function RoomBillingDetail() {
       </div>
 
       <Box sx={{ mt: 2 }}>
-        <Typography variant="h6">
-          Total Bill: {"\u0E3F"}
-          {formattedTotalBill}
-        </Typography>
+        
       </Box>
     </>
   );
