@@ -1,4 +1,4 @@
-import { signOut } from "next-auth/react";
+// import { signOut } from "next-auth/react";
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -33,6 +33,7 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu"; // Import the MenuIcon
+<<<<<<< HEAD
 import AssignmentIcon from '@mui/icons-material/Assignment';
 const drawerWidth = 240;
 const isActive = (link) => {
@@ -46,52 +47,68 @@ const openedMixin = (theme) => ({
   }),
   overflowX: "hidden",
 });
+=======
 
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
+// const drawerWidth = 240;
+// // const isActive = (link) => {
+// //   return router.pathname === link;
+// // };
+// const openedMixin = (theme) => ({
+//   width: drawerWidth,
+//   transition: theme.transitions.create("width", {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.enteringScreen,
+//   }),
+//   overflowX: "hidden",
+// });
+>>>>>>> 84483a20fa5b0128eed0bf200cb9e9c192b1282c
 
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: "flex-end", // Center the content horizontally
-}));
+// const closedMixin = (theme) => ({
+//   transition: theme.transitions.create("width", {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+//   overflowX: "hidden",
+//   width: `calc(${theme.spacing(7)} + 1px)`,
+//   [theme.breakpoints.up("sm")]: {
+//     width: `calc(${theme.spacing(8)} + 1px)`,
+//   },
+// });
 
-const TitleWrapper = styled("div")(({ theme }) => ({
-  flex: 1, // Take up all available space
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center", // Center the content horizontally
-}));
+// const DrawerHeader = styled("div")(({ theme }) => ({
+//   display: "flex",
+//   alignItems: "center",
+//   padding: theme.spacing(0, 1),
+//   ...theme.mixins.toolbar,
+//   justifyContent: "flex-end", // Center the content horizontally
+// }));
 
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-const title = "PS Park";
+// const TitleWrapper = styled("div")(({ theme }) => ({
+//   flex: 1, // Take up all available space
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center", // Center the content horizontally
+// }));
 
+// const Drawer = styled(MuiDrawer, {
+//   shouldForwardProp: (prop) => prop !== "open",
+// })(({ theme, open }) => ({
+//   width: drawerWidth,
+//   flexShrink: 0,
+//   whiteSpace: "nowrap",
+//   boxSizing: "border-box",
+//   ...(open && {
+//     ...openedMixin(theme),
+//     "& .MuiDrawer-paper": openedMixin(theme),
+//   }),
+//   ...(!open && {
+//     ...closedMixin(theme),
+//     "& .MuiDrawer-paper": closedMixin(theme),
+//   }),
+// }));
+// // const title = "PS Park";
+
+<<<<<<< HEAD
 const navigationItems1 = [
   // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
   { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
@@ -154,6 +171,70 @@ const navigationItems6 = [
   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
   { label: "Logout", action: () => signOut({ callbackUrl: "/signin" }), icon: <LogoutIcon /> },
 ];
+=======
+// const navigationItems1 = [
+//   // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
+//   { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
+// ];
+// const navigationItems2 = [
+//   {
+//     label: "Rate Maintenance",
+//     link: "/rateMaintenance",
+//     icon: <MenuBookIcon />,
+//   },
+//   { label: "Room Maintenance", link: "/roomMaintenance", icon: <HomeIcon /> },
+//   {
+//     label: "Tenant Maintenance",
+//     link: "/tenantMaintenance",
+//     icon: <GroupsIcon />,
+//   },
+// ];
+// const navigationItems3 = [
+//   { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
+//   { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
+// ];
+// const navigationItems4 = [
+//   {
+//     label: "Generate Contract",
+//     link: "/generatecontract",
+//     icon: <GavelIcon />,
+//   },
+//   {
+//     label: "Generate Billing Date",
+//     link: "/generatebilling",
+//     icon: <ReceiptIcon />,
+//   },
+//   {
+//     label: "Enter Billing Details",
+//     link: "/billingdetails",
+//     icon: <ReceiptLongIcon />,
+//   },
+//   {
+//     label: "Summary Billing Detail",
+//     link: "/SummaryBillingDetail",
+//     icon: <ReceiptIcon />,
+//   },
+//   { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
+// ];
+// const navigationItems5 = [
+//   {
+//     label: "Accural Billing Report",
+//     link: "/Summaryperiodicbilling",
+//     icon: <AssessmentIcon />,
+//   },
+//   {
+//     label: "Periodic Billing Report",
+//     link: "/Summaryaccuralbilling",
+//     icon: <AssessmentIcon />,
+//   },
+//   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
+//   { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
+// ];
+// const navigationItems6 = [
+//   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
+//   { label: "Logout", action: handleLogout, icon: <LogoutIcon /> },
+// ];
+>>>>>>> 84483a20fa5b0128eed0bf200cb9e9c192b1282c
 
 export default function Nav() {
   const theme = useTheme();
@@ -165,8 +246,134 @@ export default function Nav() {
     setActiveLink(link);
   };
   const router = useRouter();
+  const handleLogout = () => {
+    localStorage.removeItem("authToken"); // Remove the stored token
+    router.push("/signin"); // Redirect to login page
+  };
 
   const isLinkActive = (link) => link === activeLink;
+
+  const drawerWidth = 240;
+  // const isActive = (link) => {
+  //   return router.pathname === link;
+  // };
+  const openedMixin = (theme) => ({
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    overflowX: "hidden",
+  });
+
+  const closedMixin = (theme) => ({
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: "hidden",
+    width: `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(${theme.spacing(8)} + 1px)`,
+    },
+  });
+
+  const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
+    justifyContent: "flex-end", // Center the content horizontally
+  }));
+
+  const TitleWrapper = styled("div")(({ theme }) => ({
+    flex: 1, // Take up all available space
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center", // Center the content horizontally
+  }));
+
+  const Drawer = styled(MuiDrawer, {
+    shouldForwardProp: (prop) => prop !== "open",
+  })(({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    ...(open && {
+      ...openedMixin(theme),
+      "& .MuiDrawer-paper": openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      "& .MuiDrawer-paper": closedMixin(theme),
+    }),
+  }));
+  // const title = "PS Park";
+
+  const navigationItems1 = [
+    // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
+    { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
+  ];
+  const navigationItems2 = [
+    {
+      label: "Rate Maintenance",
+      link: "/rateMaintenance",
+      icon: <MenuBookIcon />,
+    },
+    { label: "Room Maintenance", link: "/roomMaintenance", icon: <HomeIcon /> },
+    {
+      label: "Tenant Maintenance",
+      link: "/tenantMaintenance",
+      icon: <GroupsIcon />,
+    },
+  ];
+  const navigationItems3 = [
+    { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
+    { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
+  ];
+  const navigationItems4 = [
+    {
+      label: "Generate Contract",
+      link: "/generatecontract",
+      icon: <GavelIcon />,
+    },
+    {
+      label: "Generate Billing Date",
+      link: "/generatebilling",
+      icon: <ReceiptIcon />,
+    },
+    {
+      label: "Enter Billing Details",
+      link: "/billingdetails",
+      icon: <ReceiptLongIcon />,
+    },
+    {
+      label: "Summary Billing Detail",
+      link: "/SummaryBillingDetail",
+      icon: <ReceiptIcon />,
+    },
+    { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
+  ];
+  const navigationItems5 = [
+    {
+      label: "Accural Billing Report",
+      link: "/Summaryperiodicbilling",
+      icon: <AssessmentIcon />,
+    },
+    {
+      label: "Periodic Billing Report",
+      link: "/Summaryaccuralbilling",
+      icon: <AssessmentIcon />,
+    },
+    { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
+    { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
+  ];
+  const navigationItems6 = [
+    { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
+    { label: "Logout", action: handleLogout, icon: <LogoutIcon /> },
+  ];
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
