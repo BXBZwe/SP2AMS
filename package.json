@@ -16,6 +16,7 @@
       "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/**/*",
       ".env",
+      "C:\\Users\\Zwe Min Maw\\SP2AMS\\resources\\psparkicon.ico",
       {
         "from": "C:\\Senior_Project2\\english",
         "to": "resources\\english",
