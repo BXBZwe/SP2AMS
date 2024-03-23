@@ -1,18 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Box,
-  Grid,
-  Paper,
-  Button,
-  Container
-} from '@mui/material';
+import { Card, CardContent, Typography, Select, MenuItem, FormControl, InputLabel, Box, Grid, Paper, Button, Container } from "@mui/material";
 import axios from "axios";
 
 export default function TrendGraph() {
@@ -22,11 +9,15 @@ export default function TrendGraph() {
   const [trends, setTrends] = useState(null);
   const chartRef = useRef(null);
 
+  const [financialSummary, setFinancialSummary] = useState({
+    revenue: null,
+    costs: null,
+    profit: null,
+  });
+
   const fetchTrends = async (utilityType, granularity) => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/get_utitliy_trends/${utilityType.toLowerCase()}/${granularity.toLowerCase()}`
-      );
+      const response = await axios.get(`http://localhost:3000/get_utitliy_trends/${utilityType.toLowerCase()}/${granularity.toLowerCase()}`);
       setTrends(response.data.data);
       console.log("Utility trends ", response.data.data);
     } catch (error) {
@@ -34,8 +25,19 @@ export default function TrendGraph() {
     }
   };
 
+  const fetchFinancialSummary = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/getprofitandrevenue");
+      setFinancialSummary(response.data);
+      console.log("Financial Summary: ", response.data);
+    } catch (error) {
+      console.error("Error fetching financial summary", error);
+    }
+  };
+
   useEffect(() => {
     fetchTrends(selectedUtilityType, selectedGranularity);
+    fetchFinancialSummary();
   }, [selectedUtilityType, selectedGranularity]);
 
   useEffect(() => {
@@ -99,63 +101,79 @@ export default function TrendGraph() {
         })
         .catch((err) => console.error("Error loading Danfojs:", err));
     }
-  }, [trends,selectedUtilityType, selectedGranularity]);
+  }, [trends, selectedUtilityType, selectedGranularity]);
 
   return (
     <>
-      <Box sx={{ width: '100%', overflowX: 'hidden', margin: 0}}>
-      <Container maxWidth={false}>
-        <Paper elevation={3} sx={{ p: 4, marginTop: 4, width: '100%' }}>
-          <Box sx={{  width: '63%' }}>
-            <Typography variant="h5" gutterBottom>
-              Utility Usage Trends
-            </Typography>
-            <Grid container spacing={2} alignItems="center" justifyContent="center">
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="utility-type-label">Utility Type</InputLabel>
-                  <Select
-                    labelId="utility-type-label"
-                    id="utility-type"
-                    value={selectedUtilityType}
-                    label="Utility Type"
-                    onChange={(e) => setSelectedUtilityType(e.target.value)}
-                  >
-                    <MenuItem value="water">Water</MenuItem>
-                    <MenuItem value="electricity">Electricity</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="granularity-label">Granularity</InputLabel>
-                  <Select
-                    labelId="granularity-label"
-                    id="granularity"
-                    value={selectedGranularity}
-                    label="Granularity"
-                    onChange={(e) => setSelectedGranularity(e.target.value)}
-                  >
-                    <MenuItem value="building">Building</MenuItem>
-                    <MenuItem value="room">Room</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Card>
-                  <CardContent>
-                    <Box
-                      ref={chartRef}
-                      sx={{ height: 500, width: '100%' }}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
+      <Box sx={{ width: "100%", overflowX: "hidden", margin: 0 }}>
+        <Container maxWidth={false}>
+          <Paper elevation={3} sx={{ p: 4, marginTop: 4, width: "100%" }}>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ textAlign: "center" }}>
+                <CardContent>
+                  <Typography variant="h5" color="textSecondary" gutterBottom>
+                    Revenue
+                  </Typography>
+                  <Typography variant="h4">${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
+                </CardContent>
+              </Card>
             </Grid>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ textAlign: "center" }}>
+                <CardContent>
+                  <Typography variant="h5" color="textSecondary" gutterBottom>
+                    Costs
+                  </Typography>
+                  <Typography variant="h4">${financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ textAlign: "center" }}>
+                <CardContent>
+                  <Typography variant="h5" color="textSecondary" gutterBottom>
+                    Profit
+                  </Typography>
+                  <Typography variant="h4">${financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Box sx={{ width: "63%" }}>
+              <Typography variant="h5" gutterBottom>
+                Utility Usage Trends
+              </Typography>
+
+              <Grid container spacing={2} alignItems="center" justifyContent="center">
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel id="utility-type-label">Utility Type</InputLabel>
+                    <Select labelId="utility-type-label" id="utility-type" value={selectedUtilityType} label="Utility Type" onChange={(e) => setSelectedUtilityType(e.target.value)}>
+                      <MenuItem value="water">Water</MenuItem>
+                      <MenuItem value="electricity">Electricity</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel id="granularity-label">Granularity</InputLabel>
+                    <Select labelId="granularity-label" id="granularity" value={selectedGranularity} label="Granularity" onChange={(e) => setSelectedGranularity(e.target.value)}>
+                      <MenuItem value="building">Building</MenuItem>
+                      <MenuItem value="room">Room</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Box ref={chartRef} sx={{ height: 500, width: "100%" }} />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
     </>
   );
 }
