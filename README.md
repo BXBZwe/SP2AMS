@@ -34,14 +34,28 @@ Provide a more detailed introduction to your project. Include motivation, potent
 
 Detail the technologies, frameworks, libraries, and tools used in your project.
 
-- **Frontend**: [Tech], [Tech], [Tech]
-- **Backend**: [Tech], [Tech]
-- **Database**: [Tech]
-- **Others**: [Tech], [Tech]
+- **Frontend**:
+![React.js](https://img.shields.io/badge/-React.js-61DAFB?logo=react&logoColor=white) ![Material-UI (MUI)](https://img.shields.io/badge/-Material--UI-007FFF?logo=mui&logoColor=white) ![Nextron](https://img.shields.io/badge/-Nextron-47848F?logo=electron&logoColor=white)
+
+
+
+
+
+
+- **Backend**: 
+![Elixir](https://img.shields.io/badge/-Elixir-4B275F?logo=elixir&logoColor=white)
+![Pyramid](https://img.shields.io/badge/-Pyramid-000000?logo=python&logoColor=white)
+- **Database**:
+![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?logo=postgresql&logoColor=white)
+- **Others**: 
+![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white)
+![Jira](https://img.shields.io/badge/-Jira-0052CC?logo=jira&logoColor=white)
 
 ## Getting Started
 
-Instructions for setting up a local development environment.
+Instructions for setting up a local development environment by followng the detailed Setup Guideline PDF.
+
+"PDF file"
 
 ### Prerequisites
 
