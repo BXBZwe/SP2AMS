@@ -47,114 +47,6 @@ const openedMixin = (theme) => ({
   overflowX: "hidden",
 });
 
-// const closedMixin = (theme) => ({
-//   transition: theme.transitions.create("width", {
-//     easing: theme.transitions.easing.sharp,
-//     duration: theme.transitions.duration.leavingScreen,
-//   }),
-//   overflowX: "hidden",
-//   width: `calc(${theme.spacing(7)} + 1px)`,
-//   [theme.breakpoints.up("sm")]: {
-//     width: `calc(${theme.spacing(8)} + 1px)`,
-//   },
-// });
-
-// const DrawerHeader = styled("div")(({ theme }) => ({
-//   display: "flex",
-//   alignItems: "center",
-//   padding: theme.spacing(0, 1),
-//   ...theme.mixins.toolbar,
-//   justifyContent: "flex-end", // Center the content horizontally
-// }));
-
-// const TitleWrapper = styled("div")(({ theme }) => ({
-//   flex: 1, // Take up all available space
-//   display: "flex",
-//   alignItems: "center",
-//   justifyContent: "center", // Center the content horizontally
-// }));
-
-// const Drawer = styled(MuiDrawer, {
-//   shouldForwardProp: (prop) => prop !== "open",
-// })(({ theme, open }) => ({
-//   width: drawerWidth,
-//   flexShrink: 0,
-//   whiteSpace: "nowrap",
-//   boxSizing: "border-box",
-//   ...(open && {
-//     ...openedMixin(theme),
-//     "& .MuiDrawer-paper": openedMixin(theme),
-//   }),
-//   ...(!open && {
-//     ...closedMixin(theme),
-//     "& .MuiDrawer-paper": closedMixin(theme),
-//   }),
-// }));
-// // const title = "PS Park";
-
-// const navigationItems1 = [
-//   // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
-//   { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
-// ];
-// const navigationItems2 = [
-//   {
-//     label: "Rate Maintenance",
-//     link: "/rateMaintenance",
-//     icon: <MenuBookIcon />,
-//   },
-//   { label: "Room Maintenance", link: "/roomMaintenance", icon: <HomeIcon /> },
-//   {
-//     label: "Tenant Maintenance",
-//     link: "/tenantMaintenance",
-//     icon: <GroupsIcon />,
-//   },
-// ];
-// const navigationItems3 = [
-//   { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
-//   { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
-// ];
-// const navigationItems4 = [
-//   {
-//     label: "Generate Contract",
-//     link: "/generatecontract",
-//     icon: <GavelIcon />,
-//   },
-//   {
-//     label: "Generate Billing Date",
-//     link: "/generatebilling",
-//     icon: <ReceiptIcon />,
-//   },
-//   {
-//     label: "Enter Billing Details",
-//     link: "/billingdetails",
-//     icon: <ReceiptLongIcon />,
-//   },
-//   {
-//     label: "Summary Billing Detail",
-//     link: "/SummaryBillingDetail",
-//     icon: <AssignmentIcon />,
-//   },
-//   { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
-// ];
-// const navigationItems5 = [
-//   {
-//     label: "Accural Billing Report",
-//     link: "/Summaryperiodicbilling",
-//     icon: <AssessmentIcon />,
-//   },
-//   {
-//     label: "Periodic Billing Report",
-//     link: "/Summaryaccuralbilling",
-//     icon: <AssessmentIcon />,
-//   },
-//   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
-//   { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
-// ];
-// const navigationItems6 = [
-//   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
-//   { label: "Logout", action: () => signOut({ callbackUrl: "/signin" }), icon: <LogoutIcon /> },
-// ];
-
 export default function Nav() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
@@ -246,8 +138,8 @@ export default function Nav() {
     },
   ];
   const navigationItems3 = [
-    { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
-    { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
+    { label: "Check In", link: "/checkIn", icon: <HowToRegIcon /> },
+    { label: "Check Out", link: "/checkOut", icon: <ExitToAppIcon /> },
   ];
   const navigationItems4 = [
     {
@@ -287,7 +179,7 @@ export default function Nav() {
     { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
   ];
   const navigationItems6 = [
-    { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
+    { label: "ProfileSetting", link: "/profile", icon: <AccountCircleIcon /> },
     { label: "Logout", action: handleLogout, icon: <LogoutIcon /> },
   ];
 
