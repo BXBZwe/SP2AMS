@@ -47,3 +47,4 @@ Instructions for setting up a local development environment.
 
 List everything needed to get started with your project.
 
+git

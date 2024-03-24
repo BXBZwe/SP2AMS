@@ -555,6 +555,7 @@ const handleOpenSnackbar = (message, severity ) => {
     { label: "OVERDUE", value: "OVERDUE" },
     // { label: "Null", value: "Null" },
   ];
+  const ITEM_HEIGHT = 48;
 
   // console.log("Payments", payments);
   return (
@@ -656,6 +657,13 @@ const handleOpenSnackbar = (message, severity ) => {
                 value={selectedGenerationDate || ""}
                 onChange={handleGenerationDateChange}
                 label="Select Generation Date"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: ITEM_HEIGHT * 2.5, // Set the max-height to show 3.5 items at a time
+                    },
+                  },
+                }}
               >
                 <MenuItem value="" disabled>
                   <em>No Date</em>

@@ -22,25 +22,20 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { styled } from '@mui/material/styles';
-import  { linearProgressClasses } from '@mui/material/LinearProgress';
+import { styled } from "@mui/material/styles";
+import { linearProgressClasses } from "@mui/material/LinearProgress";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
 
-
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the check circle icon
-require('dotenv').config();
+require("dotenv").config();
 
 export default function BillingDetails() {
-  
-  
-  
-  
-//   const rolloverWater = process.env.ROLLOVER_WATER;
-//   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
-// // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
-// // const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
-// console.log('RollOverWater',rolloverWater)
+  //   const rolloverWater = process.env.ROLLOVER_WATER;
+  //   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
+  // // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
+  // // const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
+  // console.log('RollOverWater',rolloverWater)
 
   // const router = useRouter();
   // const [openNavDialog, setOpenNavDialog] = useState(false); // State to control the dialog visibility
@@ -55,7 +50,7 @@ export default function BillingDetails() {
   // const handleLeave = (url) => {
   //   console.log("State Leave Url", leaveUrl);
   //   setOpenNavDialog(false); // Close the dialog
-  //   router.push(leaveUrl).catch(() => {}); 
+  //   router.push(leaveUrl).catch(() => {});
   // };
 
   // const handleNavigation = (link) => {
@@ -63,16 +58,15 @@ export default function BillingDetails() {
   //   const currentPath = router.pathname;
   //   if (saveProgress < 100) {
   //     setOpenNavDialog(true); // Open the navigation warning dialog
-  
+
   //     // Set the URL they're trying to navigate to, so you can use it if they confirm
-  //     setLeaveUrl(link); 
-  //   } 
+  //     setLeaveUrl(link);
+  //   }
   //   else {
   //     // If there's no unsaved progress, navigate directly
   //     router.push(link);
   //   }
   // };
-  
 
   // useEffect(() => {
   //   // Listen for route changes before they happen
@@ -83,7 +77,7 @@ export default function BillingDetails() {
   //     router.events.off('routeChangeStart', handleNavigation);
   //   };
   // }, [saveProgress, router.events]);
-  
+
   const types = [
     {
       id: "1",
@@ -96,7 +90,7 @@ export default function BillingDetails() {
   // Add your other state and effect hooks here
 
   // Custom hook call
-  
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -115,7 +109,6 @@ export default function BillingDetails() {
   const [saveProgress, setSaveProgress] = useState(0);
   const [saveCallCount, setSaveCallCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-
 
   const getroomsforbilling = async () => {
     try {
@@ -205,74 +198,72 @@ export default function BillingDetails() {
 
     setPreviousReadings(newPreviousReadings);
   };
-  
+
   const useProtectRoute = (hasUnsavedChanges) => {
     const router = useRouter();
-  
+
     useEffect(() => {
       const handleRouteChangeStart = (url) => {
         if (hasUnsavedChanges) {
-          const confirmMessage = "You have unsaved changes. Are you sure you want to leave?";
+          const confirmMessage =
+            "You have unsaved changes. Are you sure you want to leave?";
           if (!window.confirm(confirmMessage)) {
-            router.events.emit('routeChangeError');
-            throw new Error('Abort route change. Please ignore this error.');
+            router.events.emit("routeChangeError");
+            throw new Error("Abort route change. Please ignore this error.");
           }
         }
       };
-  
-      router.events.on('routeChangeStart', handleRouteChangeStart);
 
-  
+      router.events.on("routeChangeStart", handleRouteChangeStart);
+
       return () => {
-        router.events.off('routeChangeStart', handleRouteChangeStart);
+        router.events.off("routeChangeStart", handleRouteChangeStart);
       };
     }, [hasUnsavedChanges, router.events]);
   };
   const calculateUnitsDifference = () => {
     const newUnitsDifference = {};
-  
-    selectedRooms.forEach((room) => {     
+
+    selectedRooms.forEach((room) => {
       const roomId = room.RoomBaseDetails.room_id;
-      const currentReadingInput = readingValues[roomId]; 
-  
+      const currentReadingInput = readingValues[roomId];
+
       // Only proceed if there's an input for the current reading
       if (currentReadingInput !== undefined && currentReadingInput !== "") {
-        const currentReading = parseFloat(currentReadingInput); 
-  
+        const currentReading = parseFloat(currentReadingInput);
+
         let previousReading = 0;
         let rolloverValue = 0;
         if (selectedType === "Water Reading") {
           previousReading = previousReadings[roomId]?.water_reading || 0;
-          rolloverValue = 10000; 
+          rolloverValue = 10000;
         } else if (selectedType === "Meter Reading") {
           previousReading = previousReadings[roomId]?.electricity_reading || 0;
-          rolloverValue = 1000000; 
+          rolloverValue = 1000000;
         }
-  
+
         // Adjust current reading if it's less than previous (accounting for rollover)
         let adjustedCurrentReading = currentReading;
         if (currentReading < previousReading) {
           adjustedCurrentReading += rolloverValue;
         }
-  
+
         // Calculate the difference with adjusted current reading
         const difference = adjustedCurrentReading - previousReading;
-  
+
         newUnitsDifference[roomId] = difference; // Set the calculated difference
       } else {
         // If there's no input, set the units difference to a placeholder or null
         newUnitsDifference[roomId] = null; // Or use "-" or another placeholder
       }
     });
-  
+
     setUnitsDifference(newUnitsDifference);
   };
-  
-  
 
   useEffect(() => {
     calculateUnitsDifference();
-    console.log('readingvalues',readingValues);
+    console.log("readingvalues", readingValues);
   }, [readingValues, previousReadings]);
 
   useEffect(() => {
@@ -395,7 +386,7 @@ export default function BillingDetails() {
   const handleCloseGenerateDialog = () => {
     setGenerateDialogOpen(false);
   };
-  
+
   const handleGeneratebilling = async () => {
     setGenerateDialogOpen(false);
     if (!checkAllFieldsFilled()) {
@@ -442,7 +433,7 @@ export default function BillingDetails() {
           },
         }));
         // console.log(`Bill generated for Room ID ${roomId}`, response.data);
-        setSaveProgress(((saveCallCount + 1) /3) * 100);
+        setSaveProgress(((saveCallCount + 1) / 3) * 100);
         setSnackbarSeverity("success");
         setSnackbarMessage("All bills have been successfully generated.");
         setSnackbarOpen(true); // This is crucial
@@ -461,36 +452,36 @@ export default function BillingDetails() {
     setSnackbarOpen(false);
   };
 
-
-
   // Custom styled LinearProgress
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 10, // Increase the height of the progress bar here
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-  },
-  [`& .${linearProgressClasses.bar}`]: {
+  const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+    height: 10, // Increase the height of the progress bar here
     borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#4caf50' : '#308fe8',
-  },
-}));
+    [`&.${linearProgressClasses.colorPrimary}`]: {
+      backgroundColor:
+        theme.palette.grey[theme.palette.mode === "light" ? 200 : 800],
+    },
+    [`& .${linearProgressClasses.bar}`]: {
+      borderRadius: 5,
+      backgroundColor: theme.palette.mode === "light" ? "#4caf50" : "#308fe8",
+    },
+  }));
 
-function LinearProgressWithLabel(props) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
-        {/* Use BorderLinearProgress instead of the default LinearProgress */}
-        <BorderLinearProgress variant="determinate" {...props}  />
+  function LinearProgressWithLabel(props) {
+    return (
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ width: "100%", mr: 1 }}>
+          {/* Use BorderLinearProgress instead of the default LinearProgress */}
+          <BorderLinearProgress variant="determinate" {...props} />
+        </Box>
+        <Box sx={{ minWidth: 35 }}>
+          <Typography variant="body2" color="text.secondary">{`${Math.round(
+            props.value
+          )}%`}</Typography>
+        </Box>
       </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
+    );
+  }
+  const ITEM_HEIGHT = 48;
 
   // console.log('Selected Room',selectedRooms);
   return (
@@ -515,20 +506,28 @@ function LinearProgressWithLabel(props) {
             </Typography>
 
             <Box>
-  {saveProgress >= 100 ? (
-    <Button variant="contained" color="primary" disabled>
-      All Steps Completed
-    </Button>
-  ) : saveCallCount === 2 ? (
-    <Button variant="contained" color="primary" onClick={handleOpenGenerateDialog}>
-      Generate All Bills
-    </Button>
-  ) : (
-    <Button variant="contained" color="primary" onClick={handleOpenDialog}>
-      Save {selectedType}
-    </Button>
-  )}
-</Box>
+              {saveProgress >= 100 ? (
+                <Button variant="contained" color="primary" disabled>
+                  All Steps Completed
+                </Button>
+              ) : saveCallCount === 2 ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleOpenGenerateDialog}
+                >
+                  Generate All Bills
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleOpenDialog}
+                >
+                  Save {selectedType}
+                </Button>
+              )}
+            </Box>
           </CardContent>
 
           <Box
@@ -541,7 +540,7 @@ function LinearProgressWithLabel(props) {
               width: "40%",
             }}
           >
-            <Box sx={{ paddingRight: "10px" }}>
+            {/* <Box sx={{ paddingRight: "10px" }}>
               <Select
                 label="Generation Date"
                 value={selectedGenerationDate || ""}
@@ -556,26 +555,50 @@ function LinearProgressWithLabel(props) {
                   </MenuItem>
                 ))}
               </Select>
-            </Box>
-
+            </Box> */}
+<Box sx={{ paddingRight: "10px" }}>
+  <Select
+    label="Generation Date"
+    value={selectedGenerationDate || ""}
+    onChange={(e) => setSelectedGenerationDate(e.target.value)}
+    variant="outlined"
+    displayEmpty
+    sx={{ width: "100%", paddingRight: "10px" }}
+    MenuProps={{
+      PaperProps: {
+        style: {
+          maxHeight: ITEM_HEIGHT * 2.5, // Set the max-height to show 3.5 items at a time
+        },
+      },
+    }}
+  >
+                    <MenuItem value="" disabled>
+                  <em>No Date</em>
+                </MenuItem>
+    {allGenerationDate?.map((date, index) => (
+      <MenuItem key={index} value={date}>
+        {date}
+      </MenuItem>
+    ))}
+  </Select>
+</Box>
             <Box>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Reading Type</InputLabel>
-              <Select
-                label="Reading Type"
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                variant="outlined"
-                // sx={{ width: "100%" }}
-              >
-                {types.map((item) => (
-                  <MenuItem key={item.id} value={item.value}>
-                    {item.value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Reading Type</InputLabel>
+                <Select
+                  label="Reading Type"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  variant="outlined"
+                  // sx={{ width: "100%" }}
+                >
+                  {types.map((item) => (
+                    <MenuItem key={item.id} value={item.value}>
+                      {item.value}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
           </Box>
         </Card>
@@ -761,8 +784,8 @@ function LinearProgressWithLabel(props) {
         </Dialog>
       </Box>
 
-{/*Navigation Dialog*/}
-{/* <Dialog open={openNavDialog} onClose={handleStay}>
+      {/*Navigation Dialog*/}
+      {/* <Dialog open={openNavDialog} onClose={handleStay}>
         <DialogTitle>{"Confirm Navigation"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -800,4 +823,3 @@ function LinearProgressWithLabel(props) {
     </>
   );
 }
-

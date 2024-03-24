@@ -28,25 +28,25 @@ import { useAPI } from "../ratemaintenance/apiContent";
 
 export default function CheckOut() {
   const { tenancyRecords, fetchTenancyRecords, refreshTenancyRecords } =
-  useAPI();
-useEffect(() => {
-  fetchTenancyRecords();
-}, [fetchTenancyRecords]);
+    useAPI();
+  useEffect(() => {
+    fetchTenancyRecords();
+  }, [fetchTenancyRecords]);
 
-const recentActivity = tenancyRecords
-.filter((record) => record.tenancy_status === "CHECK_OUT") // Filter for "CHECK_IN" status only
-.map((record) => ({
-  id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
-  room: record.RoomBaseDetails.room_number,
-  date: new Date(record.move_in_date).toLocaleDateString("en-US", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }),
-  moveIn: new Date(record.move_in_date).toISOString().split('T')[0], // Convert to ISO string and take the date part for rendering
-}))
-.sort((a, b) => b.moveIn - a.moveIn);
+  const recentActivity = tenancyRecords
+    .filter((record) => record.tenancy_status === "CHECK_OUT") // Filter for "CHECK_IN" status only
+    .map((record) => ({
+      id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
+      room: record.RoomBaseDetails.room_number,
+      date: new Date(record.move_in_date).toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      moveIn: new Date(record.move_in_date).toISOString().split("T")[0], // Convert to ISO string and take the date part for rendering
+    }))
+    .sort((a, b) => b.moveIn - a.moveIn);
 
   // const recentActivity = [
   //   {
@@ -250,6 +250,7 @@ const recentActivity = tenancyRecords
     return !isNaN(floatValue);
   };
 
+  const ITEM_HEIGHT = 48;
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -314,8 +315,20 @@ const recentActivity = tenancyRecords
                             ? "The field cannot be empty."
                             : ""
                         }
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: {
+                                maxHeight: ITEM_HEIGHT * 4.5, // Adjust number of items shown (4.5 in this example)
+                              },
+                            },
+                          },
+                        }}
                       >
-                        {availableRooms.map((room) => (
+                        <MenuItem value="" disabled>
+                          <em>No Room</em>
+                        </MenuItem>
+                        {availableRooms?.map((room) => (
                           <MenuItem key={room.room_id} value={room.room_id}>
                             {room.room_number}
                           </MenuItem>
@@ -358,7 +371,9 @@ const recentActivity = tenancyRecords
                       />
                     </Box>
 
-                    <Box sx={{ display: "flex", gap: "30px" , marginTop:'10px'}}>
+                    <Box
+                      sx={{ display: "flex", gap: "30px", marginTop: "10px" }}
+                    >
                       <TextField
                         id="depositId"
                         disabled
@@ -418,52 +433,48 @@ const recentActivity = tenancyRecords
                     Recent Activity
                   </Typography>
                   {recentActivity.length > 0 ? (
-                    recentActivity.slice(0, 6).map(
-                      (
-                        activity 
-                      ) => (
+                    recentActivity.slice(0, 6).map((activity) => (
+                      <Box
+                        key={activity.id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: "10px",
+                          gap: "5px",
+                        }}
+                      >
                         <Box
-                          key={activity.id}
                           sx={{
+                            borderRadius: "2px",
+                            border: "1px solid #ccc",
+                            padding: "8px",
                             display: "flex",
+                            width: "30%",
                             justifyContent: "space-between",
-                            marginBottom: "10px",
-                            gap: "5px",
+                            alignItems: "center",
                           }}
                         >
-                          <Box
-                            sx={{
-                              borderRadius: "2px",
-                              border: "1px solid #ccc",
-                              padding: "8px",
-                              display: "flex",
-                              width: "30%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography sx={{ marginRight: "8px" }}>
-                              {activity.room}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              borderRadius: "2px",
-                              border: "1px solid #ccc",
-                              padding: "8px",
-                              display: "flex",
-                              width: "70%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography sx={{ marginRight: "8px" }}>
-                              {activity.moveIn}
-                            </Typography>
-                          </Box>
+                          <Typography sx={{ marginRight: "8px" }}>
+                            {activity.room}
+                          </Typography>
                         </Box>
-                      )
-                    )
+                        <Box
+                          sx={{
+                            borderRadius: "2px",
+                            border: "1px solid #ccc",
+                            padding: "8px",
+                            display: "flex",
+                            width: "70%",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography sx={{ marginRight: "8px" }}>
+                            {activity.moveIn}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))
                   ) : (
                     <Typography>No Recent Activity</Typography> // Display when there's no recent activity
                   )}

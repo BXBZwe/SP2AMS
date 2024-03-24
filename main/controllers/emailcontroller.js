@@ -355,6 +355,12 @@ const InvoiceEmailSender = async (req, res) => {
           day: 'numeric', month: 'long', year: 'numeric'
       });
 
+      const todayDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+
       const baseRentRowHTML = `
 <tr>
 <td>Room Base Rent</td>
@@ -392,7 +398,7 @@ ${activeTenant.addresses.sub_district}, ${activeTenant.addresses.district}<br>
 ${activeTenant.addresses.province} ${activeTenant.addresses.postal_code}</p>
 
 <p>Statement Date: ${formattedBillingDate}<br>
-Due Date: ${formattedduedate}</p>
+Date Paid Date: ${todayDate}</p>
 
 <table>
   <tr>
