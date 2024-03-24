@@ -71,6 +71,8 @@ export default function RoomDetailsTable() {
     },
   ];
 
+  const ITEM_HEIGHT = 48;
+
   return (
     <div style={{ height: 400, width: "100%" }}>
       <Box sx={{ marginBottom: 2 }}>
@@ -84,11 +86,23 @@ export default function RoomDetailsTable() {
           <FormControl fullWidth margin="normal">
                 <InputLabel>Generation Date</InputLabel>
                 <Select 
-                  value={selectedGenerationDate} 
-                  label="Generation Date" 
+                                  label="Generation Date" 
+
+                  value={selectedGenerationDate || ""} 
                   onChange={(e) => setSelectedGenerationDate(e.target.value)}
+                  // displayEmpty
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: ITEM_HEIGHT * 2.5, // Set the max-height to show 3.5 items at a time
+                      },
+                    },
+                  }}
                 >
-                  {generationDates.map((date, index) => (
+                                      <MenuItem value="" disabled>
+                  <em>No Date</em>
+                </MenuItem>
+                  {generationDates?.map((date, index) => (
                     <MenuItem key={index} value={date}>
                       {new Date(date).toLocaleDateString()}
                     </MenuItem>
