@@ -33,7 +33,7 @@ import { Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu"; // Import the MenuIcon
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentIcon from "@mui/icons-material/Assignment";
 const drawerWidth = 240;
 const isActive = (link) => {
   return router.pathname === link;
@@ -92,68 +92,68 @@ const openedMixin = (theme) => ({
 // }));
 // // const title = "PS Park";
 
-const navigationItems1 = [
-  // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
-  { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
-];
-const navigationItems2 = [
-  {
-    label: "Rate Maintenance",
-    link: "/rateMaintenance",
-    icon: <MenuBookIcon />,
-  },
-  { label: "Room Maintenance", link: "/roomMaintenance", icon: <HomeIcon /> },
-  {
-    label: "Tenant Maintenance",
-    link: "/tenantMaintenance",
-    icon: <GroupsIcon />,
-  },
-];
-const navigationItems3 = [
-  { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
-  { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
-];
-const navigationItems4 = [
-  {
-    label: "Generate Contract",
-    link: "/generatecontract",
-    icon: <GavelIcon />,
-  },
-  {
-    label: "Generate Billing Date",
-    link: "/generatebilling",
-    icon: <ReceiptIcon />,
-  },
-  {
-    label: "Enter Billing Details",
-    link: "/billingdetails",
-    icon: <ReceiptLongIcon />,
-  },
-  {
-    label: "Summary Billing Detail",
-    link: "/SummaryBillingDetail",
-    icon: <AssignmentIcon />,
-  },
-  { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
-];
-const navigationItems5 = [
-  {
-    label: "Accural Billing Report",
-    link: "/Summaryperiodicbilling",
-    icon: <AssessmentIcon />,
-  },
-  {
-    label: "Periodic Billing Report",
-    link: "/Summaryaccuralbilling",
-    icon: <AssessmentIcon />,
-  },
-  { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
-  { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
-];
-const navigationItems6 = [
-  { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
-  { label: "Logout", action: () => signOut({ callbackUrl: "/signin" }), icon: <LogoutIcon /> },
-];
+// const navigationItems1 = [
+//   // { label: "Dashboard (Home)", link: "/dashboard", icon: <DashboardIcon /> },
+//   { label: "Dashboard (Home)", link: "/home", icon: <DashboardIcon /> },
+// ];
+// const navigationItems2 = [
+//   {
+//     label: "Rate Maintenance",
+//     link: "/rateMaintenance",
+//     icon: <MenuBookIcon />,
+//   },
+//   { label: "Room Maintenance", link: "/roomMaintenance", icon: <HomeIcon /> },
+//   {
+//     label: "Tenant Maintenance",
+//     link: "/tenantMaintenance",
+//     icon: <GroupsIcon />,
+//   },
+// ];
+// const navigationItems3 = [
+//   { label: "Check-In", link: "/checkIn", icon: <HowToRegIcon /> },
+//   { label: "Check-Out", link: "/checkOut", icon: <ExitToAppIcon /> },
+// ];
+// const navigationItems4 = [
+//   {
+//     label: "Generate Contract",
+//     link: "/generatecontract",
+//     icon: <GavelIcon />,
+//   },
+//   {
+//     label: "Generate Billing Date",
+//     link: "/generatebilling",
+//     icon: <ReceiptIcon />,
+//   },
+//   {
+//     label: "Enter Billing Details",
+//     link: "/billingdetails",
+//     icon: <ReceiptLongIcon />,
+//   },
+//   {
+//     label: "Summary Billing Detail",
+//     link: "/SummaryBillingDetail",
+//     icon: <AssignmentIcon />,
+//   },
+//   { label: "Printing/Payment", link: "/printpayment", icon: <PrintIcon /> },
+// ];
+// const navigationItems5 = [
+//   {
+//     label: "Accural Billing Report",
+//     link: "/Summaryperiodicbilling",
+//     icon: <AssessmentIcon />,
+//   },
+//   {
+//     label: "Periodic Billing Report",
+//     link: "/Summaryaccuralbilling",
+//     icon: <AssessmentIcon />,
+//   },
+//   { label: "Meter/Water", link: "/SummaryMeter", icon: <ElectricMeterIcon /> },
+//   { label: "Request", link: "/Feedback", icon: <FeedbackIcon /> },
+// ];
+// const navigationItems6 = [
+//   { label: "Profile", link: "/profile", icon: <AccountCircleIcon /> },
+//   { label: "Logout", action: () => signOut({ callbackUrl: "/signin" }), icon: <LogoutIcon /> },
+// ];
 
 export default function Nav() {
   const theme = useTheme();
@@ -173,9 +173,7 @@ export default function Nav() {
   const isLinkActive = (link) => link === activeLink;
 
   const drawerWidth = 240;
-  // const isActive = (link) => {
-  //   return router.pathname === link;
-  // };
+
   const openedMixin = (theme) => ({
     width: drawerWidth,
     transition: theme.transitions.create("width", {
