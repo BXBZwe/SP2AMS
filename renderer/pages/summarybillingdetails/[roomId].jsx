@@ -92,6 +92,7 @@ export default function RoomBillingDetail() {
         previousElectricityReading: Number(previousReading.electricity_reading),
         currentWaterReading: Number(currentReading.water_reading),
         currentElectricityReading: Number(currentReading.electricity_reading),
+        generationDate: billingDetails.generation_date,
       };
 
       try {
