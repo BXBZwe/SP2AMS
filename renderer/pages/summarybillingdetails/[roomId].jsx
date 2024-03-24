@@ -16,7 +16,7 @@ export default function RoomBillingDetail() {
       const fetchBillingDetails = async () => {
         try {
           const response = await axios.get(`http://localhost:3000/getroombillingdetailforonegenerationdate/${roomId}`);
-          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id, bill_record_id: response.data.bill_record_id });
+          setBillingDetails({ ...response.data.detailedBilling, room_id: response.data.room_id, bill_id: response.data.bill_id, bill_record_id: response.data.bill_record_id, roombaserent: response.data.roombaserent });
 
           const currentMeterReading = response.data.detailedBilling.meter_reading;
           setCurrentReadings({
@@ -75,7 +75,6 @@ export default function RoomBillingDetail() {
       room_id: billingDetails.room_id,
       bill_id: billingDetails.bill_id,
       temporary_price: Number(selectedRate.per_unit_price),
-      // generationDate: billingDetails.generation_date,
       bill_record_id: billingDetails.bill_record_id,
     };
 
@@ -112,6 +111,27 @@ export default function RoomBillingDetail() {
     }
   };
 
+  const calculateTotalBill = () => {
+    let totalBill = 0;
+    let baserent = billingDetails.roombaserent;
+    let finalbill;
+    billingDetails.items.forEach((item) => {
+      if (item.item_name === "Water" || item.item_name === "Electricity") {
+        const readingType = item.item_name.toLowerCase();
+        const previous = previousReading[`${readingType}_reading`];
+        const current = currentReading[`${readingType}_reading`];
+        const quantity = current - previous;
+        totalBill += quantity * parseFloat(item.per_unit_price);
+      } else {
+        totalBill += parseFloat(item.total);
+      }
+    });
+    finalbill = Number(baserent) + Number(totalBill.toFixed(2));
+    return finalbill;
+  };
+
+  const dynamicTotalBill = calculateTotalBill();
+
   return (
     <>
       <Card sx={{ marginBottom: 2 }}>
@@ -131,17 +151,18 @@ export default function RoomBillingDetail() {
       <div style={{ minHeight: 400, width: "100%" }}>
         <Card sx={{ width: "100%", padding: 1 }}>
           <CardContent>
-          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            <Typography variant="body1" style={{ paddingleft: 1 }}>
-              <b>Tenant:</b> {billingDetails.tenant_name},
-            </Typography>
-            <Typography variant="body1" style={{ marginLeft: 20  }}>
-              <b>Room:</b> {billingDetails.room_number},
-            </Typography>
-            <Typography variant="body1" style={{ marginLeft: 20  }}>
-              <b>Total Bill:</b> {"\u0E3F"}{formattedTotalBill}
-            </Typography>
-          </div>
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+              <Typography variant="body1" style={{ paddingleft: 1 }}>
+                <b>Tenant:</b> {billingDetails.tenant_name},
+              </Typography>
+              <Typography variant="body1" style={{ marginLeft: 20 }}>
+                <b>Room:</b> {billingDetails.room_number},
+              </Typography>
+              <Typography variant="body1" style={{ marginLeft: 20 }}>
+                <b>Total Bill:</b> {"\u0E3F"}
+                {dynamicTotalBill}
+              </Typography>
+            </div>
 
             <TableContainer component={Paper}>
               <Table aria-label="billing details">
@@ -156,12 +177,16 @@ export default function RoomBillingDetail() {
                 <TableBody>
                   {billingDetails.items.map((item, index) => {
                     let quantity, total;
+
                     if (item.item_name === "Water" || item.item_name === "Electricity") {
-                      quantity = billingDetails.meter_reading[`${item.item_name.toLowerCase()}_usage`];
-                      total = parseFloat(billingDetails.meter_reading[`${item.item_name.toLowerCase()}_cost`]).toFixed(2);
+                      const readingType = item.item_name.toLowerCase();
+                      const previous = previousReading[`${readingType}_reading`];
+                      const current = currentReading[`${readingType}_reading`];
+                      quantity = current - previous;
+                      total = quantity * parseFloat(item.per_unit_price);
                     } else {
                       quantity = item.quantity;
-                      total = item.total.toFixed(2);
+                      total = parseFloat(item.total).toFixed(2);
                     }
 
                     return (
@@ -180,15 +205,7 @@ export default function RoomBillingDetail() {
             {selectedRate && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="h6">{selectedRate.item_name} Details</Typography>
-                <TextField
-                  label="Quantity"
-                  type="number"
-                  value={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? billingDetails.meter_reading[`${selectedRate.item_name.toLowerCase()}_usage`] : selectedRate.quantity}
-                  onChange={(e) => handleChange("quantity", e.target.value)}
-                  margin="normal"
-                  fullWidth
-                  disabled
-                />
+                <TextField label="Quantity" type="number" value={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? currentReading[`${selectedRate.item_name.toLowerCase()}_reading`] - previousReading[`${selectedRate.item_name.toLowerCase()}_reading`] : selectedRate.quantity} onChange={(e) => handleChange("quantity", e.target.value)} margin="normal" fullWidth disabled />
 
                 <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
                 {selectedRate && (selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity") && (
@@ -210,9 +227,7 @@ export default function RoomBillingDetail() {
         </Card>
       </div>
 
-      <Box sx={{ mt: 2 }}>
-        
-      </Box>
+      <Box sx={{ mt: 2 }}></Box>
     </>
   );
 }

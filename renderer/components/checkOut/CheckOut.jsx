@@ -1,34 +1,13 @@
 import { React, useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Divider,
-  TextField,
-  MenuItem,
-  InputAdornment,
-} from "@mui/material";
-import {
-  MobileDatePicker,
-  LocalizationProvider,
-  DatePicker,
-} from "@mui/x-date-pickers";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Box, Typography, Card, CardContent, CardActions, Button, Divider, TextField, MenuItem, InputAdornment } from "@mui/material";
+import { MobileDatePicker, LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
 import { useAPI } from "../ratemaintenance/apiContent";
 
 export default function CheckOut() {
-  const { tenancyRecords, fetchTenancyRecords, refreshTenancyRecords } =
-    useAPI();
+  const { tenancyRecords, fetchTenancyRecords, refreshTenancyRecords } = useAPI();
   useEffect(() => {
     fetchTenancyRecords();
   }, [fetchTenancyRecords]);
@@ -96,26 +75,19 @@ export default function CheckOut() {
   };
   const handleCheckout = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/checkouttenant",
-        {
-          roomNumber: selectedRoom,
-          tenant_id: tenantDetails.tenant_id,
-        }
-      );
+      const response = await axios.post("http://localhost:3000/checkouttenant", {
+        roomNumber: selectedRoom,
+        tenant_id: tenantDetails.tenant_id,
+      });
       refreshTenancyRecords();
       console.log(response.data.message);
-      setSnackbarMessage(
-        response.data.message || "Tenant checked out successfully!"
-      );
+      setSnackbarMessage(response.data.message || "Tenant checked out successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       resetForm(); // Clear all text fields after successful checkout
     } catch (error) {
       console.error("Checkout failed:", error);
-      setSnackbarMessage(
-        "No room or tenant selected. Please select both and try again."
-      );
+      setSnackbarMessage("No room or tenant selected. Please select both and try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -129,16 +101,11 @@ export default function CheckOut() {
         const rooms = response.data.getrooms;
 
         if (Array.isArray(rooms)) {
-          const filteredRooms = rooms.filter(
-            (room) => room.statusDetails.occupancy_status === "OCCUPIED"
-          );
+          const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "OCCUPIED");
           console.log("filtered rooms:", filteredRooms);
           setAvailableRooms(filteredRooms);
         } else {
-          console.error(
-            "Expected 'getrooms' to be an array but got:",
-            roomsArray
-          );
+          console.error("Expected 'getrooms' to be an array but got:", roomsArray);
         }
       } catch (error) {
         console.error("Failed to fetch rooms:", error);
@@ -155,21 +122,13 @@ export default function CheckOut() {
     try {
       console.log("room ID:", roomId);
 
-      const response = await axios.get(
-        `http://localhost:3000/geteachtenancyrecord/${roomId}`
-      );
+      const response = await axios.get(`http://localhost:3000/geteachtenancyrecord/${roomId}`);
       console.log("Tenancy record:", response.data);
       if (response.data && response.data.tenants) {
         const tenants = response.data.tenants;
-        const tenantFullName = tenants
-          ? `${tenants.first_name} ${tenants.last_name}`
-          : "";
-        const moveInFormatted = new Date(
-          response.data.move_in_date
-        ).toLocaleDateString();
-        const moveOutFormatted = new Date(
-          response.data.move_out_date
-        ).toLocaleDateString();
+        const tenantFullName = tenants ? `${tenants.first_name} ${tenants.last_name}` : "";
+        const moveInFormatted = new Date(response.data.move_in_date).toLocaleDateString();
+        const moveOutFormatted = new Date(response.data.move_out_date).toLocaleDateString();
 
         setTenantDetails(response.data.tenants);
         setSelectedTenant(tenantFullName);
@@ -211,8 +170,7 @@ export default function CheckOut() {
 
     setAddButtonClicked(true);
 
-    const isContractMonthsValid =
-      validateFloat(contractMonths) && contractMonths > 0;
+    const isContractMonthsValid = validateFloat(contractMonths) && contractMonths > 0;
     const isDepositValid = validateFloat(deposit) && deposit > 0;
 
     const isMoveInValid = moveInDate !== null;
@@ -225,12 +183,7 @@ export default function CheckOut() {
       isMoveOutValid,
     });
 
-    if (
-      !isContractMonthsValid ||
-      !isDepositValid ||
-      !isMoveInValid ||
-      !isMoveOutValid
-    ) {
+    if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
       setSnackbarMessage("Please fill in all required fields correctly.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -260,11 +213,7 @@ export default function CheckOut() {
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position the Snackbar at the top right
         >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={snackbarSeverity}
-            sx={{ width: "100%" }}
-          >
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
             {snackbarMessage}
           </Alert>
         </Snackbar>
@@ -282,7 +231,7 @@ export default function CheckOut() {
                   marginBottom: "10px",
                 }}
               >
-                <Typography variant="h4">Check-Out</Typography>
+                <Typography variant="h4">Check Out Please</Typography>
                 <Typography variant="body2" sx={{ opacity: 0.7 }}>
                   Select rooms and modify contract months
                 </Typography>
@@ -305,16 +254,8 @@ export default function CheckOut() {
                         value={selectedRoom}
                         onChange={handleRoomSelection}
                         sx={{ width: "40vw", marginBottom: "10px" }}
-                        error={
-                          addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
-                        }
-                        helperText={
-                          addButtonClicked &&
-                          (!selectedRoom || selectedRoom === "")
-                            ? "The field cannot be empty."
-                            : ""
-                        }
+                        error={addButtonClicked && (!selectedRoom || selectedRoom === "")}
+                        helperText={addButtonClicked && (!selectedRoom || selectedRoom === "") ? "The field cannot be empty." : ""}
                         SelectProps={{
                           MenuProps: {
                             PaperProps: {
@@ -335,13 +276,7 @@ export default function CheckOut() {
                         ))}
                       </TextField>
 
-                      <TextField
-                        id="tenantId"
-                        disabled
-                        label="Tenant Name"
-                        value={selectedTenant}
-                        sx={{ width: "40vw" }}
-                      />
+                      <TextField id="tenantId" disabled label="Tenant Name" value={selectedTenant} sx={{ width: "40vw" }} />
                     </Box>
 
                     <Box
@@ -371,16 +306,8 @@ export default function CheckOut() {
                       />
                     </Box>
 
-                    <Box
-                      sx={{ display: "flex", gap: "30px", marginTop: "10px" }}
-                    >
-                      <TextField
-                        id="depositId"
-                        disabled
-                        label="Deposit"
-                        value={deposit}
-                        sx={{ width: "40vw" }}
-                      />
+                    <Box sx={{ display: "flex", gap: "30px", marginTop: "10px" }}>
+                      <TextField id="depositId" disabled label="Deposit" value={deposit} sx={{ width: "40vw" }} />
                       <TextField
                         id="contractMonthsLeft"
                         label="Months Left"
@@ -388,11 +315,7 @@ export default function CheckOut() {
                         value={contractMonths}
                         type="number"
                         InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              Months
-                            </InputAdornment>
-                          ),
+                          endAdornment: <InputAdornment position="end">Months</InputAdornment>,
                           // readOnly: true,
                         }}
                         disabled
@@ -409,19 +332,11 @@ export default function CheckOut() {
                     justifyContent: "right",
                   }}
                 >
-                  <Button
-                    variant="outlined"
-                    sx={{ width: "20%" }}
-                    onClick={resetForm}
-                  >
+                  <Button variant="outlined" sx={{ width: "20%" }} onClick={resetForm}>
                     Clear
                   </Button>
 
-                  <Button
-                    variant="contained"
-                    sx={{ width: "20%" }}
-                    onClick={handleAddButtonClick}
-                  >
+                  <Button variant="contained" sx={{ width: "20%" }} onClick={handleAddButtonClick}>
                     Check Out
                   </Button>
                 </Box>
@@ -454,9 +369,7 @@ export default function CheckOut() {
                             alignItems: "center",
                           }}
                         >
-                          <Typography sx={{ marginRight: "8px" }}>
-                            {activity.room}
-                          </Typography>
+                          <Typography sx={{ marginRight: "8px" }}>{activity.room}</Typography>
                         </Box>
                         <Box
                           sx={{
@@ -469,9 +382,7 @@ export default function CheckOut() {
                             alignItems: "center",
                           }}
                         >
-                          <Typography sx={{ marginRight: "8px" }}>
-                            {activity.moveIn}
-                          </Typography>
+                          <Typography sx={{ marginRight: "8px" }}>{activity.moveIn}</Typography>
                         </Box>
                       </Box>
                     ))
@@ -484,17 +395,10 @@ export default function CheckOut() {
           </Box>
         </div>
       </LocalizationProvider>
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Do you want to proceed with adding the new tenant?
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">Do you want to proceed with adding the new tenant?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={() => setOpenDialog(false)}>
