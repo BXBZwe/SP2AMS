@@ -55,10 +55,11 @@ Detail the technologies, frameworks, libraries, and tools used in your project.
 
 Instructions for setting up a local development environment by followng the detailed Setup Guideline PDF.
 
-"PDF file"
+[Setup Guideline.pdf](https://github.com/AhmadYasi/SP2AMS/files/14735605/Setup.Guideline.pdf)
 
 ### Prerequisites
 
 List everything needed to get started with your project.
 
 git
+
