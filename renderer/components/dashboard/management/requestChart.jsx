@@ -73,7 +73,7 @@ export default function RequestChart() {
       
         <Typography variant="h6">Request Progress</Typography>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box sx={{ width: "100%", mr: 1 }}>
+          <Box sx={{ flex: 1, mr: 1 }}>
             <LinearProgress variant="determinate" value={progress} />
           </Box>
           <Box sx={{ minWidth: 35 }}>
@@ -82,7 +82,7 @@ export default function RequestChart() {
             </Typography>
           </Box>
         </Box>
-        <div style={{ height: 400, width: "100%" }}>
+        <div style={{ height: 400, flex: 1 }}>
           <DataGrid
             rows={unresolvedRequests.slice(0, 5)} 
             columns={columns}
