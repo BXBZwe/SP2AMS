@@ -221,7 +221,7 @@ export default function PaymentStatus() {
             title: "Payment Status Distribution",
             showlegend: true,
             height: 400,
-            width: 500
+            width: 365
           };
   
           Plotly.newPlot(chartRef.current, data, layout);
@@ -243,7 +243,7 @@ export default function PaymentStatus() {
     <div style={{ display: "flex", flexDirection: "column" }}>
         <div ref={chartRef} style={{ width: "400px" }} />
         <div style={{ display: "flex",  }}>
-        <div ref={chartRef} style={{ height: "400px", width: "500px" }} />
+        <div ref={chartRef} style={{ height: "300px", width: "500px" }} />
 </div>
       
     </div>

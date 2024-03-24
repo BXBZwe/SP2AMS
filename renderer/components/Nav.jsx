@@ -159,7 +159,9 @@ export default function Nav() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 
-  const [activeLink, setActiveLink] = React.useState("/dashboard"); // Set the default active link
+  // const [activeLink, setActiveLink] = React.useState("/dashboard"); 
+  const [activeLink, setActiveLink] = React.useState(""); 
+
 
   const handleLinkClick = (link) => {
     setActiveLink(link);

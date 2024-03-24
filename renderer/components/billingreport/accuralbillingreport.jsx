@@ -106,7 +106,7 @@ export default function AccrualBillingReport() {
                 {rateItems.map((item) => (
                   <TableCell key={item.rate_id}>{item.item_name}</TableCell>
                 ))}
-                <TableCell>Total Bill</TableCell>
+                <TableCell>Total Bill ฿</TableCell>
               </TableRow>
             </TableHead>
 

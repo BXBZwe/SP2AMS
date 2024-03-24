@@ -53,7 +53,7 @@ export default function RoomDetailsTable() {
   const columns = [
     { field: "room_number", headerName: "Room Number", flex:0.14, },
     { field: "tenant_name", headerName: "Tenant Name", flex:0.14, },
-    { field: "total_bill", headerName: "Total Bill", flex:0.14, },
+    { field: "total_bill", headerName: "Total Bill ฿", flex:0.14, },
     {
       field: "actions",
       headerName: "Actions",
