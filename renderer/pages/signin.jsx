@@ -68,7 +68,9 @@ export default function SignIn() {
         }
         router.push("/home");
       } else {
-        setErrorMessage(result.message || "Login failed");
+        // setErrorMessage(result.message || "Login failed");
+        setErrorMessage("Incorrect Credentials!");
+
         setOpenSnackbar(true);
       }
     } catch (error) {
