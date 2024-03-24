@@ -149,6 +149,7 @@ export default function RateTable() {
             
           </div>
         <DataGrid
+        id= "rate-data-grid"
           rows={filteredRows}
           columns={columns}
           pageSize={5}
