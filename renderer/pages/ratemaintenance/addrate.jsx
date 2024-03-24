@@ -18,6 +18,7 @@ import {
   Alert,
   Box,
   Grid,
+  InputAdornment,
 } from "@mui/material";
 import axios from "axios";
 import { useSnackbarContext } from "../../components/snackBar/SnackbarContent";
@@ -352,6 +353,11 @@ export default function AddRate() {
                   marginBottom: 1.5,
                   marginRight: 5,
                   display: "flex",
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">THB</InputAdornment>
+                  ),
                 }}
                 onChange={handleItemPriceChange}
                 disabled={!isEditing}
