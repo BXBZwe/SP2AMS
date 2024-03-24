@@ -58,6 +58,96 @@ const getbillingdetails = async (req, res) => {
     }
 };
 
+// const getRoomBillingDetails = async (req, res) => {
+//     try {
+//         const { room_id } = req.params;
+
+//         const latestGeneratedBillRecord = await prisma.generatedBillRecord.findFirst({
+//             where: {
+//                 room_id: parseInt(room_id),
+//             },
+//             orderBy: {
+//                 generation_date: 'desc',
+//             },
+//         });
+//         console.log("Fetched GeneratedBillRecord:", latestGeneratedBillRecord);
+
+//         const roomDetails = await prisma.roomBaseDetails.findUnique({
+//             where: {
+//                 room_id: parseInt(room_id),
+//             },
+//             include: {
+//                 tenancy_records: true,
+//                 bills: true,
+//                 meter_readings: {
+//                     orderBy: {
+//                         reading_date: 'desc',
+//                     },
+//                 },
+//                 room_rates: {
+//                     include: {
+//                         rates: {
+//                             include: {
+//                                 TemporaryRateAdjustments: true,
+//                             },
+//                         },
+//                     },
+//                 },
+//                 generatedBillRecords: true,
+//             },
+//         });
+
+//         if (!roomDetails) {
+//             return res.status(404).json({ message: 'Room details not found' });
+//         }
+
+//         const activeTenant = roomDetails.tenancy_records[0]?.tenants || null;
+//         const billDetails = roomDetails.bills[0] || null;
+//         const meterDetails = roomDetails.meter_readings[0] || null;
+//         const generatedBillRecord = latestGeneratedBillRecord;
+
+
+//         const detailedBilling = {
+//             room_number: roomDetails.room_number,
+//             tenant_name: activeTenant ? `${activeTenant.first_name} ${activeTenant.last_name}` : 'No Tenant',
+//             generation_date: generatedBillRecord ? generatedBillRecord.generation_date : 'N/A',
+//             total_bill: billDetails ? billDetails.total_amount : 'N/A',
+//             items: roomDetails.room_rates.map(rate => {
+//                 const tempAdjustment = rate.rates.TemporaryRateAdjustments && rate.rates.TemporaryRateAdjustments.length > 0
+//                     ? rate.rates.TemporaryRateAdjustments.find(ta => ta.bill_record_id === (generatedBillRecord ? generatedBillRecord.bill_record_id : null))
+//                     : null;
+//                 return {
+//                     rate_id: rate.rate_id,
+//                     item_name: rate.rates.item_name,
+//                     per_unit_price: tempAdjustment ? tempAdjustment.temporary_price : rate.rates.item_price,
+//                     quantity: rate.quantity,
+//                     total: tempAdjustment ? (tempAdjustment.temporary_price * rate.quantity) : (rate.rates.item_price * rate.quantity),
+//                     last_updated: rate.rates.last_updated,
+//                     adjustmentApplied: !!tempAdjustment,
+//                     temporary_price: tempAdjustment ? tempAdjustment.temporary_price : null,
+//                 };
+//             }),
+
+//             meter_reading: {
+//                 water_reading: meterDetails ? meterDetails.water_reading : 'N/A',
+//                 electricity_reading: meterDetails ? meterDetails.electricity_reading : 'N/A',
+//                 water_usage: billDetails ? billDetails.water_usage : 'N/A',
+//                 water_cost: billDetails ? billDetails.water_cost : 'N/A',
+//                 electricity_usage: billDetails ? billDetails.electricity_usage : 'N/A',
+//                 electricity_cost: billDetails ? billDetails.electricity_cost : 'N/A',
+//                 reading_date: meterDetails ? meterDetails.reading_date : 'N/A',
+//             },
+//         };
+
+//         res.status(200).json({
+//             message: 'Room billing details retrieved successfully', detailedBilling, bill_id: billDetails.bill_id, room_id: billDetails.room_id, bill_record_id: latestGeneratedBillRecord ? latestGeneratedBillRecord.bill_record_id : null,
+//         });
+//     } catch (error) {
+//         console.error('Error fetching room billing details:', error);
+//         res.status(500).send(error.message);
+//     }
+// };
+
 const getRoomBillingDetails = async (req, res) => {
     try {
         const { room_id } = req.params;
@@ -70,52 +160,6 @@ const getRoomBillingDetails = async (req, res) => {
                 generation_date: 'desc',
             },
         });
-        console.log("Fetched GeneratedBillRecord:", latestGeneratedBillRecord);
-
-
-        // const roomDetails = await prisma.roomBaseDetails.findUnique({
-        //     where: {
-        //         room_id: parseInt(room_id),
-        //     },
-        //     include: {
-        //         tenancy_records: {
-        //             include: {
-        //                 tenants: true,
-        //             },
-        //         },
-        //         bills: {
-        //             orderBy: {
-        //                 billing_date: 'desc',
-        //             },
-        //             take: 1,
-        //         },
-        //         meter_readings: {
-        //             orderBy: {
-        //                 reading_date: 'desc',
-        //             },
-        //             take: 1,
-        //         },
-        //         room_rates: {
-        //             include: {
-        //                 rates: true,
-        //                 TemporaryRateAdjustments: latestGeneratedBillRecord ? {
-        //                     where: {
-        //                         bill_record_id: latestGeneratedBillRecord.bill_record_id,
-        //                     },
-        //                 } : undefined,
-        //             },
-        //         },
-        //         generatedBillRecords: {
-        //             orderBy: {
-        //                 generation_date: 'desc',
-        //             },
-        //             take: 1,
-        //             include: {
-        //                 Bill: true
-        //             }
-        //         },
-        //     },
-        // });
 
         const roomDetails = await prisma.roomBaseDetails.findUnique({
             where: {
@@ -124,7 +168,11 @@ const getRoomBillingDetails = async (req, res) => {
             include: {
                 tenancy_records: true,
                 bills: true,
-                meter_readings: true,
+                meter_readings: {
+                    orderBy: {
+                        reading_date: 'desc',
+                    },
+                },
                 room_rates: {
                     include: {
                         rates: {
@@ -142,43 +190,17 @@ const getRoomBillingDetails = async (req, res) => {
             return res.status(404).json({ message: 'Room details not found' });
         }
 
-        const activeTenant = roomDetails.tenancy_records[0]?.tenants || null;
-        const billDetails = roomDetails.bills[0] || null;
+        const billDetails = roomDetails.bills.find(bill => bill.bill_id === latestGeneratedBillRecord?.bill_id) || null;
         const meterDetails = roomDetails.meter_readings[0] || null;
-        // const generatedBillRecord = roomDetails.generatedBillRecords[0] || null;
-        const generatedBillRecord = latestGeneratedBillRecord;
-
+        const activeTenant = roomDetails.tenancy_records[0]?.tenants || null;
 
         const detailedBilling = {
             room_number: roomDetails.room_number,
             tenant_name: activeTenant ? `${activeTenant.first_name} ${activeTenant.last_name}` : 'No Tenant',
-            generation_date: generatedBillRecord ? generatedBillRecord.generation_date : 'N/A',
+            generation_date: latestGeneratedBillRecord ? latestGeneratedBillRecord.generation_date : 'N/A',
             total_bill: billDetails ? billDetails.total_amount : 'N/A',
-            // items: roomDetails.room_rates.map(rate => ({
-            //     rate_id: rate.rates.rate_id,
-            //     item_name: rate.rates.item_name,
-            //     per_unit_price: rate.rates.item_price,
-            //     quantity: rate.quantity,
-            //     total: rate.quantity * rate.rates.item_price,
-            //     last_updated: rate.rates.last_updated,
-            // })),
             items: roomDetails.room_rates.map(rate => {
-                const tempAdjustment = rate.rates.TemporaryRateAdjustments && rate.rates.TemporaryRateAdjustments.length > 0
-                    ? rate.rates.TemporaryRateAdjustments.find(ta => ta.bill_record_id === (generatedBillRecord ? generatedBillRecord.bill_record_id : null))
-                    : null;
-                // return {
-                //     rate_id: rate.rates.rate_id,
-                //     item_name: rate.rates.item_name,
-                //     // Use the temporary price if an adjustment is found; otherwise, use the original rate
-                //     per_unit_price: tempAdjustment ? tempAdjustment.temporary_price : rate.rates.item_price,
-                //     quantity: rate.quantity,
-                //     // Calculate the total based on whether there's a temporary adjustment or not
-                //     total: tempAdjustment ? (tempAdjustment.temporary_price * rate.quantity) : (rate.rates.item_price * rate.quantity),
-                //     last_updated: rate.rates.last_updated,
-                //     // Optionally include an indicator or the temporary price directly for clarity
-                //     temporary: !!tempAdjustment,
-                //     temporary_price: tempAdjustment ? tempAdjustment.temporary_price : null,
-                // };
+                const tempAdjustment = rate.rates.TemporaryRateAdjustments.find(ta => ta.bill_record_id === latestGeneratedBillRecord?.bill_record_id) || null;
                 return {
                     rate_id: rate.rate_id,
                     item_name: rate.rates.item_name,
@@ -190,7 +212,6 @@ const getRoomBillingDetails = async (req, res) => {
                     temporary_price: tempAdjustment ? tempAdjustment.temporary_price : null,
                 };
             }),
-
             meter_reading: {
                 water_reading: meterDetails ? meterDetails.water_reading : 'N/A',
                 electricity_reading: meterDetails ? meterDetails.electricity_reading : 'N/A',
@@ -203,13 +224,19 @@ const getRoomBillingDetails = async (req, res) => {
         };
 
         res.status(200).json({
-            message: 'Room billing details retrieved successfully', detailedBilling, bill_id: billDetails.bill_id, room_id: billDetails.room_id, bill_record_id: latestGeneratedBillRecord ? latestGeneratedBillRecord.bill_record_id : null,
+            message: 'Room billing details retrieved successfully',
+            detailedBilling,
+            bill_id: billDetails ? billDetails.bill_id : null,
+            room_id: roomDetails.room_id,
+            bill_record_id: latestGeneratedBillRecord ? latestGeneratedBillRecord.bill_record_id : null,
+            roombaserent: roomDetails.base_rent
         });
     } catch (error) {
         console.error('Error fetching room billing details:', error);
         res.status(500).send(error.message);
     }
 };
+
 
 const applyTemporaryRateAdjustment = async (req, res) => {
     const { rate_id, room_id, bill_id, temporary_price, bill_record_id } = req.body;
