@@ -222,24 +222,24 @@ export default function CheckIn() {
     return !isNaN(floatValue);
   };
 
-
   const recentActivity = tenancyRecords
-  .filter((record) => record.tenancy_status === "CHECK_IN") // Filter for "CHECK_IN" status only
-  .map((record) => ({
-    id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
-    room: record.RoomBaseDetails.room_number,
-    date: new Date(record.move_in_date).toLocaleDateString("en-US", {
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }),
-    moveIn: new Date(record.move_in_date).toISOString().split('T')[0], // Convert to ISO string and take the date part for rendering
-  }))
-  .sort((a, b) => b.moveIn - a.moveIn); // Sort by latest move-in date first
+    .filter((record) => record.tenancy_status === "CHECK_IN") // Filter for "CHECK_IN" status only
+    .map((record) => ({
+      id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
+      room: record.RoomBaseDetails.room_number,
+      date: new Date(record.move_in_date).toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      moveIn: new Date(record.move_in_date).toISOString().split("T")[0], // Convert to ISO string and take the date part for rendering
+    }))
+    .sort((a, b) => b.moveIn - a.moveIn); // Sort by latest move-in date first
 
   // console.log("recent activity: " , recentActivity)
 
+  const ITEM_HEIGHT = 48;
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -301,8 +301,20 @@ export default function CheckIn() {
                             ? "Please select a room."
                             : ""
                         }
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: {
+                                maxHeight: ITEM_HEIGHT * 2.5, // Here you control the height of the menu
+                              },
+                            },
+                          },
+                        }}
                       >
-                        {availableRooms.map((room) => (
+                        <MenuItem value="" disabled>
+                          <em>No Room</em>
+                        </MenuItem>
+                        {availableRooms?.map((room) => (
                           <MenuItem key={room.room_id} value={room.room_id}>
                             {room.room_number}
                           </MenuItem>
@@ -523,52 +535,48 @@ export default function CheckIn() {
                     </Box>
                   ))} */}
                   {recentActivity.length > 0 ? (
-                    recentActivity.slice(0, 6).map(
-                      (
-                        activity 
-                      ) => (
+                    recentActivity.slice(0, 6).map((activity) => (
+                      <Box
+                        key={activity.id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: "10px",
+                          gap: "5px",
+                        }}
+                      >
                         <Box
-                          key={activity.id}
                           sx={{
+                            borderRadius: "2px",
+                            border: "1px solid #ccc",
+                            padding: "8px",
                             display: "flex",
+                            width: "30%",
                             justifyContent: "space-between",
-                            marginBottom: "10px",
-                            gap: "5px",
+                            alignItems: "center",
                           }}
                         >
-                          <Box
-                            sx={{
-                              borderRadius: "2px",
-                              border: "1px solid #ccc",
-                              padding: "8px",
-                              display: "flex",
-                              width: "30%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography sx={{ marginRight: "8px" }}>
-                              {activity.room}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              borderRadius: "2px",
-                              border: "1px solid #ccc",
-                              padding: "8px",
-                              display: "flex",
-                              width: "70%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography sx={{ marginRight: "8px" }}>
-                              {activity.moveIn}
-                            </Typography>
-                          </Box>
+                          <Typography sx={{ marginRight: "8px" }}>
+                            {activity.room}
+                          </Typography>
                         </Box>
-                      )
-                    )
+                        <Box
+                          sx={{
+                            borderRadius: "2px",
+                            border: "1px solid #ccc",
+                            padding: "8px",
+                            display: "flex",
+                            width: "70%",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography sx={{ marginRight: "8px" }}>
+                            {activity.moveIn}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))
                   ) : (
                     <Typography>No Recent Activity</Typography> // Display when there's no recent activity
                   )}
