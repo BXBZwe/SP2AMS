@@ -15,10 +15,13 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
-import { MobileDatePicker, LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import {
+  MobileDatePicker,
+  LocalizationProvider,
+  DatePicker,
+} from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
-
 
 export default function GenerateBill() {
   const [rooms, setRooms] = useState([]);
@@ -34,7 +37,11 @@ export default function GenerateBill() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Can be "error", "warning", "info", "success"
   const [selectedGenerationDate, setSelectedGenerationDate] = useState(null);
 
-  const filteredRooms = rooms.filter((room) => (selectedOccupancyFilter === "all" ? true : room.statusDetails.occupancy_status === selectedOccupancyFilter));
+  const filteredRooms = rooms.filter((room) =>
+    selectedOccupancyFilter === "all"
+      ? true
+      : room.statusDetails.occupancy_status === selectedOccupancyFilter
+  );
 
   const getroomsforbilling = async () => {
     try {
@@ -84,7 +91,7 @@ export default function GenerateBill() {
   const [generateButtonClicked, setGenerateButtonClicked] = useState(false);
   const [billingDate, setBillingDate] = useState(null);
 
-  console.log("Selecetd", selectedRoomList);
+  // console.log("Selecetd", selectedRoomList);
 
   const handleBillingDateChange = (newValue) => {
     setBillingDate(newValue);
@@ -113,17 +120,36 @@ export default function GenerateBill() {
     setAddAllChecked(false);
   };
 
+  // const handleAddAllClick = () => {
+  //   const allRooms = rooms.map((room) => ({
+  //     room_id: room.room_id,
+  //     room_number: room.room_number,
+  //   }));
+  //   setSelectedRoomList(allRooms);
+  //   setAddAllChecked(true);
+  // };
+
   const handleAddAllClick = () => {
-    const allRooms = rooms.map((room) => ({
-      room_id: room.room_id,
-      room_number: room.room_number,
-    }));
-    setSelectedRoomList(allRooms);
+    // Filter rooms based on the selected occupancy status or select all if 'All' is chosen
+    const filteredRooms = rooms
+      .filter(
+        (room) =>
+          selectedOccupancyFilter === "all" ||
+          room.statusDetails?.occupancy_status === selectedOccupancyFilter
+      )
+      .map((room) => ({
+        room_id: room.room_id,
+        room_number: room.room_number,
+      }));
+
+    setSelectedRoomList(filteredRooms);
     setAddAllChecked(true);
   };
 
   const handleRemoveRoom = (roomIdToRemove) => {
-    setSelectedRoomList((prevList) => prevList.filter((room) => room.room_id !== roomIdToRemove));
+    setSelectedRoomList((prevList) =>
+      prevList.filter((room) => room.room_id !== roomIdToRemove)
+    );
     setAddAllChecked(false);
   };
 
@@ -141,17 +167,19 @@ export default function GenerateBill() {
 
   const handleGenerateButtonClick = async () => {
     setGenerateButtonClicked(true);
-  
+
     if (selectedRoomList.length === 0 || billingDate === null) {
       setSnackbarSeverity("error");
-      setSnackbarMessage("Please select at least one room and fill in the generation date.");
+      setSnackbarMessage(
+        "Please select at least one room and fill in the generation date."
+      );
       setSnackbarOpen(true);
       return;
     }
-  
+
     const rentMonth = selectedMonth;
     const rentYear = parseInt(year, 10);
-  
+
     try {
       await Promise.all(
         selectedRoomList.map(async (room) => {
@@ -161,11 +189,14 @@ export default function GenerateBill() {
             room_id: room.room_id,
             rent_year: rentYear,
           };
-  
-          await axios.post("http://localhost:3000/creategeneratebill", postData);
+
+          await axios.post(
+            "http://localhost:3000/creategeneratebill",
+            postData
+          );
         })
       );
-  
+
       setSnackbarSeverity("success");
       setSnackbarMessage("Bills generated successfully for selected rooms.");
       setSnackbarOpen(true);
@@ -183,7 +214,7 @@ export default function GenerateBill() {
     return !isNaN(floatValue);
   };
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
@@ -198,7 +229,11 @@ export default function GenerateBill() {
   };
 
   const dateObject = new Date(selectedGenerationDate);
-const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', month: 'short', day: 'numeric' });
+  const formattedDate = dateObject.toLocaleDateString("en-UK", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <>
@@ -234,39 +269,61 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
               }}
             >
               <Box>
-                <Card sx={{ width: "45vw" }}>
+                <Card sx={{ width: "50vw" }}>
                   <CardContent>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                      Select Rooms
-                    </Typography>
+                      <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+                        Select Rooms
+                      </Typography>
 
-                    <Select
-                      value={selectedOccupancyFilter}
-                      onChange={(e) => setSelectedOccupancyFilter(e.target.value)}
-                      sx={{ 
-                        height: "40px", // Adjusted height
-                        width: "120px", // Adjusted width for a bit wider appearance
-                        fontSize: "0.875rem", // Adjust font size if needed
-                        marginLeft: "8px", // Adds margin to the left of the select input for spacing from the label
-                        '& .MuiSelect-select': {
-                          paddingTop: '6px', // Reducing padding to make the select input appear smaller in height
-                          paddingBottom: '6px',
+                      <Select
+                        value={selectedOccupancyFilter}
+                        onChange={(e) =>
+                          setSelectedOccupancyFilter(e.target.value)
                         }
-                      }}
-                    >
-                      {occupancyFilterOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Checkbox onClick={handleAddAllClick} checked={addAllChecked} />
-                        <Typography variant="body2">All Rooms</Typography>
+                        sx={{
+                          height: "40px", // Adjusted height
+                          width: "120px", // Adjusted width for a bit wider appearance
+                          fontSize: "0.875rem", // Adjust font size if needed
+                          marginLeft: "8px", // Adds margin to the left of the select input for spacing from the label
+                          "& .MuiSelect-select": {
+                            paddingTop: "6px", // Reducing padding to make the select input appear smaller in height
+                            paddingBottom: "6px",
+                          },
+                        }}
+                      >
+                        {occupancyFilterOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {/* <Checkbox onClick={handleAddAllClick} checked={addAllChecked} /> */}
+                        <Checkbox
+                          onClick={() => {
+                            // If not all rooms are selected, select all. Otherwise, clear the selection.
+                            if (
+                              selectedRoomList.length !== filteredRooms.length
+                            ) {
+                              handleAddAllClick();
+                            } else {
+                              setSelectedRoomList([]);
+                              setAddAllChecked(false);
+                            }
+                          }}
+                          checked={
+                            selectedRoomList.length === filteredRooms.length &&
+                            filteredRooms.length > 0
+                          }
+                        />
+
+                        <Typography variant="body2">
+                          Add {selectedOccupancyFilter} Rooms
+                        </Typography>
                       </Box>
                     </Box>
-                      <br></br>
+                    <br></br>
                     <Box
                       sx={{
                         display: "flex",
@@ -280,7 +337,9 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                         label="Room Number"
                         value={selectedRoom.room_number}
                         onChange={(e) => {
-                          const room = filteredRooms.find((room) => room.room_number === e.target.value);
+                          const room = filteredRooms.find(
+                            (room) => room.room_number === e.target.value
+                          );
                           setSelectedRoom({
                             room_id: room.room_id,
                             room_number: room.room_number,
@@ -289,15 +348,28 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                         sx={{ width: "40vw" }}
                       >
                         {filteredRooms
-                          .filter((room) => !selectedRoomList.map((r) => r.room_number).includes(room.room_number))
+                          .filter(
+                            (room) =>
+                              !selectedRoomList
+                                .map((r) => r.room_number)
+                                .includes(room.room_number)
+                          )
                           .map((room) => (
-                            <MenuItem key={room.room_id} value={room.room_number}>
+                            <MenuItem
+                              key={room.room_id}
+                              value={room.room_number}
+                            >
                               {room.room_number}
                             </MenuItem>
                           ))}
                       </TextField>
 
-                      <Button variant="contained" size="small" sx={{ width: "10vw" }} onClick={handleAddButtonClick}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{ width: "10vw" }}
+                        onClick={handleAddButtonClick}
+                      >
                         Add
                       </Button>
                     </Box>
@@ -313,8 +385,14 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                           justifyContent: "space-between",
                         }}
                       >
-                        <Typography variant="h6">Rooms selected for invoice generation</Typography>
-                        <IconButton variant="contained" size="medium" onClick={handleClearAllClick}>
+                        <Typography variant="h6">
+                          Rooms selected for invoice generation
+                        </Typography>
+                        <IconButton
+                          variant="contained"
+                          size="medium"
+                          onClick={handleClearAllClick}
+                        >
                           <DeleteForeverRoundedIcon />
                         </IconButton>
                       </Box>
@@ -341,8 +419,12 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                               alignItems: "center",
                             }}
                           >
-                            <Typography sx={{ marginRight: "8px" }}>{room.room_number}</Typography>
-                            <IconButton onClick={() => handleRemoveRoom(room.room_id)}>
+                            <Typography sx={{ marginRight: "8px" }}>
+                              {room.room_number}
+                            </Typography>
+                            <IconButton
+                              onClick={() => handleRemoveRoom(room.room_id)}
+                            >
                               {" "}
                               <ClearIcon />
                             </IconButton>
@@ -366,15 +448,29 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                     height: "100%",
                   }}
                 >
-                  <Box sx={{alignItems:'center',display:'flex',justifyContent:'space-between'}}>
-                  <Typography variant="subtitle1" sx={{ marginBottom: "10px" }}>
-                    Invoice Date
-                  </Typography>
-                  {/* <Typography variant="body1" sx={{ marginBottom: "10px",opacity:0.8 }}>
-                    {formattedDate}
-                  </Typography> */}
+                  <Box
+                    sx={{
+                      alignItems: "center",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ marginBottom: "10px" }}
+                    >
+                      Invoice Date
+                    </Typography>
+
                   </Box>
-                  <TextField id="monthId" label="Previous Generation Date" value={formattedDate} sx={{ width: "100%", marginBottom: "10px" }} InputProps={{ readOnly: true }} />
+                  <TextField
+  id="monthId"
+  label="Previous Generation Date"
+  value={selectedGenerationDate ? formattedDate : "No Date"}
+  sx={{ width: "100%", marginBottom: "10px" }}
+  InputProps={{ readOnly: true }}
+/>
+
 
                   <DatePicker
                     id="billingdateId"
@@ -382,21 +478,53 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
                     value={billingDate}
                     onChange={handleBillingDateChange}
                     sx={{ width: "100%", marginBottom: "10px" }}
-                    renderInput={(params) => <TextField {...params} error={generateButtonClicked && !billingDate} helperText={generateButtonClicked && !billingDate ? "Billing date is required!" : ""} />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={generateButtonClicked && !billingDate}
+                        helperText={
+                          generateButtonClicked && !billingDate
+                            ? "Billing date is required!"
+                            : ""
+                        }
+                      />
+                    )}
                   />
 
                   <Typography variant="subtitle1" sx={{ marginBottom: "10px" }}>
                     For Month/Year
                   </Typography>
                   <Box sx={{ display: "flex", gap: "10px" }}>
-                    <TextField id="monthId" label="Month" value={selectedMonth} sx={{ width: "50%", marginBottom: "10px" }} InputProps={{ readOnly: true }} />
-                    <TextField id="yearId" label="Year" value={year} sx={{ width: "50%" }} InputProps={{ readOnly: true }} />
+                    <TextField
+                      id="monthId"
+                      label="Month"
+                      value={selectedMonth}
+                      sx={{ width: "50%", marginBottom: "10px" }}
+                      InputProps={{ readOnly: true }}
+                    />
+                    <TextField
+                      id="yearId"
+                      label="Year"
+                      value={year}
+                      sx={{ width: "50%" }}
+                      InputProps={{ readOnly: true }}
+                    />
                   </Box>
-                  <Box sx={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-                    <Button sx={{ width: "40%" }} variant="outlined" onClick={resetForm}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                  >
+                    <Button
+                      sx={{ width: "40%" }}
+                      variant="outlined"
+                      onClick={resetForm}
+                    >
                       Clear
                     </Button>
-                    <Button sx={{ width: "60%" }} variant="contained" onClick={handleGenerateButtonClick}>
+                    <Button
+                      sx={{ width: "60%" }}
+                      variant="contained"
+                      onClick={handleGenerateButtonClick}
+                    >
                       Generate
                     </Button>
                   </Box>
@@ -407,9 +535,13 @@ const formattedDate = dateObject.toLocaleDateString('en-UK', { year: 'numeric', 
               open={snackbarOpen}
               autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+              <Alert
+                onClose={handleCloseSnackbar}
+                severity={snackbarSeverity}
+                sx={{ width: "100%" }}
+              >
                 {snackbarMessage}
               </Alert>
             </Snackbar>

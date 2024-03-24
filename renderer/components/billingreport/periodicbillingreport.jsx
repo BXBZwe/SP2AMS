@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import { TextField, Card, CardContent, Typography, Button, FormControl, InputLabel, Select, MenuItem, Checkbox, FormGroup, FormControlLabel, Box, TableContainer, Table, TableCell, TableRow, TableHead, TableBody, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+
 
 export default function PeriodicBillingReport() {
   const theme = useTheme();
   const [periodicReport, setPeriodicReport] = useState({
-    fromDate: "",
-    toDate: "",
+    fromDate: null,
+    toDate: null,
     showBills: false,
     showTaxInvoice: false,
     showUnpaidBills: false,
@@ -19,15 +23,19 @@ export default function PeriodicBillingReport() {
   const [isDataDisplayed, setIsDataDisplayed] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // Added search state
 
+
   useEffect(() => {
     fetchRateItems();
   }, []);
 
 
-   const handlePeriodicReportChange = (prop) => (event) => {
-    const value = prop === "showBills" || prop === "showTaxInvoice" || prop === "showUnpaidBills" ? event.target.checked : event.target.value;
-    setPeriodicReport({ ...periodicReport, [prop]: value });
-  };
+    // const handlePeriodicReportChange = (prop) => (event) => {
+    //   const value = prop === "showBills" || prop === "showTaxInvoice" || prop === "showUnpaidBills" ? event.target.checked : event.target.value;
+    //   setPeriodicReport({ ...periodicReport, [prop]: value });
+    // };
+    const handlePeriodicReportChange = (prop) => (newValue) => {
+      setPeriodicReport({ ...periodicReport, [prop]: newValue });
+    };
   const handleSearchQueryChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -115,6 +123,7 @@ export default function PeriodicBillingReport() {
 
   return (
     <>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Card sx={{ width: "100%", marginBottom: "20px" }}>
         <CardContent>
         
@@ -132,10 +141,24 @@ export default function PeriodicBillingReport() {
               <Typography variant="h5" gutterBottom>
                 Periodic Report
               </Typography>
-              <Box sx={{ display: "flex", gap: theme.spacing(2), alignItems: "center", marginBottom: theme.spacing(2) }}>
+              {/* <Box sx={{ display: "flex", gap: theme.spacing(2), alignItems: "center", marginBottom: theme.spacing(2) }}>
                 <TextField label="From" type="date" value={periodicReport.fromDate} onChange={handlePeriodicReportChange("fromDate")} InputLabelProps={{ shrink: true }} />
                 <TextField label="To" type="date" value={periodicReport.toDate} onChange={handlePeriodicReportChange("toDate")} InputLabelProps={{ shrink: true }} />
-              </Box>
+              </Box> */}
+                      <Box sx={{ display: 'flex', gap: theme.spacing(2), alignItems: 'center', marginBottom: theme.spacing(2) }}>
+          <DatePicker
+            label="From"
+            value={periodicReport.fromDate}
+            onChange={handlePeriodicReportChange('fromDate')}
+            renderInput={(params) => <TextField {...params} />}
+          />
+          <DatePicker
+            label="To"
+            value={periodicReport.toDate}
+            onChange={handlePeriodicReportChange('toDate')}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </Box>
               <FormGroup>
                 <FormControlLabel control={<Checkbox checked={periodicReport.showBills} onChange={handlePeriodicReportChange("showBills")} />} label="Show Bills" />
               </FormGroup>
@@ -194,6 +217,8 @@ export default function PeriodicBillingReport() {
           </Table>
         </TableContainer>
       )}
+      </LocalizationProvider>
+
     </>
   );
 }
