@@ -595,9 +595,9 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
                   <label htmlFor="tenant-image">
-                    <Fab color="secondary" component="span" aria-label="upload picture" marginBottom="10px">
-                      <PhotoCamera />
-                    </Fab>
+                  <Fab color="primary" component="span" aria-label="upload picture" marginBottom="10px">
+                    <PhotoCamera />
+                  </Fab>
                   </label>
                 </Box>
               </Box>
@@ -622,7 +622,7 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
                   <label htmlFor="national-id-image">
-                    <Fab color="secondary" component="span" aria-label="upload ID picture">
+                    <Fab color="primary" component="span" aria-label="upload ID picture">
                       <PhotoCamera />
                     </Fab>
                   </label>

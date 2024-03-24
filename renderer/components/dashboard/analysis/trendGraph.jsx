@@ -151,6 +151,7 @@ export default function TrendGraph() {
         type: "scatter",
         mode: "lines+markers",
         name: "Profit",
+        marker: { color: 'green' },
       };
 
       const revenueTrace = {
@@ -159,6 +160,7 @@ export default function TrendGraph() {
         type: "scatter",
         mode: "lines+markers",
         name: "Revenue",
+        marker: { color: 'orange' },
       };
 
       const layout = {
@@ -184,11 +186,11 @@ export default function TrendGraph() {
         <Grid item xs={8} md={4}>
           <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
             <CardContent>
-              <Typography variant="h5" sx={{ color: 'green' }} gutterBottom>
+              <Typography variant="h5" sx={{ color: 'darkorange' }} gutterBottom>
                 Revenue
               </Typography>
               {/* Change color here */}
-              <Typography variant="h4" sx={{ color: 'green' }}>${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
+              <Typography variant="h4" sx={{ color: 'darkorange' }}>${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -206,11 +208,11 @@ export default function TrendGraph() {
         <Grid item xs={8} md={4}>
           <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
             <CardContent>
-              <Typography variant="h5" sx={{ color: 'blue' }} gutterBottom>
+              <Typography variant="h5" sx={{ color: 'green' }} gutterBottom>
                 Profit
               </Typography>
               {/* Change color here */}
-              <Typography variant="h4" sx={{ color: 'blue' }}>${financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
+              <Typography variant="h4" sx={{ color: 'green' }}>${financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
             </CardContent>
           </Card>
         </Grid>
