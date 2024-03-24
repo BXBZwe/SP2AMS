@@ -7,7 +7,7 @@ import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
 
 // Define StatusSummaryCard component here for clarity
 const StatusSummaryCard = ({ title, count, color }) => (
-  <Grid item xs={12} sm={6} md={3} lg={3}>
+  <Grid item xs={6} sm={3}>
     <Card sx={{ padding: "20px", minWidth: "220px", textAlign: "center", boxShadow: 3 }}>
       <Typography variant="h4" style={{ color: color, marginBottom: "10px" }}>
         {count}
@@ -83,50 +83,49 @@ export default function Management() {
   return (
     <>
   <Box sx={{
-  display: "flex",
-  flexDirection: 'row',
-  height: '100%',
-  marginTop: "20px",
-  width: "100%",
-  justifyContent: "center"
-}}>
-  <Box sx={{
-    display: "flex",
-    flexDirection: "column",
-    flexWrap: "wrap",
-    marginRight: ["0", "20px"], // Remove margin on small screens
-    flex: "0 1 auto" // Allows this box to grow and shrink as needed
-  }}>
-    <Box sx={{ display: "flex", gap: "20px" }}>
-      {['PAID', 'PENDING', 'OVERDUE', 'PARTIAL'].map((status) => {
-        let color = '';
-        switch (status) {
-          case 'PAID': color = '#66bb6a'; break;
-          case 'PENDING': color = '#ffa726'; break;
-          case 'OVERDUE': color = '#ef5350'; break;
-          case 'PARTIAL': color = '#42a5f5'; break;
-          default: color = '#757575'; // Default color for undefined status
-        }
-        return <StatusSummaryCard key={status} title={status} count={statusCounts[status] || 0} color={color} />;
-      })}
+      display: "flex",
+      flexDirection: { xs: 'column', md: 'row' },
+      height: '100%',
+      marginTop: "20px",
+    }}>
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        flexWrap: "wrap",
+        marginRight: { sm: "20px", xs: "0" }, // Adjusts margin right based on screen size
+        flex: "1 1 auto",
+      }}>
+        <Grid container spacing={2}>
+          {['PAID', 'PENDING', 'OVERDUE', 'PARTIAL'].map((status) => {
+            let color = '';
+            switch (status) {
+              case 'PAID': color = '#66bb6a'; break;
+              case 'PENDING': color = '#ffa726'; break;
+              case 'OVERDUE': color = '#ef5350'; break;
+              case 'PARTIAL': color = '#42a5f5'; break;
+              default: color = '#757575';
+            }
+            return <StatusSummaryCard key={status} title={status} count={statusCounts[status] || 0} color={color} />;
+          })}
+        </Grid>
+
+        <Card sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, marginTop: '20px' }}>
+          <PaymentStatus />
+          <OccupancyPie />
+        </Card>
+      </Box>
+      <Card sx={{
+        flex: 1,
+        justifyContent: 'flex-end',
+        maxHeight: "100%",
+        minWidth: "300px",
+        width: '100%', // Ensures full width on smaller screens
+      }}>
+        <CardContent>
+          <RequestChart />
+        </CardContent>
+      </Card>
     </Box>
-    
-    <Card sx={{ display: "flex", marginTop: '20px' }}>
-      <PaymentStatus />
-      <OccupancyPie />
-    </Card>
-  </Box>
-  <Card sx={{
-    width:'100%',
-    justifyContent: 'flex-end',
-    maxHeight: "100%",
-    
-  }}>
-    <CardContent>
-      <RequestChart />
-    </CardContent>
-  </Card>
-</Box>
       
     </>
   );
