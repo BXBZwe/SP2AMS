@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 const addMeterReading = async (req, res) => {
     const { room_id, water_reading, meter_reading, reading_date } = req.body;
+    console.log("Body of enter bill details", req.body);
     try {
         const parsedRoomId = parseInt(room_id, 10);
         const parsedReadingDate = new Date(reading_date);

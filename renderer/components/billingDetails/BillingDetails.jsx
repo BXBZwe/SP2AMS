@@ -1,26 +1,6 @@
 // New One
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Select,
-  MenuItem,
-  TextField,
-  Button,
-  Snackbar,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  LinearProgress,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+import { Box, Card, CardContent, Typography, Select, MenuItem, TextField, Button, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, LinearProgress, CircularProgress, FormControl, InputLabel } from "@mui/material";
 import { useRouter } from "next/router";
 import { styled } from "@mui/material/styles";
 import { linearProgressClasses } from "@mui/material/LinearProgress";
@@ -31,53 +11,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Import the che
 require("dotenv").config();
 
 export default function BillingDetails() {
-  //   const rolloverWater = process.env.ROLLOVER_WATER;
-  //   const rolloverElectricity = process.env.ROLLOVER_ELECTRICITY;
-  // // const rolloverWater = parseInt(process.env.ROLLOVER_WATER, 10);
-  // // const rolloverElectricity = parseInt(process.env.ROLLOVER_ELECTRICITY, 10);
-  // console.log('RollOverWater',rolloverWater)
-
-  // const router = useRouter();
-  // const [openNavDialog, setOpenNavDialog] = useState(false); // State to control the dialog visibility
-  // const [leaveUrl, setLeaveUrl] = useState(''); // Assuming you have a saveProgress state
-
-  // // Function to handle "Stay on page" action
-  // const handleStay = () => {
-  //   setOpenNavDialog(false); // Close the dialog
-  // };
-
-  // // Function to handle "Leave page" action
-  // const handleLeave = (url) => {
-  //   console.log("State Leave Url", leaveUrl);
-  //   setOpenNavDialog(false); // Close the dialog
-  //   router.push(leaveUrl).catch(() => {});
-  // };
-
-  // const handleNavigation = (link) => {
-  //   // If the saveProgress is not 100%, prompt the user before navigating away
-  //   const currentPath = router.pathname;
-  //   if (saveProgress < 100) {
-  //     setOpenNavDialog(true); // Open the navigation warning dialog
-
-  //     // Set the URL they're trying to navigate to, so you can use it if they confirm
-  //     setLeaveUrl(link);
-  //   }
-  //   else {
-  //     // If there's no unsaved progress, navigate directly
-  //     router.push(link);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Listen for route changes before they happen
-  //   router.events.on('routeChangeStart', handleNavigation);
-  //   // console.log('routeChangeStart',router.events);
-
-  //   return () => {
-  //     router.events.off('routeChangeStart', handleNavigation);
-  //   };
-  // }, [saveProgress, router.events]);
-
   const types = [
     {
       id: "1",
@@ -87,9 +20,6 @@ export default function BillingDetails() {
   ];
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false); // New state for the second dialog
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  // Add your other state and effect hooks here
-
-  // Custom hook call
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -104,7 +34,7 @@ export default function BillingDetails() {
   const [previousReadings, setPreviousReadings] = useState({});
   const [waterCost, setWaterCost] = useState({});
   const [electricityCost, setElectricityCost] = useState({});
-  const [snackbarSeverity, setSnackbarSeverity] = useState("error"); // Default to 'error'
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
   const [billedRooms, setBilledRooms] = useState([]);
   const [saveProgress, setSaveProgress] = useState(0);
   const [saveCallCount, setSaveCallCount] = useState(0);
@@ -115,25 +45,22 @@ export default function BillingDetails() {
       const response = await axios.get("http://localhost:3000/generatebill");
       const billedrooms = response.data.billRecords;
 
-      const allDates = billedrooms.map(
-        (item) => new Date(item.generation_date).toISOString().split("T")[0]
-      );
+      const allDates = billedrooms.map((item) => new Date(item.generation_date).toISOString().split("T")[0]);
 
       const uniqueDates = [...new Set(allDates)];
       const sortedDates = uniqueDates.sort((a, b) => new Date(b) - new Date(a));
       const latestDate = sortedDates[0];
-      setAllGenerationDate(sortedDates); // Use sortedDates here to ensure the dates are sorted
+      setAllGenerationDate(sortedDates);
       setSelectedGenerationDate(latestDate);
       setBilledRooms(billedrooms);
+      console.log("billed rooms:", billedrooms);
     } catch (error) {
       console.error("Failed to fetch rooms:", error);
     }
   };
 
   const checkAllFieldsFilledAndPositive = () => {
-    for (const roomId of selectedRooms.map(
-      (room) => room.RoomBaseDetails.room_id
-    )) {
+    for (const roomId of selectedRooms.map((room) => room.RoomBaseDetails.room_id)) {
       const value = readingValues[roomId];
       if (value === undefined || value === "" || Number(value) < 0) {
         return false;
@@ -142,9 +69,7 @@ export default function BillingDetails() {
     return true;
   };
   const checkAllFieldsFilled = () => {
-    for (const roomId of selectedRooms.map(
-      (room) => room.RoomBaseDetails.room_id
-    )) {
+    for (const roomId of selectedRooms.map((room) => room.RoomBaseDetails.room_id)) {
       if (!readingValues[roomId]) {
         return false;
       }
@@ -154,23 +79,16 @@ export default function BillingDetails() {
 
   const getPreviousMeterReading = async (roomId, generationDate) => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/getLastReadingBeforeDate/${roomId}`,
-        {
-          params: { generation_date: generationDate },
-        }
-      );
+      const response = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}`, {
+        params: { generation_date: generationDate },
+      });
       if (response.data && response.data.data) {
         return response.data.data;
       } else {
         return { water_reading: 0, electricity_reading: 0 };
       }
     } catch (error) {
-      console.error(
-        "Error fetching previous meter reading for room:",
-        roomId,
-        error
-      );
+      console.error("Error fetching previous meter reading for room:", roomId, error);
       return { water_reading: 0, electricity_reading: 0 };
     }
   };
@@ -179,22 +97,16 @@ export default function BillingDetails() {
   };
   const fetchPreviousReadings = async () => {
     const promises = selectedRooms.map(async (room) => {
-      const prevReading = await getPreviousMeterReading(
-        room.RoomBaseDetails.room_id,
-        selectedGenerationDate
-      );
+      const prevReading = await getPreviousMeterReading(room.RoomBaseDetails.room_id, selectedGenerationDate);
 
       return { roomId: room.RoomBaseDetails.room_id, prevReading };
     });
 
     const results = await Promise.all(promises);
-    const newPreviousReadings = results.reduce(
-      (acc, { roomId, prevReading }) => {
-        acc[roomId] = prevReading;
-        return acc;
-      },
-      {}
-    );
+    const newPreviousReadings = results.reduce((acc, { roomId, prevReading }) => {
+      acc[roomId] = prevReading;
+      return acc;
+    }, {});
 
     setPreviousReadings(newPreviousReadings);
   };
@@ -205,8 +117,7 @@ export default function BillingDetails() {
     useEffect(() => {
       const handleRouteChangeStart = (url) => {
         if (hasUnsavedChanges) {
-          const confirmMessage =
-            "You have unsaved changes. Are you sure you want to leave?";
+          const confirmMessage = "You have unsaved changes. Are you sure you want to leave?";
           if (!window.confirm(confirmMessage)) {
             router.events.emit("routeChangeError");
             throw new Error("Abort route change. Please ignore this error.");
@@ -228,7 +139,6 @@ export default function BillingDetails() {
       const roomId = room.RoomBaseDetails.room_id;
       const currentReadingInput = readingValues[roomId];
 
-      // Only proceed if there's an input for the current reading
       if (currentReadingInput !== undefined && currentReadingInput !== "") {
         const currentReading = parseFloat(currentReadingInput);
 
@@ -242,19 +152,16 @@ export default function BillingDetails() {
           rolloverValue = 1000000;
         }
 
-        // Adjust current reading if it's less than previous (accounting for rollover)
         let adjustedCurrentReading = currentReading;
         if (currentReading < previousReading) {
           adjustedCurrentReading += rolloverValue;
         }
 
-        // Calculate the difference with adjusted current reading
         const difference = adjustedCurrentReading - previousReading;
 
-        newUnitsDifference[roomId] = difference; // Set the calculated difference
+        newUnitsDifference[roomId] = difference;
       } else {
-        // If there's no input, set the units difference to a placeholder or null
-        newUnitsDifference[roomId] = null; // Or use "-" or another placeholder
+        newUnitsDifference[roomId] = null;
       }
     });
 
@@ -267,10 +174,9 @@ export default function BillingDetails() {
   }, [readingValues, previousReadings]);
 
   useEffect(() => {
-    // Reset the current readings when the selected type changes
     const resetReadingValues = {};
     selectedRooms.forEach((room) => {
-      resetReadingValues[room.RoomBaseDetails.room_id] = ""; // Set empty string for each room's current reading
+      resetReadingValues[room.RoomBaseDetails.room_id] = "";
     });
     setReadingValues(resetReadingValues);
   }, [selectedType, selectedRooms]);
@@ -279,7 +185,7 @@ export default function BillingDetails() {
     if (selectedRooms.length > 0 && selectedGenerationDate) {
       fetchPreviousReadings();
     }
-  }, [selectedRooms, selectedGenerationDate]); // Add selectedGenerationDate as a dependency
+  }, [selectedRooms, selectedGenerationDate]);
 
   useEffect(() => {
     getroomsforbilling();
@@ -288,9 +194,7 @@ export default function BillingDetails() {
   useEffect(() => {
     if (selectedGenerationDate && billedRooms.length > 0) {
       const roomsForSelectedDate = billedRooms.filter((room) => {
-        const roomDate = new Date(room.generation_date)
-          .toISOString()
-          .split("T")[0];
+        const roomDate = new Date(room.generation_date).toISOString().split("T")[0];
         return roomDate === selectedGenerationDate;
       });
 
@@ -312,12 +216,9 @@ export default function BillingDetails() {
   };
   const handleOpenDialog = () => {
     if (!checkAllFieldsFilledAndPositive()) {
-      setSnackbarMessage(
-        "Please fill in all the readings with non-negative values before saving."
-      );
+      setSnackbarMessage("Please fill in all the readings with non-negative values before saving.");
       setSnackbarOpen(true);
     } else {
-      // All fields are filled and non-negative, open the confirmation dialog
       setDialogOpen(true);
     }
   };
@@ -336,9 +237,7 @@ export default function BillingDetails() {
         return;
       }
       if (!checkAllFieldsFilledAndPositive()) {
-        setSnackbarMessage(
-          "Please fill in all the readings with non-negative values before saving."
-        );
+        setSnackbarMessage("Please fill in all the readings with non-negative values before saving.");
         setSnackbarOpen(true);
         return;
       }
@@ -373,9 +272,7 @@ export default function BillingDetails() {
   };
   const handleOpenGenerateDialog = () => {
     if (!checkAllFieldsFilledAndPositive()) {
-      setSnackbarMessage(
-        "Please fill in all the readings with non-negative values before generating bills."
-      );
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
       setSnackbarOpen(true);
     } else {
       setGenerateDialogOpen(true); // Open the generate bills confirmation dialog
@@ -390,17 +287,13 @@ export default function BillingDetails() {
   const handleGeneratebilling = async () => {
     setGenerateDialogOpen(false);
     if (!checkAllFieldsFilled()) {
-      setSnackbarMessage(
-        "Please fill in all the readings with non-negative values before generating bills."
-      );
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
       setSnackbarSeverity("error"); // Set snackbar to show error
       setSnackbarOpen(true);
       return;
     }
     if (!checkAllFieldsFilledAndPositive()) {
-      setSnackbarMessage(
-        "Please fill in all the readings with non-negative values before generating bills."
-      );
+      setSnackbarMessage("Please fill in all the readings with non-negative values before generating bills.");
       setSnackbarSeverity("error"); // Set snackbar to show error
       setSnackbarOpen(true);
       return;
@@ -413,10 +306,7 @@ export default function BillingDetails() {
           electricity_reading: readingValues[roomId].electricity || 0, // Adjust this based on your actual data structure
           water_reading: readingValues[roomId].water || 0, // Adjust this based on your actual data structure
         };
-        const response = await axios.post(
-          "http://localhost:3000/calculateandgeneratebill",
-          { room_id: roomId }
-        );
+        const response = await axios.post("http://localhost:3000/calculateandgeneratebill", { room_id: roomId });
         setWaterCost((prev) => ({
           ...prev,
           [roomId]: response.data.waterCost,
@@ -457,8 +347,7 @@ export default function BillingDetails() {
     height: 10, // Increase the height of the progress bar here
     borderRadius: 5,
     [`&.${linearProgressClasses.colorPrimary}`]: {
-      backgroundColor:
-        theme.palette.grey[theme.palette.mode === "light" ? 200 : 800],
+      backgroundColor: theme.palette.grey[theme.palette.mode === "light" ? 200 : 800],
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
@@ -474,9 +363,7 @@ export default function BillingDetails() {
           <BorderLinearProgress variant="determinate" {...props} />
         </Box>
         <Box sx={{ minWidth: 35 }}>
-          <Typography variant="body2" color="text.secondary">{`${Math.round(
-            props.value
-          )}%`}</Typography>
+          <Typography variant="body2" color="text.secondary">{`${Math.round(props.value)}%`}</Typography>
         </Box>
       </Box>
     );
@@ -511,19 +398,11 @@ export default function BillingDetails() {
                   All Steps Completed
                 </Button>
               ) : saveCallCount === 2 ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleOpenGenerateDialog}
-                >
+                <Button variant="contained" color="primary" onClick={handleOpenGenerateDialog}>
                   Generate All Bills
                 </Button>
               ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleOpenDialog}
-                >
+                <Button variant="contained" color="primary" onClick={handleOpenDialog}>
                   Save {selectedType}
                 </Button>
               )}
@@ -556,32 +435,32 @@ export default function BillingDetails() {
                 ))}
               </Select>
             </Box> */}
-<Box sx={{ paddingRight: "10px" }}>
-  <Select
-    label="Generation Date"
-    value={selectedGenerationDate || ""}
-    onChange={(e) => setSelectedGenerationDate(e.target.value)}
-    variant="outlined"
-    displayEmpty
-    sx={{ width: "100%", paddingRight: "10px" }}
-    MenuProps={{
-      PaperProps: {
-        style: {
-          maxHeight: ITEM_HEIGHT * 2.5, // Set the max-height to show 3.5 items at a time
-        },
-      },
-    }}
-  >
-                    <MenuItem value="" disabled>
+            <Box sx={{ paddingRight: "10px" }}>
+              <Select
+                label="Generation Date"
+                value={selectedGenerationDate || ""}
+                onChange={(e) => setSelectedGenerationDate(e.target.value)}
+                variant="outlined"
+                displayEmpty
+                sx={{ width: "100%", paddingRight: "10px" }}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: ITEM_HEIGHT * 2.5, // Set the max-height to show 3.5 items at a time
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
                   <em>No Date</em>
                 </MenuItem>
-    {allGenerationDate?.map((date, index) => (
-      <MenuItem key={index} value={date}>
-        {date}
-      </MenuItem>
-    ))}
-  </Select>
-</Box>
+                {allGenerationDate?.map((date, index) => (
+                  <MenuItem key={index} value={date}>
+                    {date}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
             <Box>
               <FormControl fullWidth variant="outlined">
                 <InputLabel>Reading Type</InputLabel>
@@ -603,13 +482,7 @@ export default function BillingDetails() {
           </Box>
         </Card>
         {/*Progress Bar*/}
-        <Box sx={{ width: "100%", mb: 2 }}>
-          {isSaving ? (
-            <CircularProgress />
-          ) : (
-            <LinearProgressWithLabel value={saveProgress} />
-          )}
-        </Box>
+        <Box sx={{ width: "100%", mb: 2 }}>{isSaving ? <CircularProgress /> : <LinearProgressWithLabel value={saveProgress} />}</Box>
 
         <Box
           sx={{
@@ -630,8 +503,7 @@ export default function BillingDetails() {
             }}
           >
             {selectedRooms.map((room) => {
-              const previousReading =
-                previousReadings[room.RoomBaseDetails.room_id];
+              const previousReading = previousReadings[room.RoomBaseDetails.room_id];
               return (
                 <Card
                   key={`${room.RoomBaseDetails.room_id}-${room.generation_date}`}
@@ -645,9 +517,7 @@ export default function BillingDetails() {
                     minWidth: 350,
                   }}
                 >
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                     <Typography sx={{ marginBottom: "10px" }} variant="body1">
                       Room {room.RoomBaseDetails.room_number} - {selectedType}
                     </Typography>
@@ -655,78 +525,18 @@ export default function BillingDetails() {
 
                   {selectedType === "Meter Reading" && (
                     <Box sx={{ display: "flex", gap: "10px" }}>
-                      <TextField
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        label={`Previous`}
-                        value={previousReading?.electricity_reading || "N/A"}
-                        disabled
-                      />
-                      <TextField
-                        label={`Current`}
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        value={
-                          readingValues[room.RoomBaseDetails.room_id] || ""
-                        }
-                        onChange={(e) =>
-                          handleReadingValueChange(
-                            room.RoomBaseDetails.room_id,
-                            e.target.value
-                          )
-                        }
-                      />
+                      <TextField type="number" variant="outlined" sx={{ width: "33%" }} label={`Previous`} value={previousReading?.electricity_reading || "N/A"} disabled />
+                      <TextField label={`Current`} type="number" variant="outlined" sx={{ width: "33%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />
 
-                      <TextField
-                        label="Units"
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        value={
-                          unitsDifference[room.RoomBaseDetails.room_id] || "N/A"
-                        }
-                        disabled
-                      />
+                      <TextField label="Units" type="number" variant="outlined" sx={{ width: "33%" }} value={unitsDifference[room.RoomBaseDetails.room_id] || "N/A"} disabled />
                     </Box>
                   )}
                   {selectedType === "Water Reading" && (
                     <Box sx={{ display: "flex", gap: "10px" }}>
-                      <TextField
-                        label={`Previous`}
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        value={previousReading?.water_reading || "N/A"}
-                        disabled
-                      />
-                      <TextField
-                        label={`Current`}
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        value={
-                          readingValues[room.RoomBaseDetails.room_id] || ""
-                        }
-                        onChange={(e) =>
-                          handleReadingValueChange(
-                            room.RoomBaseDetails.room_id,
-                            e.target.value
-                          )
-                        }
-                      />
+                      <TextField label={`Previous`} type="number" variant="outlined" sx={{ width: "33%" }} value={previousReading?.water_reading || "N/A"} disabled />
+                      <TextField label={`Current`} type="number" variant="outlined" sx={{ width: "33%" }} value={readingValues[room.RoomBaseDetails.room_id] || ""} onChange={(e) => handleReadingValueChange(room.RoomBaseDetails.room_id, e.target.value)} />
 
-                      <TextField
-                        label="Units"
-                        type="number"
-                        variant="outlined"
-                        sx={{ width: "33%" }}
-                        value={
-                          unitsDifference[room.RoomBaseDetails.room_id] || "N/A"
-                        }
-                        disabled
-                      />
+                      <TextField label="Units" type="number" variant="outlined" sx={{ width: "33%" }} value={unitsDifference[room.RoomBaseDetails.room_id] || "N/A"} disabled />
                     </Box>
                   )}
                 </Card>
@@ -734,17 +544,10 @@ export default function BillingDetails() {
             })}
           </Box>
         </Box>
-        <Dialog
-          open={dialogOpen}
-          onClose={handleCloseDialog}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
+        <Dialog open={dialogOpen} onClose={handleCloseDialog} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
           <DialogTitle id="alert-dialog-title">{"Confirm Save"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to save all readings?
-            </DialogContentText>
+            <DialogContentText id="alert-dialog-description">Are you sure you want to save all readings?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button variant="outlined" onClick={handleCloseDialog}>
@@ -755,29 +558,16 @@ export default function BillingDetails() {
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog
-          open={generateDialogOpen}
-          onClose={handleCloseGenerateDialog}
-          aria-labelledby="generate-dialog-title"
-          aria-describedby="generate-dialog-description"
-        >
-          <DialogTitle id="generate-dialog-title">
-            {"Confirm Bill Generation"}
-          </DialogTitle>
+        <Dialog open={generateDialogOpen} onClose={handleCloseGenerateDialog} aria-labelledby="generate-dialog-title" aria-describedby="generate-dialog-description">
+          <DialogTitle id="generate-dialog-title">{"Confirm Bill Generation"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="generate-dialog-description">
-              Are you sure you want to generate bills for all readings?
-            </DialogContentText>
+            <DialogContentText id="generate-dialog-description">Are you sure you want to generate bills for all readings?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button variant="outlined" onClick={handleCloseGenerateDialog}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              onClick={handleGeneratebilling}
-              autoFocus
-            >
+            <Button variant="contained" onClick={handleGeneratebilling} autoFocus>
               Confirm
             </Button>
           </DialogActions>
@@ -801,20 +591,11 @@ export default function BillingDetails() {
           </Button>
         </DialogActions>
       </Dialog> */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbarSeverity}
-          icon={
-            snackbarSeverity === "success" ? (
-              <CheckCircleIcon fontSize="inherit" />
-            ) : undefined
-          } // Conditionally render the check icon for success
+          icon={snackbarSeverity === "success" ? <CheckCircleIcon fontSize="inherit" /> : undefined} // Conditionally render the check icon for success
           sx={{ width: "100%" }}
         >
           {snackbarMessage}

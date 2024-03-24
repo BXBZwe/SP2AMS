@@ -35,7 +35,7 @@ export default function Profile() {
   return (
     <div>
       <Head>
-        <title>Profile</title>
+        <title>Profile Detail</title>
       </Head>
 
       <Card sx={{ width: "100%" }}>
