@@ -229,6 +229,7 @@ export default function ratetable() {
             </FormControl>
           </div>
           <DataGrid
+          id= "room-data-grid"
             rows={filteredRows}
             columns={columns}
             pageSize={5}

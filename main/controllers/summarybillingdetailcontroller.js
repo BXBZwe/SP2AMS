@@ -58,95 +58,6 @@ const getbillingdetails = async (req, res) => {
     }
 };
 
-// const getRoomBillingDetails = async (req, res) => {
-//     try {
-//         const { room_id } = req.params;
-
-//         const latestGeneratedBillRecord = await prisma.generatedBillRecord.findFirst({
-//             where: {
-//                 room_id: parseInt(room_id),
-//             },
-//             orderBy: {
-//                 generation_date: 'desc',
-//             },
-//         });
-//         console.log("Fetched GeneratedBillRecord:", latestGeneratedBillRecord);
-
-//         const roomDetails = await prisma.roomBaseDetails.findUnique({
-//             where: {
-//                 room_id: parseInt(room_id),
-//             },
-//             include: {
-//                 tenancy_records: true,
-//                 bills: true,
-//                 meter_readings: {
-//                     orderBy: {
-//                         reading_date: 'desc',
-//                     },
-//                 },
-//                 room_rates: {
-//                     include: {
-//                         rates: {
-//                             include: {
-//                                 TemporaryRateAdjustments: true,
-//                             },
-//                         },
-//                     },
-//                 },
-//                 generatedBillRecords: true,
-//             },
-//         });
-
-//         if (!roomDetails) {
-//             return res.status(404).json({ message: 'Room details not found' });
-//         }
-
-//         const activeTenant = roomDetails.tenancy_records[0]?.tenants || null;
-//         const billDetails = roomDetails.bills[0] || null;
-//         const meterDetails = roomDetails.meter_readings[0] || null;
-//         const generatedBillRecord = latestGeneratedBillRecord;
-
-
-//         const detailedBilling = {
-//             room_number: roomDetails.room_number,
-//             tenant_name: activeTenant ? `${activeTenant.first_name} ${activeTenant.last_name}` : 'No Tenant',
-//             generation_date: generatedBillRecord ? generatedBillRecord.generation_date : 'N/A',
-//             total_bill: billDetails ? billDetails.total_amount : 'N/A',
-//             items: roomDetails.room_rates.map(rate => {
-//                 const tempAdjustment = rate.rates.TemporaryRateAdjustments && rate.rates.TemporaryRateAdjustments.length > 0
-//                     ? rate.rates.TemporaryRateAdjustments.find(ta => ta.bill_record_id === (generatedBillRecord ? generatedBillRecord.bill_record_id : null))
-//                     : null;
-//                 return {
-//                     rate_id: rate.rate_id,
-//                     item_name: rate.rates.item_name,
-//                     per_unit_price: tempAdjustment ? tempAdjustment.temporary_price : rate.rates.item_price,
-//                     quantity: rate.quantity,
-//                     total: tempAdjustment ? (tempAdjustment.temporary_price * rate.quantity) : (rate.rates.item_price * rate.quantity),
-//                     last_updated: rate.rates.last_updated,
-//                     adjustmentApplied: !!tempAdjustment,
-//                     temporary_price: tempAdjustment ? tempAdjustment.temporary_price : null,
-//                 };
-//             }),
-
-//             meter_reading: {
-//                 water_reading: meterDetails ? meterDetails.water_reading : 'N/A',
-//                 electricity_reading: meterDetails ? meterDetails.electricity_reading : 'N/A',
-//                 water_usage: billDetails ? billDetails.water_usage : 'N/A',
-//                 water_cost: billDetails ? billDetails.water_cost : 'N/A',
-//                 electricity_usage: billDetails ? billDetails.electricity_usage : 'N/A',
-//                 electricity_cost: billDetails ? billDetails.electricity_cost : 'N/A',
-//                 reading_date: meterDetails ? meterDetails.reading_date : 'N/A',
-//             },
-//         };
-
-//         res.status(200).json({
-//             message: 'Room billing details retrieved successfully', detailedBilling, bill_id: billDetails.bill_id, room_id: billDetails.room_id, bill_record_id: latestGeneratedBillRecord ? latestGeneratedBillRecord.bill_record_id : null,
-//         });
-//     } catch (error) {
-//         console.error('Error fetching room billing details:', error);
-//         res.status(500).send(error.message);
-//     }
-// };
 
 const getRoomBillingDetails = async (req, res) => {
     try {
@@ -277,7 +188,7 @@ const recalculateAndUpdateBill = async (req, res) => {
     const { bill_id, previousWaterReading,
         previousElectricityReading,
         currentWaterReading,
-        currentElectricityReading } = req.body;
+        currentElectricityReading, generationDate } = req.body;
 
     console.log(`Recalculating bill for bill_id: ${bill_id}`);
 
@@ -303,6 +214,53 @@ const recalculateAndUpdateBill = async (req, res) => {
                 throw new Error('Room details not found for the bill');
             }
 
+            const previousMeterReading = await prisma.meter_readings.findFirst({
+                where: {
+                    room_id: existingBill.room_id,
+                    reading_date: {
+                        lt: new Date(generationDate)
+                    }
+                },
+                orderBy: {
+                    reading_date: 'desc',
+                },
+            });
+
+            if (previousMeterReading) {
+                await prisma.meter_readings.update({
+                    where: { reading_id: previousMeterReading.reading_id },
+                    data: {
+                        water_reading: previousWaterReading,
+                        electricity_reading: previousElectricityReading,
+                    },
+                });
+            }
+
+            const currentMeterReading = await prisma.meter_readings.findFirst({
+                where: {
+                    room_id: existingBill.room_id,
+                    reading_date: new Date(generationDate)
+                }
+            });
+
+            if (currentMeterReading) {
+                await prisma.meter_readings.update({
+                    where: { reading_id: currentMeterReading.reading_id },
+                    data: {
+                        water_reading: currentWaterReading,
+                        electricity_reading: currentElectricityReading,
+                    },
+                });
+            } else {
+                await prisma.meter_readings.create({
+                    data: {
+                        room_id: existingBill.room_id,
+                        water_reading: currentWaterReading,
+                        electricity_reading: currentElectricityReading,
+                        reading_date: new Date(generationDate),
+                    },
+                });
+            }
             const rolloverWater = 10000;
             const rolloverElectricity = 1000000;
 
@@ -314,16 +272,16 @@ const recalculateAndUpdateBill = async (req, res) => {
                 : currentElectricityReading - previousElectricityReading;
 
 
-            if (newWaterUsage !== 0 || newElectricityUsage !== 0) {
-                await prisma.meter_readings.create({
-                    data: {
-                        room_id: existingBill.room_id,
-                        water_reading: currentWaterReading,
-                        electricity_reading: currentElectricityReading,
-                        reading_date: new Date(),
-                    }
-                });
-            }
+            // if (newWaterUsage !== 0 || newElectricityUsage !== 0) {
+            //     await prisma.meter_readings.create({
+            //         data: {
+            //             room_id: existingBill.room_id,
+            //             water_reading: currentWaterReading,
+            //             electricity_reading: currentElectricityReading,
+            //             reading_date: generationDate,
+            //         }
+            //     });
+            // }
 
 
             let updatedTotalAmount = Number(roomDetails.base_rent);
