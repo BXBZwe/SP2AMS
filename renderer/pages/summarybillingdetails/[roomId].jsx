@@ -25,7 +25,9 @@ export default function RoomBillingDetail() {
           });
 
           const generationDate = response.data.detailedBilling.generation_date;
+          console.log("generation Date is :", generationDate);
           const previousReadingResponse = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}?generation_date=${generationDate}`);
+          console.log("Previour reading is :", previousReadingResponse);
           setPreviousReading(previousReadingResponse.data.data);
         } catch (error) {
           console.error("Error fetching billing details:", error);

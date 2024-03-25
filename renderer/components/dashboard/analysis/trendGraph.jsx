@@ -180,93 +180,90 @@ export default function TrendGraph() {
   return (
     <>
       <Box sx={{ width: "100%", overflowX: "hidden", margin: 0 }}>
-        <Grid container spacing={0.5} sx={{ marginTop: "20px" }}> {/* Ensure there's a container grid wrapping your items */}
+        <Grid container spacing={0.5} sx={{ marginTop: "20px" }}>
+          {" "}
+          {/* Ensure there's a container grid wrapping your items */}
           <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}> {/* Adjusted for smaller width and centering */}
+            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
+              {" "}
+              {/* Adjusted for smaller width and centering */}
               <CardContent>
                 <Typography variant="h5" color="textSecondary" gutterBottom>
                   Revenue
                 </Typography>
-                <Typography variant="h4">${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
+                <Typography variant="h4">฿{financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}> {/* Adjusted for smaller width and centering */}
+            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
+              {" "}
+              {/* Adjusted for smaller width and centering */}
               <CardContent>
                 <Typography variant="h5" color="textSecondary" gutterBottom>
                   Costs
                 </Typography>
-                <Typography variant="h4">${financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
+                <Typography variant="h4">฿{financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}> {/* Adjusted for smaller width and centering */}
+            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
+              {" "}
+              {/* Adjusted for smaller width and centering */}
               <CardContent>
                 <Typography variant="h5" color="textSecondary" gutterBottom>
                   Profit
                 </Typography>
-                <Typography variant="h4">${financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
+                <Typography variant="h4">฿{financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
         <Card
-      sx={{
-        marginTop: 4,
-        p: 4,
-        width: "100%",
-        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // Custom shadow
-        borderRadius: '4px', // Optional: adds rounded corners
-      }}
-    >
-      <CardContent>
-        <Typography variant="h5">
-          Financial Trends
-        </Typography>
-        <Box sx={{ my: 2 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Time Unit"
-                value={timeUnit}
-                onChange={(e) => setTimeUnit(e.target.value)}
-                variant="outlined"
-              >
-                <MenuItem value="month">Month</MenuItem>
-                <MenuItem value="year">Year</MenuItem>
-              </TextField>
-            </Grid>
-            {timeUnit === "year" && (
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Years Range"
-                  type="number"
-                  value={yearsRange}
-                  onChange={(e) => setYearsRange(Number(e.target.value))}
-                  InputProps={{ inputProps: { min: 1 } }}
-                  variant="outlined"
-                />
+          sx={{
+            marginTop: 4,
+            p: 4,
+            width: "100%",
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)", // Custom shadow
+            borderRadius: "4px", // Optional: adds rounded corners
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5">Financial Trends</Typography>
+            <Box sx={{ my: 2 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={6}>
+                  <TextField select fullWidth label="Time Unit" value={timeUnit} onChange={(e) => setTimeUnit(e.target.value)} variant="outlined">
+                    <MenuItem value="month">Month</MenuItem>
+                    <MenuItem value="year">Year</MenuItem>
+                  </TextField>
+                </Grid>
+                {timeUnit === "year" && (
+                  <Grid item xs={12} sm={6}>
+                    <TextField fullWidth label="Years Range" type="number" value={yearsRange} onChange={(e) => setYearsRange(Number(e.target.value))} InputProps={{ inputProps: { min: 1 } }} variant="outlined" />
+                  </Grid>
+                )}
               </Grid>
-            )}
-          </Grid>
-        </Box>
-        <CardContent>
-        <Box ref={financialRef} sx={{ height: 500, width: "100%" }} /></CardContent>
-      </CardContent>
-    </Card>
-        <Container maxWidth={false} sx={{boxShadow: '0 8px 16px rgba(0,0,0,0.25)' // Custom shadow for the bottom
-        }}>
+            </Box>
+            <CardContent>
+              <Box ref={financialRef} sx={{ height: 500, width: "100%" }} />
+            </CardContent>
+          </CardContent>
+        </Card>
+        <Container
+          maxWidth={false}
+          sx={{
+            boxShadow: "0 8px 16px rgba(0,0,0,0.25)", // Custom shadow for the bottom
+          }}
+        >
           <Card elevation={3} sx={{ p: 4, marginTop: 4, width: "100%" }}>
-        <Box sx={{ width: "100%" }}> {/* Adjusted width to 100% */}
-          <Typography variant="h5" gutterBottom>
-            Utility Usage Trends
-          </Typography>
-
+            <Box sx={{ width: "100%" }}>
+              {" "}
+              {/* Adjusted width to 100% */}
+              <Typography variant="h5" gutterBottom>
+                Utility Usage Trends
+              </Typography>
               <Grid container spacing={2} alignItems="center" justifyContent="center">
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
@@ -310,7 +307,6 @@ export default function TrendGraph() {
               </Grid>
             </Box>
           </Card>
-
         </Container>
       </Box>
     </>
