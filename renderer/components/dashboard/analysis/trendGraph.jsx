@@ -25,7 +25,6 @@ export default function TrendGraph() {
     try {
       const response = await axios.get(`http://localhost:3000/get_utitliy_trends/${utilityType.toLowerCase()}/${granularity.toLowerCase()}`);
       setTrends(response.data.data);
-      console.log("Utility trends ", response.data.data);
     } catch (error) {
       console.error("Error Fetching utility trends", error);
     }
@@ -35,7 +34,6 @@ export default function TrendGraph() {
     try {
       const response = await axios.get("http://localhost:3000/getprofitandrevenue");
       setFinancialSummary(response.data.financialSummary);
-      console.log("Financial Summary: ", response.data.financialSummary);
     } catch (error) {
       console.error("Error fetching financial summary", error);
     }

@@ -94,14 +94,14 @@ export default function addtenant() {
     if (!startDate || startDate.toString().trim() === "") {
       tempErrors.startDate = "Start date is required";
     }
-    if (!startDate || dayjs(startDate).isBefore(dayjs(), 'day')) {
+    if (!startDate || dayjs(startDate).isBefore(dayjs(), "day")) {
       tempErrors.startDate = "Start date cannot be in the past";
     }
     // Add validation for end date
     if (!endDate || endDate.toString().trim() === "") {
       tempErrors.endDate = "End date is required";
     }
-    if (!endDate || dayjs(endDate).isBefore(dayjs(startDate), 'day')) {
+    if (!endDate || dayjs(endDate).isBefore(dayjs(startDate), "day")) {
       tempErrors.endDate = "End date must be after the start date";
     }
     let isFormValid = Object.values(tempErrors).every((x) => x === "");
@@ -146,7 +146,7 @@ export default function addtenant() {
 
     // setLoading(true);
 
-    console.log(tenantData);
+    // console.log(tenantData);
     setMessage("");
     const formdata = new FormData();
 
@@ -267,9 +267,8 @@ export default function addtenant() {
                 value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />}
-                minDate={dayjs(startDate).add(1, 'day')} // This ensures the minDate is one day after the start date
+                minDate={dayjs(startDate).add(1, "day")} // This ensures the minDate is one day after the start date
               />
-
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div style={{ marginBottom: "0.7rem" }}>

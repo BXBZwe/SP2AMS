@@ -25,9 +25,7 @@ export default function RoomBillingDetail() {
           });
 
           const generationDate = response.data.detailedBilling.generation_date;
-          console.log("generation Date is :", generationDate);
           const previousReadingResponse = await axios.get(`http://localhost:3000/getLastReadingBeforeDate/${roomId}?generation_date=${generationDate}`);
-          console.log("Previour reading is :", previousReadingResponse);
           setPreviousReading(previousReadingResponse.data.data);
         } catch (error) {
           console.error("Error fetching billing details:", error);
@@ -83,9 +81,8 @@ export default function RoomBillingDetail() {
     try {
       const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
       if (adjustmentResponse.status === 200) {
-        console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
       } else {
-        console.error("Failed to save the temporary rate adjustment");
+        // console.error("Failed to save the temporary rate adjustment");
       }
 
       const updateData = {
@@ -102,7 +99,7 @@ export default function RoomBillingDetail() {
 
         if (updatedBillResponse.status === 200) {
           setBillingDetails((prev) => ({ ...prev, ...updatedBillResponse.data.updatedBill }));
-          console.log(" Updated the recalculated bill:", updatedBillResponse);
+          // console.log(" Updated the recalculated bill:", updatedBillResponse);
         } else {
           console.error("Failed to recalculate the bill");
         }

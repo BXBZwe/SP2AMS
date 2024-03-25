@@ -80,7 +80,6 @@ export default function CheckOut() {
         tenant_id: tenantDetails.tenant_id,
       });
       refreshTenancyRecords();
-      console.log(response.data.message);
       setSnackbarMessage(response.data.message || "Tenant checked out successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -97,12 +96,10 @@ export default function CheckOut() {
     const fetchOccupiedRooms = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getallrooms");
-        console.log("Response data rooms:", response.data);
         const rooms = response.data.getrooms;
 
         if (Array.isArray(rooms)) {
           const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "OCCUPIED");
-          console.log("filtered rooms:", filteredRooms);
           setAvailableRooms(filteredRooms);
         } else {
           console.error("Expected 'getrooms' to be an array but got:", roomsArray);
@@ -120,10 +117,7 @@ export default function CheckOut() {
 
   const fetchTenancyRecord = async (roomId) => {
     try {
-      console.log("room ID:", roomId);
-
       const response = await axios.get(`http://localhost:3000/geteachtenancyrecord/${roomId}`);
-      console.log("Tenancy record:", response.data);
       if (response.data && response.data.tenants) {
         const tenants = response.data.tenants;
         const tenantFullName = tenants ? `${tenants.first_name} ${tenants.last_name}` : "";
@@ -144,7 +138,6 @@ export default function CheckOut() {
 
   const handleRoomSelection = (event) => {
     const roomID = parseInt(event.target.value, 10);
-    console.log("Selected Room ID:", roomID);
     const room = availableRooms.find((r) => r.room_id === roomID);
     setSelectedRoom(room ? room.room_id : null);
 
@@ -166,8 +159,6 @@ export default function CheckOut() {
   };
 
   const handleAddButtonClick = () => {
-    console.log("Add button clicked");
-
     setAddButtonClicked(true);
 
     const isContractMonthsValid = validateFloat(contractMonths) && contractMonths > 0;
@@ -175,13 +166,6 @@ export default function CheckOut() {
 
     const isMoveInValid = moveInDate !== null;
     const isMoveOutValid = moveOutDate !== null;
-
-    console.log({
-      isContractMonthsValid,
-      isDepositValid,
-      isMoveInValid,
-      isMoveOutValid,
-    });
 
     if (!isContractMonthsValid || !isDepositValid || !isMoveInValid || !isMoveOutValid) {
       setSnackbarMessage("Please fill in all required fields correctly.");
@@ -231,7 +215,7 @@ export default function CheckOut() {
                   marginBottom: "10px",
                 }}
               >
-                <Typography variant="h4">Check Out Please</Typography>
+                <Typography variant="h4">Check Out</Typography>
                 <Typography variant="body2" sx={{ opacity: 0.7 }}>
                   Select rooms and modify contract months
                 </Typography>
