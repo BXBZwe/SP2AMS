@@ -190,7 +190,7 @@ export default function TrendGraph() {
                 Revenue
               </Typography>
               {/* Change color here */}
-              <Typography variant="h4" sx={{ color: 'darkorange' }}>${financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
+              <Typography variant="h4" sx={{ color: 'darkorange' }}>฿{financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -201,7 +201,7 @@ export default function TrendGraph() {
                 Costs
               </Typography>
               {/* Change color here */}
-              <Typography variant="h4" sx={{ color: 'red' }}>${financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
+              <Typography variant="h4" sx={{ color: 'red' }}>฿{financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -212,7 +212,7 @@ export default function TrendGraph() {
                 Profit
               </Typography>
               {/* Change color here */}
-              <Typography variant="h4" sx={{ color: 'green' }}>${financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
+              <Typography variant="h4" sx={{ color: 'green' }}>฿{financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
             </CardContent>
           </Card>
         </Grid>
