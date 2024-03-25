@@ -151,6 +151,7 @@ export default function TrendGraph() {
         type: "scatter",
         mode: "lines+markers",
         name: "Profit",
+        marker: { color: "green" },
       };
 
       const revenueTrace = {
@@ -159,6 +160,7 @@ export default function TrendGraph() {
         type: "scatter",
         mode: "lines+markers",
         name: "Revenue",
+        marker: { color: "orange" },
       };
 
       const layout = {
@@ -179,136 +181,125 @@ export default function TrendGraph() {
 
   return (
     <>
-      <Box sx={{ width: "100%", overflowX: "hidden", margin: 0 }}>
-        <Grid container spacing={0.5} sx={{ marginTop: "20px" }}>
-          {" "}
-          {/* Ensure there's a container grid wrapping your items */}
-          <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
-              {" "}
-              {/* Adjusted for smaller width and centering */}
-              <CardContent>
-                <Typography variant="h5" color="textSecondary" gutterBottom>
-                  Revenue
-                </Typography>
-                <Typography variant="h4">฿{financialSummary.revenue?.toLocaleString() || "Loading..."}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
-              {" "}
-              {/* Adjusted for smaller width and centering */}
-              <CardContent>
-                <Typography variant="h5" color="textSecondary" gutterBottom>
-                  Costs
-                </Typography>
-                <Typography variant="h4">฿{financialSummary.costs?.toLocaleString() || "Loading..."}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={8} md={4}>
-            <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
-              {" "}
-              {/* Adjusted for smaller width and centering */}
-              <CardContent>
-                <Typography variant="h5" color="textSecondary" gutterBottom>
-                  Profit
-                </Typography>
-                <Typography variant="h4">฿{financialSummary.profit?.toLocaleString() || "Loading..."}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-        <Card
-          sx={{
-            marginTop: 4,
-            p: 4,
-            width: "100%",
-            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)", // Custom shadow
-            borderRadius: "4px", // Optional: adds rounded corners
-          }}
-        >
-          <CardContent>
-            <Typography variant="h5">Financial Trends</Typography>
-            <Box sx={{ my: 2 }}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} sm={6}>
-                  <TextField select fullWidth label="Time Unit" value={timeUnit} onChange={(e) => setTimeUnit(e.target.value)} variant="outlined">
-                    <MenuItem value="month">Month</MenuItem>
-                    <MenuItem value="year">Year</MenuItem>
-                  </TextField>
-                </Grid>
-                {timeUnit === "year" && (
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Years Range" type="number" value={yearsRange} onChange={(e) => setYearsRange(Number(e.target.value))} InputProps={{ inputProps: { min: 1 } }} variant="outlined" />
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
+      <Grid container spacing={0.5} sx={{ marginTop: "20px" }}>
+        <Grid item xs={8} md={4}>
+          <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
             <CardContent>
-              <Box ref={financialRef} sx={{ height: 500, width: "100%" }} />
-            </CardContent>
-          </CardContent>
-        </Card>
-        <Container
-          maxWidth={false}
-          sx={{
-            boxShadow: "0 8px 16px rgba(0,0,0,0.25)", // Custom shadow for the bottom
-          }}
-        >
-          <Card elevation={3} sx={{ p: 4, marginTop: 4, width: "100%" }}>
-            <Box sx={{ width: "100%" }}>
-              {" "}
-              {/* Adjusted width to 100% */}
-              <Typography variant="h5" gutterBottom>
-                Utility Usage Trends
+              <Typography variant="h5" sx={{ color: "darkorange" }} gutterBottom>
+                Revenue
               </Typography>
-              <Grid container spacing={2} alignItems="center" justifyContent="center">
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel id="utility-type-label">Utility Type</InputLabel>
-                    <Select labelId="utility-type-label" id="utility-type" value={selectedUtilityType} label="Utility Type" onChange={(e) => setSelectedUtilityType(e.target.value)}>
-                      <MenuItem value="water">Water</MenuItem>
-                      <MenuItem value="electricity">Electricity</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel id="granularity-label">Granularity</InputLabel>
-                    <Select labelId="granularity-label" id="granularity" value={selectedGranularity} label="Granularity" onChange={(e) => setSelectedGranularity(e.target.value)}>
-                      <MenuItem value="building">Building</MenuItem>
-                      <MenuItem value="room">Room</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {selectedGranularity.toLowerCase() === "room" && (
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel id="room-select-label">Room</InputLabel>
-                      <Select labelId="room-select-label" id="room-select" value={selectedRoom} label="Room" onChange={(e) => setSelectedRoom(e.target.value)}>
-                        {roomLists.map((room, index) => (
-                          <MenuItem key={index} value={room.room_id}>
-                            {`Room ${room.room_number}`}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                )}
-                <Grid item xs={12}>
-                  <Card>
-                    <CardContent>
-                      <Box ref={chartRef} sx={{ height: 500, width: "100%" }} />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </Box>
+              {/* Change color here */}
+              <Typography variant="h4" sx={{ color: "darkorange" }}>
+                ฿{financialSummary.revenue?.toLocaleString() || "Loading..."}
+              </Typography>
+            </CardContent>
           </Card>
-        </Container>
-      </Box>
+        </Grid>
+        <Grid item xs={8} md={4}>
+          <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
+            <CardContent>
+              <Typography variant="h5" sx={{ color: "red" }} gutterBottom>
+                Costs
+              </Typography>
+              {/* Change color here */}
+              <Typography variant="h4" sx={{ color: "red" }}>
+                ฿{financialSummary.costs?.toLocaleString() || "Loading..."}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={8} md={4}>
+          <Card sx={{ textAlign: "center", maxWidth: 250, mx: "auto" }}>
+            <CardContent>
+              <Typography variant="h5" sx={{ color: "green" }} gutterBottom>
+                Profit
+              </Typography>
+              {/* Change color here */}
+              <Typography variant="h4" sx={{ color: "green" }}>
+                ฿{financialSummary.profit?.toLocaleString() || "Loading..."}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      <Card
+        sx={{
+          marginTop: 4,
+          p: 4,
+          width: "100%",
+          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)", // Custom shadow
+          borderRadius: "4px", // Optional: adds rounded corners
+        }}
+      >
+        <CardContent>
+          <Typography variant="h5">Financial Trends</Typography>
+          <Box sx={{ my: 2 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={6}>
+                <TextField select fullWidth label="Time Unit" value={timeUnit} onChange={(e) => setTimeUnit(e.target.value)} variant="outlined">
+                  <MenuItem value="month">Month</MenuItem>
+                  <MenuItem value="year">Year</MenuItem>
+                </TextField>
+              </Grid>
+              {timeUnit === "year" && (
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Years Range" type="number" value={yearsRange} onChange={(e) => setYearsRange(Number(e.target.value))} InputProps={{ inputProps: { min: 1 } }} variant="outlined" />
+                </Grid>
+              )}
+            </Grid>
+          </Box>
+          <CardContent>
+            <Box ref={financialRef} sx={{ height: 500, width: "100%" }} />
+          </CardContent>
+        </CardContent>
+      </Card>
+
+      <Card elevation={3} sx={{ p: 4, marginTop: 4, width: "100%" }}>
+        <Box sx={{ width: "100%" }}>
+          {" "}
+          {/* Adjusted width to 100% */}
+          <Typography variant="h5" gutterBottom>
+            Utility Usage Trends
+          </Typography>
+          <Grid container spacing={2} alignItems="center" justifyContent="center">
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="utility-type-label">Utility Type</InputLabel>
+                <Select labelId="utility-type-label" id="utility-type" value={selectedUtilityType} label="Utility Type" onChange={(e) => setSelectedUtilityType(e.target.value)}>
+                  <MenuItem value="water">Water</MenuItem>
+                  <MenuItem value="electricity">Electricity</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="granularity-label">Granularity</InputLabel>
+                <Select labelId="granularity-label" id="granularity" value={selectedGranularity} label="Granularity" onChange={(e) => setSelectedGranularity(e.target.value)}>
+                  <MenuItem value="building">Building</MenuItem>
+                  <MenuItem value="room">Room</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {selectedGranularity.toLowerCase() === "room" && (
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="room-select-label">Room</InputLabel>
+                  <Select labelId="room-select-label" id="room-select" value={selectedRoom} label="Room" onChange={(e) => setSelectedRoom(e.target.value)}>
+                    {roomLists.map((room, index) => (
+                      <MenuItem key={index} value={room.room_id}>
+                        {`Room ${room.room_number}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
+
+            <Box ref={chartRef} sx={{ height: 500, width: "80%" }} />
+          </Grid>
+        </Box>
+      </Card>
     </>
   );
 }

@@ -151,7 +151,8 @@ export default function updatetenant() {
     if (!selectedDate || selectedDate.isBefore(dayjs(), 'day')) {
       newErrors.startDate = "Issue date cannot be in the past";
       isValid = false;
-      }
+    }
+    
 
       // Validate Expiration Date
       if (!selectedEndDate || selectedEndDate.isBefore(selectedDate, 'day')) {
@@ -473,14 +474,13 @@ export default function updatetenant() {
             <TextField disabled={!isEditMode} id="line_id" name="contacts.line_id" label="Line ID" value={tenantData.contacts.line_id} onChange={handleChange} error={!!errors.line_id} helperText={errors.line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             <LocalizationProvider  disabled={!isEditMode} dateAdapter={AdapterDayjs}>
             <DatePicker
-        label="Issue Date"
-        value={selectedDate}
-        onChange={(newValue) => setSelectedDate(newValue)}
-        renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />}
-        minDate={dayjs()}
-        disabled={!isEditMode}
-        sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
-    />
+                label="Issue Date"
+                value={selectedDate}
+                onChange={(newValue) => setSelectedDate(newValue)}
+                renderInput={(params) => <TextField {...params} />}
+                disabled={!isEditMode}
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+              />
     <DatePicker
         label="Expiration Date"
         value={selectedEndDate}
@@ -595,9 +595,9 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
                   <label htmlFor="tenant-image">
-                    <Fab color="secondary" component="span" aria-label="upload picture" marginBottom="10px">
-                      <PhotoCamera />
-                    </Fab>
+                  <Fab color="primary" component="span" aria-label="upload picture" marginBottom="10px">
+                    <PhotoCamera />
+                  </Fab>
                   </label>
                 </Box>
               </Box>
@@ -622,7 +622,7 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
                   <label htmlFor="national-id-image">
-                    <Fab color="secondary" component="span" aria-label="upload ID picture">
+                    <Fab color="primary" component="span" aria-label="upload ID picture">
                       <PhotoCamera />
                     </Fab>
                   </label>
