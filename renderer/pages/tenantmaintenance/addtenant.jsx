@@ -331,7 +331,7 @@ export default function addtenant() {
                 <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
                 {/* Label that acts as a button */}
                 <label htmlFor="tenant-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
+                  <Fab color="primary" component="span" aria-label="add">
                     <PhotoCamera />
                   </Fab>
                 </label>
@@ -370,7 +370,7 @@ export default function addtenant() {
                 <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
                 {/* Label that acts as a button */}
                 <label htmlFor="national-id-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
+                  <Fab color="primary" component="span" aria-label="add">
                     <PhotoCamera />
                   </Fab>
                 </label>

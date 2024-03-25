@@ -93,7 +93,7 @@ const handleOpenSnackbar = (message, severity ) => {
   const columns = [
     { field: "room_number", headerName: "Room Number", flex: 0.2 },
     { field: "tenant_name", headerName: "Tenant Name", flex: 0.2 },
-    { field: "total_bill", headerName: "Total Bill", flex: 0.2 },
+    { field: "total_bill", headerName: "Total Bill ฿", flex: 0.2 },
     { field: "payment_status", headerName: "Payment Status", flex: 0.2 },
     {
       field: "checkbox",
