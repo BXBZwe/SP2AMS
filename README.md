@@ -94,7 +94,7 @@ List everything needed to get started with your project.
 ##### Project Management Tools
 - **Jira**: For agile project management and collaboration.
 
-##### 5. Other Tools
+#### 5. Other Tools
 - **Nextron**: For developing cross-platform desktop applications (if needed).
 - **LibreOffice**: For document processing and contract generation functionalities.
 - **Node.js**: To run JavaScript on the server side.
