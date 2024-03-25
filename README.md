@@ -54,12 +54,51 @@ Detail the technologies, frameworks, libraries, and tools used in your project.
 ## Getting Started
 
 Instructions for setting up a local development environment by followng the detailed Setup Guideline PDF.
+[Setup Guideline.pdf](https://github.com/AhmadYasi/SP2AMS/files/14738690/Setup.Guideline.pdf)
 
-[Setup Guideline.pdf](https://github.com/AhmadYasi/SP2AMS/files/14735605/Setup.Guideline.pdf)
+
 
 ### Prerequisites
 
 List everything needed to get started with your project.
 
-git
+#### 1. Hardware Requirements
+- A computer with at least 2GB RAM or any mid range CPU.
+- A server for hosting the application and database for deployment purposes.
+
+#### 2. Software Requirements
+
+##### Operating System
+- Windows xp/7/8.1/10/11
+
+#### 3. Database Management System (DBMS)
+- **PostgreSQL**: For storing and managing application data.
+
+#### 4. Development Tools
+
+##### Backend Development
+- **Python with Pyramid framework**: For the backend logic.
+- **Elixir**: For advanced features and fault tolerance.
+
+##### Frontend Development
+- **React**: For building the user interface.
+- **Next.js**: For server-side rendering and static site generation.
+- **HTML5 and Material-UI (MUI)**: For responsive design.
+
+##### Code Editor
+- Visual Studio Code, Sublime Text, or any IDE supporting Python, JavaScript, HTML, and CSS.
+
+##### Version Control System
+- **Git**: With GitHub as the repository hosting service.
+
+##### Project Management Tools
+- **Jira**: For agile project management and collaboration.
+
+##### 5. Other Tools
+- **Nextron**: For developing cross-platform desktop applications (if needed).
+- **LibreOffice**: For document processing and contract generation functionalities.
+- **Node.js**: To run JavaScript on the server side.
+- **Danfo.js**: For handling data structures and data analysis (if applicable).
+
+
 
