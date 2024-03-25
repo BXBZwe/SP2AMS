@@ -258,7 +258,7 @@ export default function addtenant() {
                 value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />}
-                minDate={dayjs()} // Ensure this is today's date or your specific date
+                // Removed the minDate prop to allow selection of past dates
               />
 
               <DatePicker

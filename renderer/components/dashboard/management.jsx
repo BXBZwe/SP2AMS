@@ -19,16 +19,16 @@ const StatusSummaryCard = ({ title, count, color }) => (
   </Grid>
 );
 
-
 // Main Management component
 export default function Management() {
   const [generationDates, setGenerationDates] = useState([]);
   const [payments, setPayments] = useState([]);
   const [statusCounts, setStatusCounts] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const [lastUpdated, setLastUpdated] = useState('');
   useEffect(() => {
     const fetchGenerationDates = async () => {
+      setLastUpdated(new Date().toLocaleString());
       try {
         const response = await axios.get("http://localhost:3000/getgenerationdate");
         if (response.data && Array.isArray(response.data.dates)) {
@@ -39,6 +39,7 @@ export default function Management() {
       } catch (error) {
         console.error("Failed to fetch generation dates:", error);
       }
+      
     };
 
     fetchGenerationDates();
@@ -47,6 +48,7 @@ export default function Management() {
   useEffect(() => {
     const fetchPaymentDetails = async (latestDate) => {
       setLoading(true);
+      setLastUpdated(new Date().toLocaleString());
       try {
         const response = await axios.get("http://localhost:3000/getpaymentdetails", {
           params: { generationDate: latestDate },
@@ -82,12 +84,14 @@ export default function Management() {
 
   return (
     <>
+    
   <Box sx={{
       display: "flex",
       flexDirection: { xs: 'column', md: 'row' },
       height: '100%',
       marginTop: "20px",
     }}>
+      
       <Box sx={{
         display: "flex",
         flexDirection: "column",
@@ -112,7 +116,9 @@ export default function Management() {
         <Card sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, marginTop: '20px' }}>
           <PaymentStatus />
           <OccupancyPie />
+          
         </Card>
+        
       </Box>
       <Card sx={{
         flex: 1,
@@ -124,9 +130,15 @@ export default function Management() {
         <CardContent>
           <RequestChart />
         </CardContent>
+        <Box sx={{ width: '100%', textAlign: 'center', marginTop: '10px' }}>
+        <Typography variant="body1">
+          {lastUpdated}
+        </Typography>
+      </Box>
       </Card>
-    </Box>
       
+    </Box>
+    
     </>
   );
 }
