@@ -228,8 +228,15 @@ const fetchContractDetail = async (req, res) => {
 
 const fetchTenantData = async (tenantId) => {
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
+    const currentDayOfMonth = currentDate.getDate(); // This will give you the day of the month
+    const currentMonth = currentDate.getMonth() + 1; // Month (0-11, with January as 0)
     const currentYear = currentDate.getFullYear();
+    
+    // console.log('Current date: ', currentDate);
+    // console.log('Day of the month: ', currentDayOfMonth); // This should give you 24 for March 24th
+    // console.log('Month: ', currentMonth + 1); // Adding 1 to make it more human-readable (1-12)
+    // console.log('Year: ', currentYear);
+    
 
     try {
         logMessage(`fetchTenantData: Fetching tenant data for ID ${tenantId}`);
@@ -240,6 +247,7 @@ const fetchTenantData = async (tenantId) => {
             include: {
                 addresses: {
                     select: {
+                        addressnumber: true,
                         street: true,
                         sub_district: true,
                         district: true,
@@ -267,6 +275,7 @@ const fetchTenantData = async (tenantId) => {
 
         tenantData.currentMonth = currentMonth;
         tenantData.currentYear = currentYear;
+        tenantData.currentDay = currentDayOfMonth;
         console.log("contract tenantdata:", tenantData);
 
         return tenantData;
@@ -297,6 +306,7 @@ const fillDocxTemplate = async (filePath, data, language) => {
             First_name: data.first_name,
             Last_name: data.last_name,
             Personal_ID: data.personal_id,
+            Number : data.addresses.addressnumber,
             Street: data.addresses.street,
             Subdistrict: data.addresses.sub_district,
             District: data.addresses.district,
@@ -307,7 +317,10 @@ const fillDocxTemplate = async (filePath, data, language) => {
             Move_in_date: formatDate(data.tenancy_records[0].move_in_date),
             Move_out_date: formatDate(data.tenancy_records[0].move_out_date),
             Month: data.currentMonth,
-            Year: data.currentYear
+            Year: data.currentYear,
+            Day: data.currentDay,
+            issueDate: formatDate(data.issue_date),
+            expireDate: formatDate(data.expiration_date) ,
         });
 
         doc.render();
