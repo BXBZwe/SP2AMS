@@ -102,3 +102,4 @@ List everything needed to get started with your project.
 
 
 
+## Thank you for more detailed showcase, check our YouTube video.
