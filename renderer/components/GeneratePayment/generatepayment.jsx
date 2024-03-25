@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  Tab,
-  Tabs,
-  CardContent,
-  Typography,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  DialogContent,
-  TextField,
-  DialogContentText,
-  Autocomplete,
-} from "@mui/material";
+import { Button, Card, Tab, Tabs, CardContent, Typography, Checkbox, Dialog, DialogActions, DialogTitle, FormControl, InputLabel, Select, MenuItem, Box, DialogContent, TextField, DialogContentText, Autocomplete } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
@@ -29,7 +9,6 @@ export default function PaymentTable() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
 
   const theme = useTheme();
 
@@ -48,39 +27,26 @@ export default function PaymentTable() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
 
   // Function to open the snackbar with a message and a severity
-const handleOpenSnackbar = (message, severity ) => {
-  setSnackbarMessage(message);
-  setSnackbarSeverity(severity); // Could be "success", "error", "warning", or "info"
-  setOpenSnackbar(true);
-};
+  const handleOpenSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity); // Could be "success", "error", "warning", or "info"
+    setOpenSnackbar(true);
+  };
 
   useEffect(() => {
     switch (selectedTab) {
       case 0: // GenerateBill
-        setFilteredPayments(
-          payments.filter((payment) => payment.payment_status === "Null")
-        );
+        setFilteredPayments(payments.filter((payment) => payment.payment_status === "Null"));
         break;
       case 1: // Pending
-        setFilteredPayments(
-          payments.filter((payment) => payment.payment_status === "PENDING")
-        );
+        setFilteredPayments(payments.filter((payment) => payment.payment_status === "PENDING"));
         break;
       case 2: // Paid
-        setFilteredPayments(
-          payments.filter((payment) => payment.payment_status === "PAID")
-        );
+        setFilteredPayments(payments.filter((payment) => payment.payment_status === "PAID"));
         break;
       default:
         // Other
-        setFilteredPayments(
-          payments.filter(
-            (payment) =>
-              payment.payment_status !== "Null" &&
-              payment.payment_status !== "PENDING" &&
-              payment.payment_status !== "PAID"
-          )
-        );
+        setFilteredPayments(payments.filter((payment) => payment.payment_status !== "Null" && payment.payment_status !== "PENDING" && payment.payment_status !== "PAID"));
     }
   }, [selectedTab, payments]);
 
@@ -99,12 +65,7 @@ const handleOpenSnackbar = (message, severity ) => {
       field: "checkbox",
       headerName: "",
       flex: 0.2,
-      renderCell: (params) => (
-        <Checkbox
-          checked={selectedRows.includes(params.id)}
-          onChange={() => handleRowSelectionToggle(params.id)}
-        />
-      ),
+      renderCell: (params) => <Checkbox checked={selectedRows.includes(params.id)} onChange={() => handleRowSelectionToggle(params.id)} />,
     },
   ];
 
@@ -113,22 +74,15 @@ const handleOpenSnackbar = (message, severity ) => {
 
     setLoading(true);
     try {
-      const response = await axios.get(
-        "http://localhost:3000/getpaymentdetails",
-        {
-          params: {
-            generationDate: selectedGenerationDate,
-          },
-        }
-      );
+      const response = await axios.get("http://localhost:3000/getpaymentdetails", {
+        params: {
+          generationDate: selectedGenerationDate,
+        },
+      });
       if (response.data && Array.isArray(response.data.paymentDetails)) {
         setPayments(response.data.paymentDetails);
-        console.log("Responmse", response.data);
       } else {
-        console.error(
-          "Payment details response is not an array:",
-          response.data
-        );
+        console.error("Payment details response is not an array:", response.data);
         setPayments([]);
       }
     } catch (error) {
@@ -144,11 +98,7 @@ const handleOpenSnackbar = (message, severity ) => {
     const roomIds = selectedRows
       .map((rowId) => {
         const paymentDetail = payments.find((payment) => payment.id === rowId);
-        if (
-          paymentDetail &&
-          (paymentDetail.invoice_option === "PAPER" ||
-            paymentDetail.invoice_option === "BOTH")
-        ) {
+        if (paymentDetail && (paymentDetail.invoice_option === "PAPER" || paymentDetail.invoice_option === "BOTH")) {
           return paymentDetail.room_id;
         }
         return null;
@@ -157,24 +107,19 @@ const handleOpenSnackbar = (message, severity ) => {
 
     if (roomIds.length > 0) {
       try {
-        const response = await axios.post(
-          "http://localhost:3000/generate-pdf-multiple",
-          { room_ids: roomIds },
-          { responseType: "blob" }
-        );
+        const response = await axios.post("http://localhost:3000/generate-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
         const pdfUrl = URL.createObjectURL(pdfBlob);
         window.open(pdfUrl);
 
         // console.log("PDF generated successfully for selected rooms.");
-        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success")
-
+        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success");
       } catch (error) {
         console.error("Failed to generate PDF for selected rooms:", error);
       }
     } else {
-      console.log("No rooms selected for PDF generation.");
+      // console.log("No rooms selected for PDF generation.");
     }
 
     setOpenPdfDialog(false);
@@ -186,11 +131,7 @@ const handleOpenSnackbar = (message, severity ) => {
     const roomIds = selectedRows
       .map((rowId) => {
         const paymentDetail = payments.find((payment) => payment.id === rowId);
-        if (
-          paymentDetail &&
-          (paymentDetail.invoice_option === "PAPER" ||
-            paymentDetail.invoice_option === "BOTH")
-        ) {
+        if (paymentDetail && (paymentDetail.invoice_option === "PAPER" || paymentDetail.invoice_option === "BOTH")) {
           return paymentDetail.room_id;
         }
         return null;
@@ -199,18 +140,14 @@ const handleOpenSnackbar = (message, severity ) => {
 
     if (roomIds.length > 0) {
       try {
-        const response = await axios.post(
-          "http://localhost:3000/generateinvoice-pdf-multiple",
-          { room_ids: roomIds },
-          { responseType: "blob" }
-        );
+        const response = await axios.post("http://localhost:3000/generateinvoice-pdf-multiple", { room_ids: roomIds }, { responseType: "blob" });
 
         const pdfBlob = new Blob([response.data], { type: "application/pdf" });
         const pdfUrl = URL.createObjectURL(pdfBlob);
         window.open(pdfUrl);
 
         // console.log("PDF generated successfully for selected rooms.");
-        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success")
+        handleOpenSnackbar("PDF generated successfully for selected rooms.", "success");
       } catch (error) {
         console.error("Failed to generate PDF for selected rooms:", error);
       }
@@ -219,7 +156,6 @@ const handleOpenSnackbar = (message, severity ) => {
       //   setSnackbarMessage(
       //     "Please select a room!"
       //   );
-
       // handleOpenSnackbar("Please select a room!", "error")
       // console.log("No rooms selected for PDF generation.");
     }
@@ -229,21 +165,14 @@ const handleOpenSnackbar = (message, severity ) => {
 
   const fetchGenerationDates = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/getgenerationdate"
-      );
+      const response = await axios.get("http://localhost:3000/getgenerationdate");
       if (response.data && Array.isArray(response.data.dates)) {
         setGenerationDates(response.data.dates);
-        const sortedDates = [...response.data.dates].sort(
-          (a, b) => new Date(b) - new Date(a)
-        );
+        const sortedDates = [...response.data.dates].sort((a, b) => new Date(b) - new Date(a));
         setGenerationDates(sortedDates); // Update the state with sorted dates
         setSelectedGenerationDate(sortedDates[0]); // Set the latest date as default
       } else {
-        console.error(
-          "Generation dates response is not an array:",
-          response.data
-        );
+        console.error("Generation dates response is not an array:", response.data);
         // setGenerationDates([]);
       }
     } catch (error) {
@@ -302,15 +231,14 @@ const handleOpenSnackbar = (message, severity ) => {
     const pdfSuccess = await handleGeneratePdf();
     const updateSuccess = await handleUpdatePaymentStatus();
 
-    if (emailSuccess || pdfSuccess && updateSuccess) {
+    if (emailSuccess || (pdfSuccess && updateSuccess)) {
       // setOpenSnackbar(true);
       // // Set a message to indicate all operations were successful
       // setSnackbarMessage(
       //   "Emails sent, PDFs generated, and payment statuses updated successfully."
       // );
 
-      handleOpenSnackbar("Emails sent, PDFs generated, and payment statuses updated successfully.", "success")
-
+      handleOpenSnackbar("Emails sent, PDFs generated, and payment statuses updated successfully.", "success");
     }
   };
 
@@ -323,39 +251,35 @@ const handleOpenSnackbar = (message, severity ) => {
     const emailSuccess = await handleSendEmail();
     const pdfSuccess = await handleGeneratePdf();
 
-    if (pdfSuccess && emailSuccess )  {
+    if (pdfSuccess && emailSuccess) {
       // setOpenSnackbar(true);
       // setSnackbarMessage(
       //   "Reciept PDFs generated,updated successfully."
       // );
 
-      handleOpenSnackbar("Reciept PDFs generated,updated successfully.", "success")
-
-
-      
+      handleOpenSnackbar("Reciept PDFs generated,updated successfully.", "success");
     }
   };
 
-// Invoice Email /sendemail-invoice
+  // Invoice Email /sendemail-invoice
   const handleAllPaidPaymentInvoiceGenerate = async () => {
     setOpenGenerateDialog(false);
-  
+
     // Check if no rooms are selected
     if (selectedRows.length === 0) {
       handleOpenSnackbar("Please select at least one room to proceed.", "error");
       return; // Exit the function early
     }
-  
+
     // Proceed with generating PDFs and sending emails if rooms are selected
     const pdfSuccess = await handleGeneratePaidInvoicePdf();
     const emailSuccess = await handleSendEmailInvoice();
-  
+
     // Show success message if both operations succeed
     if (pdfSuccess && emailSuccess) {
       handleOpenSnackbar("Invoice PDFs and emails sent successfully.", "success");
     }
   };
-  
 
   const handleUpdatePaymentStatus = async () => {
     const rowsToUpdate = selectedRows
@@ -370,16 +294,10 @@ const handleOpenSnackbar = (message, severity ) => {
         await axios.put("http://localhost:3000/updatepaymentstatus", {
           billIds: rowsToUpdate, // Send an array of roomIds to update
         });
-        console.log(
-          "Payment statuses updated successfully for selected rooms."
-        );
         await fetchPaymentsdetails();
         return true;
       } catch (error) {
-        console.error(
-          "Failed to update payment statuses for selected rooms:",
-          error
-        );
+        console.error("Failed to update payment statuses for selected rooms:", error);
         return false;
       }
     }
@@ -393,11 +311,7 @@ const handleOpenSnackbar = (message, severity ) => {
     // Filter selected rows by invoice option
     const emailRows = selectedRows.filter((rowId) => {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
-      return (
-        paymentDetail &&
-        (paymentDetail.invoice_option === "EMAIL" ||
-          paymentDetail.invoice_option === "BOTH")
-      );
+      return paymentDetail && (paymentDetail.invoice_option === "EMAIL" || paymentDetail.invoice_option === "BOTH");
     });
 
     for (const rowId of emailRows) {
@@ -415,11 +329,7 @@ const handleOpenSnackbar = (message, severity ) => {
 
         // console.log("Email sent successfully for room:", paymentDetail.room_number);
       } catch (error) {
-        console.error(
-          "Failed to send email for room:",
-          paymentDetail.room_number,
-          error
-        );
+        console.error("Failed to send email for room:", paymentDetail.room_number, error);
         emailSuccess = false; // Update success flag on failure
       }
     }
@@ -434,18 +344,14 @@ const handleOpenSnackbar = (message, severity ) => {
     // Filter selected rows by invoice option
     const emailRows = selectedRows.filter((rowId) => {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
-      return (
-        paymentDetail &&
-        (paymentDetail.invoice_option === "EMAIL" ||
-          paymentDetail.invoice_option === "BOTH")
-      );
+      return paymentDetail && (paymentDetail.invoice_option === "EMAIL" || paymentDetail.invoice_option === "BOTH");
     });
 
     for (const rowId of emailRows) {
       const paymentDetail = payments.find((payment) => payment.id === rowId);
       if (!paymentDetail) continue; // Skip if no payment detail found
 
-      const invoice_date = new Date().toLocaleDateString('en-US')
+      const invoice_date = new Date().toLocaleDateString("en-US");
       try {
         await axios.post("http://localhost:3000/sendemail-invoice", {
           room_id: paymentDetail.room_id,
@@ -457,18 +363,13 @@ const handleOpenSnackbar = (message, severity ) => {
 
         // console.log("Email sent successfully for room:", paymentDetail.room_number);
       } catch (error) {
-        console.error(
-          "Failed to send email for room:",
-          paymentDetail.room_number,
-          error
-        );
+        console.error("Failed to send email for room:", paymentDetail.room_number, error);
         emailSuccess = false; // Update success flag on failure
       }
     }
 
     return emailSuccess; // Return the overall success status
   };
-
 
   const handleSendEmailAndClose = async () => {
     setOpenSnackbar(true);
@@ -510,17 +411,11 @@ const handleOpenSnackbar = (message, severity ) => {
           billIds: billsToUpdate, // Send an array of billIds to update
           newStatus, // Send the new status selected from the dropdown
         });
-        console.log(
-          "Payment statuses updated successfully for selected bills."
-        );
         await fetchPaymentsdetails(); // Fetch updated payment details
         setSelectedRows([]); // Optionally clear selected rows after update
         return true;
       } catch (error) {
-        console.error(
-          "Failed to update payment statuses for selected bills:",
-          error
-        );
+        console.error("Failed to update payment statuses for selected bills:", error);
         return false;
       }
     }
@@ -533,7 +428,6 @@ const handleOpenSnackbar = (message, severity ) => {
       handleAllUpdateGeneratedPaymentStatus(selectedPaymentStatus);
       setOpenUpdatePaymentDialog(false);
     } else {
-      console.log("No payment status selected.");
     }
   };
 
@@ -575,76 +469,30 @@ const handleOpenSnackbar = (message, severity ) => {
               Send an E-payment slip or print a pdf
             </Typography>
             {selectedTab === 0 && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleOpenGenerateDialog}
-                disabled={
-                  payments.filter(
-                    (payment) => payment.payment_status === "Null"
-                  ).length === 0
-                }
-              >
+              <Button variant="contained" color="primary" onClick={handleOpenGenerateDialog} disabled={payments.filter((payment) => payment.payment_status === "Null").length === 0}>
                 Generate Payments
               </Button>
             )}
 
             {selectedTab === 1 && (
               <>
-                  <Button                 variant="contained"
-                color="primary"
-                onClick={handleGenerateReciept}
-                sx = {{marginRight: "10px"}}
-                disabled={
-                  payments.filter(
-                    (payment) => payment.payment_status === "PENDING"
-                  ).length === 0
-                }>Generate Payments</Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleOpenUpdatePaymentDialog}
-                disabled={
-                  payments.filter(
-                    (payment) => payment.payment_status === "PENDING"
-                  ).length === 0
-                }
-              >
-                Update Payments
-              </Button>
-
+                <Button variant="contained" color="primary" onClick={handleGenerateReciept} sx={{ marginRight: "10px" }} disabled={payments.filter((payment) => payment.payment_status === "PENDING").length === 0}>
+                  Generate Payments
+                </Button>
+                <Button variant="contained" color="primary" onClick={handleOpenUpdatePaymentDialog} disabled={payments.filter((payment) => payment.payment_status === "PENDING").length === 0}>
+                  Update Payments
+                </Button>
               </>
             )}
 
             {selectedTab === 2 && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAllPaidPaymentInvoiceGenerate}
-                disabled={
-                  payments.filter(
-                    (payment) => payment.payment_status === "PAID"
-                  ).length === 0
-                }
-              >
+              <Button variant="contained" color="primary" onClick={handleAllPaidPaymentInvoiceGenerate} disabled={payments.filter((payment) => payment.payment_status === "PAID").length === 0}>
                 Print Payments
               </Button>
             )}
 
             {selectedTab === 3 && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleOpenUpdatePaymentDialog}
-                disabled={
-                  payments.filter(
-                    (payment) =>
-                      payment.payment_status !== "Null" &&
-                      payment.payment_status !== "PENDING" &&
-                      payment.payment_status !== "PAID"
-                  ).length === 0
-                }
-              >
+              <Button variant="contained" color="primary" onClick={handleOpenUpdatePaymentDialog} disabled={payments.filter((payment) => payment.payment_status !== "Null" && payment.payment_status !== "PENDING" && payment.payment_status !== "PAID").length === 0}>
                 Update Payments
               </Button>
             )}
@@ -679,42 +527,12 @@ const handleOpenSnackbar = (message, severity ) => {
         </CardContent>
       </Card>
       <Box sx={{ borderBottom: 1, borderColor: "divider", marginTop: "10px" }}>
-        <Tabs
-          value={selectedTab}
-          onChange={handleTabChange}
-          aria-label="payment status tabs"
-        >
-          <Tab
-            label={`Generate Bill (${
-              payments.filter((payment) => payment.payment_status === "Null")
-                .length
-            })`}
-          />
-          <Tab
-            label={`Pending (${
-              payments.filter((payment) => payment.payment_status === "PENDING")
-                .length
-            })`}
-          />
-                    <Tab
-            label={`Paid (${
-              payments.filter((payment) => payment.payment_status === "PAID")
-                .length
-            })`}
-          />
+        <Tabs value={selectedTab} onChange={handleTabChange} aria-label="payment status tabs">
+          <Tab label={`Generate Bill (${payments.filter((payment) => payment.payment_status === "Null").length})`} />
+          <Tab label={`Pending (${payments.filter((payment) => payment.payment_status === "PENDING").length})`} />
+          <Tab label={`Paid (${payments.filter((payment) => payment.payment_status === "PAID").length})`} />
 
-          <Tab
-            label={`Other (${
-              payments.filter(
-                (payment) =>
-                  payment.payment_status !== "Null" &&
-                  payment.payment_status !== "PENDING" &&
-                  payment.payment_status !== "PAID"
-              ).length
-            })`}
-          />
-
-
+          <Tab label={`Other (${payments.filter((payment) => payment.payment_status !== "Null" && payment.payment_status !== "PENDING" && payment.payment_status !== "PAID").length})`} />
         </Tabs>
       </Box>
       <Card sx={{ marginTop: "4px" }}>
@@ -754,11 +572,7 @@ const handleOpenSnackbar = (message, severity ) => {
           <Typography variant="h6" component="div">
             Generate Payment For Selected Rooms
           </Typography>
-          <Typography
-            variant="subtitle1"
-            component="div"
-            sx={{ textAlign: "right", opacity: "0.8", alignSelf: "flex-end" }}
-          >
+          <Typography variant="subtitle1" component="div" sx={{ textAlign: "right", opacity: "0.8", alignSelf: "flex-end" }}>
             {formattedDate}
           </Typography>
         </DialogTitle>
@@ -778,18 +592,10 @@ const handleOpenSnackbar = (message, severity ) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="contained"
-            onClick={handleAllPaymentGenerate}
-            color="primary"
-          >
+          <Button variant="contained" onClick={handleAllPaymentGenerate} color="primary">
             Confirm
           </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setOpenGenerateDialog(false)}
-            color="primary"
-          >
+          <Button variant="outlined" onClick={() => setOpenGenerateDialog(false)} color="primary">
             Cancel
           </Button>
         </DialogActions>
@@ -824,13 +630,7 @@ const handleOpenSnackbar = (message, severity ) => {
                 // newValue will be the selected item from the options or null
                 setSelectedPaymentStatus(newValue ? newValue.value : null);
               }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Payment Status"
-                  variant="outlined"
-                />
-              )}
+              renderInput={(params) => <TextField {...params} label="Payment Status" variant="outlined" />}
             />
           </Box>
 
@@ -853,23 +653,15 @@ const handleOpenSnackbar = (message, severity ) => {
         </DialogActions>
       </Dialog>
 
-
-
-      <Snackbar
-    open={openSnackbar}
-    autoHideDuration={4000}
-    onClose={() => setOpenSnackbar(false)}
-    anchorOrigin={{ vertical: "top", horizontal: "right" }}
-  > 
-    <Alert
-      onClose={() => setOpenSnackbar(false)}
-      severity={snackbarSeverity} // Use the dynamic severity
-      sx={{ width: "100%" }}
-    >
-      {snackbarMessage}
-    </Alert>
-  </Snackbar>
-      
+      <Snackbar open={openSnackbar} autoHideDuration={4000} onClose={() => setOpenSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity} // Use the dynamic severity
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

@@ -154,7 +154,7 @@ const fetchContractDetail = async (req, res) => {
         const contractDetails = await prisma.tenancy_records.findMany({
             where: {
                 tenancy_status: {
-                    not: 'CHECK_OUT', // Exclude tenancy records with CHECK_OUT status
+                    not: 'CHECK_OUT',
                 },
             },
             select: {
@@ -228,15 +228,10 @@ const fetchContractDetail = async (req, res) => {
 
 const fetchTenantData = async (tenantId) => {
     const currentDate = new Date();
-    const currentDayOfMonth = currentDate.getDate(); // This will give you the day of the month
-    const currentMonth = currentDate.getMonth() + 1; // Month (0-11, with January as 0)
+    const currentDayOfMonth = currentDate.getDate();
+    const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
-    
-    // console.log('Current date: ', currentDate);
-    // console.log('Day of the month: ', currentDayOfMonth); // This should give you 24 for March 24th
-    // console.log('Month: ', currentMonth + 1); // Adding 1 to make it more human-readable (1-12)
-    // console.log('Year: ', currentYear);
-    
+
 
     try {
         logMessage(`fetchTenantData: Fetching tenant data for ID ${tenantId}`);
@@ -306,7 +301,7 @@ const fillDocxTemplate = async (filePath, data, language) => {
             First_name: data.first_name,
             Last_name: data.last_name,
             Personal_ID: data.personal_id,
-            Number : data.addresses.addressnumber,
+            Number: data.addresses.addressnumber,
             Street: data.addresses.street,
             Subdistrict: data.addresses.sub_district,
             District: data.addresses.district,
@@ -320,26 +315,13 @@ const fillDocxTemplate = async (filePath, data, language) => {
             Year: data.currentYear,
             Day: data.currentDay,
             issueDate: formatDate(data.issue_date),
-            expireDate: formatDate(data.expiration_date) ,
+            expireDate: formatDate(data.expiration_date),
         });
 
         doc.render();
         logMessage('fillDocxTemplate: DOCX template rendered successfully.');
 
-        // const outputDir = path.join(__dirname, language, tenantName);
-        // logMessage(`fillDocxTemplate: Expected output directory is ${outputDir}`);
-        // if (!fs.existsSync(outputDir)) {
-        //     logMessage('fillDocxTemplate: Output directory does not exist. Attempting to create it.');
-        //     fs.mkdirSync(outputDir, { recursive: true });
-        //     logMessage('fillDocxTemplate: Output directory created.');
-        // }
-        // logMessage(`fillDocxTemplate: Output directory verified/created at ${outputDir}.`);
-
-        // const docxPath = path.join(outputDir, `${tenantName}_contract.docx`);
-        // const pdfPath = path.join(outputDir, `${tenantName}_contract.pdf`);
         const buf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
-        // fs.writeFileSync(docxPath, buf);
-        // logMessage(`fillDocxTemplate: DOCX template filled and written to path: ${docxPath}.`);
 
         try {
             const pdfBuffer = await convertDocxToPdf(buf);

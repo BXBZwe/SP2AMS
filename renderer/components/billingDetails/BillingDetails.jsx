@@ -53,7 +53,6 @@ export default function BillingDetails() {
       setAllGenerationDate(sortedDates);
       setSelectedGenerationDate(latestDate);
       setBilledRooms(billedrooms);
-      console.log("billed rooms:", billedrooms);
     } catch (error) {
       console.error("Failed to fetch rooms:", error);
     }
@@ -170,7 +169,6 @@ export default function BillingDetails() {
 
   useEffect(() => {
     calculateUnitsDifference();
-    console.log("readingvalues", readingValues);
   }, [readingValues, previousReadings]);
 
   useEffect(() => {
@@ -322,14 +320,13 @@ export default function BillingDetails() {
             electricityCost: response.data.electricityCost,
           },
         }));
-        // console.log(`Bill generated for Room ID ${roomId}`, response.data);
         setSaveProgress(((saveCallCount + 1) / 3) * 100);
         setSnackbarSeverity("success");
         setSnackbarMessage("All bills have been successfully generated.");
-        setSnackbarOpen(true); // This is crucial
+        setSnackbarOpen(true);
       } catch (error) {
         setSnackbarMessage("Failed to generate bills.");
-        setSnackbarSeverity("error"); // Keep snackbar on error for actual errors
+        setSnackbarSeverity("error");
         setSnackbarOpen(true);
         console.error(`Failed to generate bill for room`, error);
       }
@@ -370,7 +367,6 @@ export default function BillingDetails() {
   }
   const ITEM_HEIGHT = 48;
 
-  // console.log('Selected Room',selectedRooms);
   return (
     <>
       <Box

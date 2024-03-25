@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-// Get
 const getGeneratedBillRecords = async (req, res) => {
     try {
         const billRecords = await prisma.generatedBillRecord.findMany({
@@ -18,7 +17,6 @@ const getGeneratedBillRecords = async (req, res) => {
     }
 };
 
-// Get each
 const getGeneratedBillRecordById = async (req, res) => {
     const { bill_record_id } = req.params;
 
@@ -42,12 +40,10 @@ const getGeneratedBillRecordById = async (req, res) => {
     }
 };
 
-// Post 
 const createGeneratedBillRecord = async (req, res) => {
     const { rent_month, room_id, rent_year, generation_date } = req.body;
 
     try {
-        // First, check if the room exists to ensure referential integrity
         const roomExists = await prisma.roomBaseDetails.findUnique({
             where: { room_id },
         });
@@ -56,7 +52,6 @@ const createGeneratedBillRecord = async (req, res) => {
             return res.status(404).json({ message: 'Room not found' });
         }
 
-        // Create the GeneratedBillRecord
         const newBillRecord = await prisma.generatedBillRecord.create({
             data: {
                 generation_date,
@@ -77,7 +72,6 @@ const createGeneratedBillRecord = async (req, res) => {
 };
 
 
-// Update
 const updateGeneratedBillRecord = async (req, res) => {
     const { bill_record_id } = req.params;
     const updateData = req.body;
@@ -95,7 +89,6 @@ const updateGeneratedBillRecord = async (req, res) => {
     }
 };
 
-// Delete
 const deleteGeneratedBillRecord = async (req, res) => {
     const { bill_record_id } = req.params;
 
