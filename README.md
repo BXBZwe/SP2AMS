@@ -1,7 +1,21 @@
 # Apartment Management System & Dashboard Analysis
 
 A modern, efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
-![image](https://github.com/sawzwe/SP2AMS/assets/94424420/cb97c942-5aeb-4713-8080-ddd968d483f8)
+
+## Our App Showcase
+
+<p float="left">
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/cb97c942-5aeb-4713-8080-ddd968d483f8" width="48%" />
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/75e9a82e-7815-45b6-a93a-75edce8dff94" width="48%" /> 
+</p>
+<p float="left">
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/8e5948c6-815c-4ddc-acb0-48de4d55bc35" width="48%" />
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/099c2785-7142-42b8-8378-f608d33d9137" width="48%" />
+</p>
+
+
+
+
 
 ## External Exposure (PS Park Apartment)
 PS Park Apartment has a management system where they keep track of the tenants and rooms. They have a system where they can generate bills monthly. This system was developed 20+ years ago and now they want a more efficient and modern approach for their system. 
