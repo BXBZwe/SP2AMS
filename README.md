@@ -1,6 +1,6 @@
 # Apartment Management System & Dashboard Analysis
 
-A modern, efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
+A modern stand-alone desktop app with efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
 
 ## Our App Showcase
 
