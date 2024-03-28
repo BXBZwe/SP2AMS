@@ -76,7 +76,7 @@ export default function RoomBillingDetail() {
 
   const handleSave = async () => {
     if (!selectedRate || !roomId) return;
-
+    
     const adjustmentData = {
       rate_id: selectedRate.rate_id,
       room_id: billingDetails.room_id,
@@ -120,6 +120,18 @@ export default function RoomBillingDetail() {
     } catch (error) {
       console.error("Error saving the temporary rate adjustment:", error);
     }
+    const updatedItems = billingDetails.items.map((item) => {
+      if (item.rate_id === selectedRate.rate_id) {
+        return { ...item, per_unit_price: selectedRate.per_unit_price };
+      }
+      return item;
+    });
+    setBillingDetails((prevDetails) => ({
+      ...prevDetails,
+      items: updatedItems,
+    }));
+    setSnackbarOpen(true);
+    setSnackbarMessage('Changes saved successfully.');
   };
   const handleCloseRateDetails = () => {
     setSelectedRate(null); // This will hide the rate details
@@ -220,7 +232,14 @@ export default function RoomBillingDetail() {
                 <Typography variant="h6">{selectedRate.item_name} Details</Typography>
                 <TextField label="Quantity" type="number" value={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? currentReading[`${selectedRate.item_name.toLowerCase()}_reading`] - previousReading[`${selectedRate.item_name.toLowerCase()}_reading`] : selectedRate.quantity} onChange={(e) => handleChange("quantity", e.target.value)} margin="normal" fullWidth disabled />
 
-                <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
+                <TextField
+                  label="Price Per Unit"
+                  type="number"
+                  value={selectedRate.per_unit_price}
+                  onChange={(e) => handleChange("per_unit_price", e.target.value)}
+                  margin="normal"
+                  fullWidth
+                />
                 {selectedRate && (selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity") && (
                   <>
                     <TextField label="Previous Meter Reading" type="number" value={previousReading[`${selectedRate.item_name.toLowerCase()}_reading`]} onChange={(e) => handleChange("previous_reading", e.target.value, selectedRate.item_name)} margin="normal" fullWidth />
@@ -241,11 +260,17 @@ export default function RoomBillingDetail() {
       </div>
 
       <Box sx={{ mt: 2 }}></Box>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position the Snackbar at the top-right
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+
     </>
   );
 }
