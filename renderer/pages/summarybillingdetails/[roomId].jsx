@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { Box, Button, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
+import { Snackbar, Alert, Box, Button, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
 
 export default function RoomBillingDetail() {
   const router = useRouter();
@@ -10,7 +10,8 @@ export default function RoomBillingDetail() {
   const [selectedRate, setSelectedRate] = useState(null);
   const [previousReading, setPreviousReading] = useState({ water_reading: 0, electricity_reading: 0 });
   const [currentReading, setCurrentReadings] = useState({ water_reading: 0, electricity_reading: 0 });
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   useEffect(() => {
     if (roomId) {
       const fetchBillingDetails = async () => {
@@ -45,7 +46,13 @@ export default function RoomBillingDetail() {
   const handleRateSelect = (item) => {
     setSelectedRate({ ...item });
   };
-
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+  
   const handleChange = (name, value, itemName = null) => {
     if (itemName === "Water" || itemName === "Electricity") {
       if (name === "previous_reading") {
@@ -69,20 +76,23 @@ export default function RoomBillingDetail() {
 
   const handleSave = async () => {
     if (!selectedRate || !roomId) return;
-
+    
     const adjustmentData = {
       rate_id: selectedRate.rate_id,
       room_id: billingDetails.room_id,
       bill_id: billingDetails.bill_id,
       temporary_price: Number(selectedRate.per_unit_price),
       bill_record_id: billingDetails.bill_record_id,
+      
     };
-
+    setSnackbarOpen(true);
+    setSnackbarMessage('Changes saved successfully.');
     try {
       const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
       if (adjustmentResponse.status === 200) {
+        console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
       } else {
-        // console.error("Failed to save the temporary rate adjustment");
+        console.error("Failed to save the temporary rate adjustment");
       }
 
       const updateData = {
@@ -93,13 +103,14 @@ export default function RoomBillingDetail() {
         currentElectricityReading: Number(currentReading.electricity_reading),
         generationDate: billingDetails.generation_date,
       };
-
+      setSnackbarOpen(true);
+      setSnackbarMessage('Failed to save changes.');
       try {
         const updatedBillResponse = await axios.post(`http://localhost:3000/recalculatebillandupdate`, updateData);
 
         if (updatedBillResponse.status === 200) {
           setBillingDetails((prev) => ({ ...prev, ...updatedBillResponse.data.updatedBill }));
-          // console.log(" Updated the recalculated bill:", updatedBillResponse);
+          console.log(" Updated the recalculated bill:", updatedBillResponse);
         } else {
           console.error("Failed to recalculate the bill");
         }
@@ -109,8 +120,22 @@ export default function RoomBillingDetail() {
     } catch (error) {
       console.error("Error saving the temporary rate adjustment:", error);
     }
+    const updatedItems = billingDetails.items.map((item) => {
+      if (item.rate_id === selectedRate.rate_id) {
+        return { ...item, per_unit_price: selectedRate.per_unit_price };
+      }
+      return item;
+    });
+    setBillingDetails((prevDetails) => ({
+      ...prevDetails,
+      items: updatedItems,
+    }));
+    setSnackbarOpen(true);
+    setSnackbarMessage('Changes saved successfully.');
   };
-
+  const handleCloseRateDetails = () => {
+    setSelectedRate(null); // This will hide the rate details
+  };
   const calculateTotalBill = () => {
     let totalBill = 0;
     let baserent = billingDetails.roombaserent;
@@ -207,7 +232,14 @@ export default function RoomBillingDetail() {
                 <Typography variant="h6">{selectedRate.item_name} Details</Typography>
                 <TextField label="Quantity" type="number" value={selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity" ? currentReading[`${selectedRate.item_name.toLowerCase()}_reading`] - previousReading[`${selectedRate.item_name.toLowerCase()}_reading`] : selectedRate.quantity} onChange={(e) => handleChange("quantity", e.target.value)} margin="normal" fullWidth disabled />
 
-                <TextField label="Price Per Unit" type="number" value={selectedRate.per_unit_price} onChange={(e) => handleChange("per_unit_price", e.target.value)} margin="normal" fullWidth />
+                <TextField
+                  label="Price Per Unit"
+                  type="number"
+                  value={selectedRate.per_unit_price}
+                  onChange={(e) => handleChange("per_unit_price", e.target.value)}
+                  margin="normal"
+                  fullWidth
+                />
                 {selectedRate && (selectedRate.item_name === "Water" || selectedRate.item_name === "Electricity") && (
                   <>
                     <TextField label="Previous Meter Reading" type="number" value={previousReading[`${selectedRate.item_name.toLowerCase()}_reading`]} onChange={(e) => handleChange("previous_reading", e.target.value, selectedRate.item_name)} margin="normal" fullWidth />
@@ -216,7 +248,7 @@ export default function RoomBillingDetail() {
                 )}
 
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
-                  <Button variant="outlined">Cancel</Button>
+                <Button variant="outlined" onClick={handleCloseRateDetails}>Close</Button>
                   <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
                   </Button>
@@ -228,6 +260,17 @@ export default function RoomBillingDetail() {
       </div>
 
       <Box sx={{ mt: 2 }}></Box>
+      <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position the Snackbar at the top-right
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+
     </>
   );
 }
