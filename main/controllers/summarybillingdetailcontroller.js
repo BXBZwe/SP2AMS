@@ -93,6 +93,7 @@ const getRoomBillingDetails = async (req, res) => {
                         },
                     },
                 },
+                tenants: true,
                 generatedBillRecords: true,
             },
         });
@@ -101,9 +102,17 @@ const getRoomBillingDetails = async (req, res) => {
             return res.status(404).json({ message: 'Room details not found' });
         }
 
+        // const generationDate = latestGeneratedBillRecord ? new Date(latestGeneratedBillRecord.generation_date) : null;
+        // const activeTenancyRecord = roomDetails.tenancy_records.find(record => {
+        //     const moveInDate = new Date(record.move_in_date);
+        //     const moveOutDate = record.move_out_date ? new Date(record.move_out_date) : new Date(); // Use current date if move_out_date is null
+        //     return moveInDate <= generationDate && generationDate <= moveOutDate;
+        // });
+
         const billDetails = roomDetails.bills.find(bill => bill.bill_id === latestGeneratedBillRecord?.bill_id) || null;
         const meterDetails = roomDetails.meter_readings[0] || null;
-        const activeTenant = roomDetails.tenancy_records[0]?.tenants || null;
+        // const activeTenant = activeTenancyRecord ? activeTenancyRecord.tenants : null;
+        const activeTenant = roomDetails.tenants[0];
 
         const detailedBilling = {
             room_number: roomDetails.room_number,

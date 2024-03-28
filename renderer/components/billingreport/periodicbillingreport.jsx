@@ -194,7 +194,7 @@ export default function PeriodicBillingReport() {
                 {rateItems.map((rate) => (
                   <TableCell key={rate.rate_id}>{rate.item_name}</TableCell>
                 ))}
-                <TableCell>Total Bill</TableCell>
+                <TableCell>Total Bill ฿</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -38,12 +38,10 @@ export default function CheckIn() {
     const fetchAvailableRooms = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getallrooms");
-        console.log("Response data rooms:", response.data);
         const rooms = response.data.getrooms;
 
         if (Array.isArray(rooms)) {
           const filteredRooms = rooms.filter((room) => room.statusDetails.occupancy_status === "VACANT");
-          console.log("filtered rooms:", filteredRooms);
           setAvailableRooms(filteredRooms);
         } else {
           console.error("Expected 'getrooms' to be an array but got:", roomsArray);
@@ -60,7 +58,6 @@ export default function CheckIn() {
         if (Array.isArray(tenants)) {
           // Filter tenants where account_status is "ACTIVE" and RoomBaseDetails is null
           const filteredTenants = tenants.filter((tenant) => tenant.account_status === "ACTIVE" && tenant.roomBaseDetailsRoom_id === null);
-          console.log("Filtered new tenants:", filteredTenants);
           setNewTenants(filteredTenants);
         }
       } catch (error) {
@@ -78,8 +75,6 @@ export default function CheckIn() {
     if (moveInDate && months) {
       const moveInDayjs = dayjs(moveInDate);
       const moveOutDayjs = moveInDayjs.add(parseInt(months, 10), "month");
-      console.log("Type of moveInDate:", typeof moveInDate, "Value of moveInDate:", moveInDate);
-      console.log("Type of moveOutDayjs:", typeof moveOutDayjs, "Value of moveOutDayjs:", moveOutDayjs.format("YYYY-MM-DD"));
       setMoveOutDate(dayjs(moveOutDayjs));
     }
   };
@@ -105,7 +100,6 @@ export default function CheckIn() {
           deposit: deposit,
         });
         refreshTenancyRecords();
-        console.log(response.data.message);
         // Display success Snackbar
         setSnackbarMessage(response.data.message || "Tenant checked in successfully!");
         setSnackbarSeverity("success");
@@ -174,9 +168,9 @@ export default function CheckIn() {
   };
 
   const recentActivity = tenancyRecords
-    .filter((record) => record.tenancy_status === "CHECK_IN") // Filter for "CHECK_IN" status only
+    .filter((record) => record.tenancy_status === "CHECK_IN")
     .map((record) => ({
-      id: `R${record.record_id.toString().padStart(3, "0")}`, // Assuming record_id is unique and can serve as an identifier
+      id: `R${record.record_id.toString().padStart(3, "0")}`,
       room: record.RoomBaseDetails.room_number,
       date: new Date(record.move_in_date).toLocaleDateString("en-US", {
         weekday: "short",
@@ -184,11 +178,9 @@ export default function CheckIn() {
         month: "short",
         year: "numeric",
       }),
-      moveIn: new Date(record.move_in_date).toISOString().split("T")[0], // Convert to ISO string and take the date part for rendering
+      moveIn: new Date(record.move_in_date).toISOString().split("T")[0],
     }))
-    .sort((a, b) => b.moveIn - a.moveIn); // Sort by latest move-in date first
-
-  // console.log("recent activity: " , recentActivity)
+    .sort((a, b) => b.moveIn - a.moveIn);
 
   const ITEM_HEIGHT = 48;
   return (
@@ -219,7 +211,7 @@ export default function CheckIn() {
                   marginBottom: "10px",
                 }}
               >
-                <Typography variant="h4">Check In Please</Typography>
+                <Typography variant="h4">Check In</Typography>
                 <Typography variant="body2" sx={{ opacity: 0.7 }}>
                   Add New Tenants to the rooms they rent
                 </Typography>

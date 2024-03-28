@@ -94,14 +94,14 @@ export default function addtenant() {
     if (!startDate || startDate.toString().trim() === "") {
       tempErrors.startDate = "Start date is required";
     }
-    if (!startDate || dayjs(startDate).isBefore(dayjs(), 'day')) {
+    if (!startDate || dayjs(startDate).isBefore(dayjs(), "day")) {
       tempErrors.startDate = "Start date cannot be in the past";
     }
     // Add validation for end date
     if (!endDate || endDate.toString().trim() === "") {
       tempErrors.endDate = "End date is required";
     }
-    if (!endDate || dayjs(endDate).isBefore(dayjs(startDate), 'day')) {
+    if (!endDate || dayjs(endDate).isBefore(dayjs(startDate), "day")) {
       tempErrors.endDate = "End date must be after the start date";
     }
     let isFormValid = Object.values(tempErrors).every((x) => x === "");
@@ -146,7 +146,7 @@ export default function addtenant() {
 
     // setLoading(true);
 
-    console.log(tenantData);
+    // console.log(tenantData);
     setMessage("");
     const formdata = new FormData();
 
@@ -258,7 +258,7 @@ export default function addtenant() {
                 value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!!errors.startDate} helperText={errors.startDate} />}
-                minDate={dayjs()} // Ensure this is today's date or your specific date
+                // Removed the minDate prop to allow selection of past dates
               />
 
               <DatePicker
@@ -267,9 +267,8 @@ export default function addtenant() {
                 value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!!errors.endDate} helperText={errors.endDate} />}
-                minDate={dayjs(startDate).add(1, 'day')} // This ensures the minDate is one day after the start date
+                minDate={dayjs(startDate).add(1, "day")} // This ensures the minDate is one day after the start date
               />
-
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div style={{ marginBottom: "0.7rem" }}>
@@ -331,7 +330,7 @@ export default function addtenant() {
                 <input accept="image/*" style={{ display: "none" }} id="tenant-image-upload" type="file" onChange={handleTenantImageChange} />
                 {/* Label that acts as a button */}
                 <label htmlFor="tenant-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
+                  <Fab color="primary" component="span" aria-label="add">
                     <PhotoCamera />
                   </Fab>
                 </label>
@@ -370,7 +369,7 @@ export default function addtenant() {
                 <input accept="image/*" style={{ display: "none" }} id="national-id-image-upload" type="file" onChange={handleNationalCardImagechange} />
                 {/* Label that acts as a button */}
                 <label htmlFor="national-id-image-upload">
-                  <Fab color="secondary" component="span" aria-label="add">
+                  <Fab color="primary" component="span" aria-label="add">
                     <PhotoCamera />
                   </Fab>
                 </label>

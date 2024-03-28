@@ -21,8 +21,6 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Password is incorrect' });
         }
 
-        // const { password_hash, ...userInfo } = user;
-
         const token = jwt.sign({ userId: user.manager_id }, process.env.JWT_TOKEN, { expiresIn: '1day' });
 
         res.json({ message: 'Login successful', token });

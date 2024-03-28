@@ -97,9 +97,9 @@ export default function updatetenant() {
   useEffect(() => {
     const fetchTenantData = async () => {
       try {
-        console.log("Tenant ID:", tenant_id);
+        // console.log("Tenant ID:", tenant_id);
         const response = await axios.get(`http://localhost:3000/getatenant/${tenant_id}`);
-        console.log("Received tenant data:", response.data);
+        // console.log("Received tenant data:", response.data);
 
         const tenant = response.data.getaTenant;
         const tenantImageUrl = tenant.tenant_image ? tenant.tenant_image : null;
@@ -148,16 +148,16 @@ export default function updatetenant() {
   const validateForm = () => {
     const newErrors = {};
     let isValid = true;
-    if (!selectedDate || selectedDate.isBefore(dayjs(), 'day')) {
+    if (!selectedDate || selectedDate.isBefore(dayjs(), "day")) {
       newErrors.startDate = "Issue date cannot be in the past";
       isValid = false;
-      }
+    }
 
-      // Validate Expiration Date
-      if (!selectedEndDate || selectedEndDate.isBefore(selectedDate, 'day')) {
-          newErrors.endDate = "Expiration date must be after the issue date";
-          isValid = false;
-      }
+    // Validate Expiration Date
+    if (!selectedEndDate || selectedEndDate.isBefore(selectedDate, "day")) {
+      newErrors.endDate = "Expiration date must be after the issue date";
+      isValid = false;
+    }
     // Validate first_name
     if (!tenantData.first_name.trim()) {
       newErrors.first_name = "First name is required";
@@ -311,11 +311,11 @@ export default function updatetenant() {
     setLoading(true);
     setMessage("");
     setConfirmDialogOpen(false); // Close the confirmation dialog
-    
+
     const updatedTenantData = { ...tenantData, account_status: accountStatus };
 
     const formdata = new FormData();
-    
+
     Object.keys(updatedTenantData).forEach((key) => {
       if (key === "addresses" || key === "contacts") {
         Object.keys(updatedTenantData[key]).forEach((subKey) => {
@@ -364,8 +364,7 @@ export default function updatetenant() {
     } finally {
       setLoading(false);
     }
-};
-
+  };
 
   const handleTenantImageChange = (e) => {
     settenantImage(e.target.files[0]);
@@ -391,19 +390,19 @@ export default function updatetenant() {
         </CardContent>
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: "10px" }}>
-          {isEditMode ? (
-              <> 
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ width: "110px", marginTop: "15px" }}
-              component="a"
-              onClick={handleSaveClick} // Updated to use handleSaveClick
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save"}
-            </Button>
-            <Button
+            {isEditMode ? (
+              <>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ width: "110px", marginTop: "15px" }}
+                  component="a"
+                  onClick={handleSaveClick} // Updated to use handleSaveClick
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save"}
+                </Button>
+                <Button
                   variant="outlined"
                   sx={{ width: "110px", marginTop: "15px" }}
                   onClick={handleCancelEdit}
@@ -439,21 +438,21 @@ export default function updatetenant() {
             <TextField disabled={!isEditMode} id="last_name" name="last_name" label="Last Name" value={tenantData.last_name} onChange={handleChange} error={!!errors.last_name} helperText={errors.last_name || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
 
             <RadioGroup
-                aria-label="gender"
-                name="gender"
-                value={tenantData.gender}
-                onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })}
-                row // This prop aligns the radio buttons in a row
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row', // Align items in a row
-                  justifyContent: 'start', // Adjust this value as needed to align the group within its container
-                  marginBottom: 2,
-                }}
-              >
-                <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                <FormControlLabel value="Female" control={<Radio />} label="Female" />
-              </RadioGroup>
+              aria-label="gender"
+              name="gender"
+              value={tenantData.gender}
+              onChange={(event) => setTenantData({ ...tenantData, gender: event.target.value })}
+              row // This prop aligns the radio buttons in a row
+              sx={{
+                display: "flex",
+                flexDirection: "row", // Align items in a row
+                justifyContent: "start", // Adjust this value as needed to align the group within its container
+                marginBottom: 2,
+              }}
+            >
+              <FormControlLabel value="Male" control={<Radio />} label="Male" />
+              <FormControlLabel value="Female" control={<Radio />} label="Female" />
+            </RadioGroup>
 
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
               <TextField disabled={!isEditMode} id="personal_id" name="personal_id" label="Personal ID" value={tenantData.personal_id} onChange={handleChange} error={!!errors.personal_id} helperText={errors.personal_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
@@ -469,27 +468,19 @@ export default function updatetenant() {
               ))}
             </Select>
             <br></br>
-            <TextField  disabled={!isEditMode} id="email" name="contacts.email" label="Email" value={tenantData.contacts.email} onChange={handleChange} error={!!errors.email} helperText={errors.email || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
+            <TextField disabled={!isEditMode} id="email" name="contacts.email" label="Email" value={tenantData.contacts.email} onChange={handleChange} error={!!errors.email} helperText={errors.email || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
             <TextField disabled={!isEditMode} id="line_id" name="contacts.line_id" label="Line ID" value={tenantData.contacts.line_id} onChange={handleChange} error={!!errors.line_id} helperText={errors.line_id || ""} variant="outlined" sx={{ width: 270, marginBottom: 1.5, marginRight: 0.6 }} />
-            <LocalizationProvider  disabled={!isEditMode} dateAdapter={AdapterDayjs}>
-            <DatePicker
-        label="Issue Date"
-        value={selectedDate}
-        onChange={(newValue) => setSelectedDate(newValue)}
-        renderInput={(params) => <TextField {...params} error={!!errors.issue_date} helperText={errors.issue_date || ""} />}
-        minDate={dayjs()}
-        disabled={!isEditMode}
-        sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
-    />
-    <DatePicker
-        label="Expiration Date"
-        value={selectedEndDate}
-        onChange={(newValue) => setSelectedEndDate(newValue)}
-        renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />}
-        minDate={selectedDate.add(1, 'day')} // Ensure it's after the issue date
-        disabled={!isEditMode}
-        sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
-    />
+            <LocalizationProvider disabled={!isEditMode} dateAdapter={AdapterDayjs}>
+              <DatePicker label="Issue Date" value={selectedDate} onChange={(newValue) => setSelectedDate(newValue)} renderInput={(params) => <TextField {...params} />} disabled={!isEditMode} sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }} />
+              <DatePicker
+                label="Expiration Date"
+                value={selectedEndDate}
+                onChange={(newValue) => setSelectedEndDate(newValue)}
+                renderInput={(params) => <TextField {...params} error={!!errors.expiration_date} helperText={errors.expiration_date || ""} />}
+                minDate={selectedDate.add(1, "day")} // Ensure it's after the issue date
+                disabled={!isEditMode}
+                sx={{ width: 270, marginBottom: 1.5, marginRight: 0.5 }}
+              />
             </LocalizationProvider>
             <Typography sx={{ marginBottom: 1, marginTop: "10px" }}>Address</Typography>
             <div>
@@ -595,7 +586,7 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="tenant-image" style={{ display: "none" }} onChange={handleTenantImageChange} />
                   <label htmlFor="tenant-image">
-                    <Fab color="secondary" component="span" aria-label="upload picture" marginBottom="10px">
+                    <Fab color="primary" component="span" aria-label="upload picture" marginBottom="10px">
                       <PhotoCamera />
                     </Fab>
                   </label>
@@ -622,7 +613,7 @@ export default function updatetenant() {
                 <Box>
                   <input accept="image/*" type="file" id="national-id-image" style={{ display: "none" }} onChange={handleNationalIDImageChange} />
                   <label htmlFor="national-id-image">
-                    <Fab color="secondary" component="span" aria-label="upload ID picture">
+                    <Fab color="primary" component="span" aria-label="upload ID picture">
                       <PhotoCamera />
                     </Fab>
                   </label>

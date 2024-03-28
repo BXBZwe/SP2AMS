@@ -15,7 +15,6 @@ export const APIProvider = ({ children }) => {
       const response = await axios.get("http://localhost:3000/getalltenancyrecord");
       if (response.data && Array.isArray(response.data)) {
         // Assuming the response directly contains an array of tenancy records
-        console.log(response.data)
         const recordsWithIds = response.data.map((record, index) => ({
           ...record,
           id: index + 1, // Adding an id property if it's not already included
@@ -57,10 +56,7 @@ export const APIProvider = ({ children }) => {
         const roomsWithDetails = response.data.getrooms.map((room, index) => ({
           ...room,
           id: index + 1,
-          paymentStatus:
-            room.generatedBillRecords.length > 0
-              ? room.generatedBillRecords[0].payment_status
-              : "Not Available",
+          paymentStatus: room.generatedBillRecords.length > 0 ? room.generatedBillRecords[0].payment_status : "Not Available",
         }));
         setRooms(roomsWithDetails);
       }
@@ -77,11 +73,9 @@ export const APIProvider = ({ children }) => {
     try {
       const response = await axios.get("http://localhost:3000/getallrequests");
       if (response.data && Array.isArray(response.data.getRequests)) {
-        const detailedRequests = response.data.getRequests.map(
-          (request) => ({
-            ...request,
-          })
-        );
+        const detailedRequests = response.data.getRequests.map((request) => ({
+          ...request,
+        }));
         setRequests(detailedRequests);
       }
     } catch (error) {

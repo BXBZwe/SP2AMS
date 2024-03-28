@@ -1,25 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Snackbar,
-  Dialog,
-  TextField,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Typography,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip
-} from "@mui/material";
+import { Button, Card, CardContent, IconButton, Snackbar, Dialog, TextField, DialogActions, DialogTitle, DialogContent, DialogContentText, Typography, Box, FormControl, InputLabel, Select, MenuItem, Chip } from "@mui/material";
 import Link from "next/link";
 import CircularProgress from "@mui/material/CircularProgress";
 import MuiAlert from "@mui/material/Alert";
@@ -45,12 +26,12 @@ export default function ContractTable() {
   const [documentLoading, setDocumentLoading] = useState(false);
 
   const columns = [
-    { field: "room_number", headerName: "Room Number", flex:0.25 },
-    { field: "tenant_name", headerName: "Tenant Name", flex:0.25 },
+    { field: "room_number", headerName: "Room Number", flex: 0.25 },
+    { field: "tenant_name", headerName: "Tenant Name", flex: 0.25 },
     {
       field: "contract_status",
       headerName: "Contract Status",
-      flex:0.25,
+      flex: 0.25,
       renderCell: (params) => {
         let color;
         switch (params.value.toLowerCase()) {
@@ -97,7 +78,7 @@ export default function ContractTable() {
     {
       field: "contract_days_left",
       headerName: "Contract Days Left",
-      flex:0.25,
+      flex: 0.25,
     },
   ];
 
@@ -105,7 +86,7 @@ export default function ContractTable() {
     const fetchContractData = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getcontractdetails");
-        console.log("contract data: ", response.data);
+        // console.log("contract data: ", response.data);
         const data = response.data.map((contract) => {
           return {
             id: contract.tenants.tenant_id,
@@ -139,12 +120,12 @@ export default function ContractTable() {
     setOpenUpdateDialog(false); // Close the update dialog
     setOpenNewDialog(false); // Close the new contract dialog
     setDocumentLoading(true);
-  
+
     try {
       const response = await axios.get(`http://localhost:3000/createfilledcontract/${selectedTenantId}/${language}`, {
         responseType: "blob",
       });
-  
+
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, "_blank");
@@ -317,9 +298,7 @@ export default function ContractTable() {
       <Dialog open={openNewDialog} onClose={() => setOpenNewDialog(false)} fullWidth>
         <DialogTitle>New Contract</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            This is a new contract. Please select an option to generate the contract document.
-          </DialogContentText>
+          <DialogContentText>This is a new contract. Please select an option to generate the contract document.</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => handleGenerateDocument("english")}>English Contract</Button>
