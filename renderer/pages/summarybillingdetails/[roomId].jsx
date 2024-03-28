@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { Box, Button, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
+import { Snackbar, Alert, Box, Button, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
 
 export default function RoomBillingDetail() {
   const router = useRouter();
@@ -10,7 +10,8 @@ export default function RoomBillingDetail() {
   const [selectedRate, setSelectedRate] = useState(null);
   const [previousReading, setPreviousReading] = useState({ water_reading: 0, electricity_reading: 0 });
   const [currentReading, setCurrentReadings] = useState({ water_reading: 0, electricity_reading: 0 });
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   useEffect(() => {
     if (roomId) {
       const fetchBillingDetails = async () => {
@@ -45,7 +46,13 @@ export default function RoomBillingDetail() {
   const handleRateSelect = (item) => {
     setSelectedRate({ ...item });
   };
-
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+  
   const handleChange = (name, value, itemName = null) => {
     if (itemName === "Water" || itemName === "Electricity") {
       if (name === "previous_reading") {
@@ -76,13 +83,16 @@ export default function RoomBillingDetail() {
       bill_id: billingDetails.bill_id,
       temporary_price: Number(selectedRate.per_unit_price),
       bill_record_id: billingDetails.bill_record_id,
+      
     };
-
+    setSnackbarOpen(true);
+    setSnackbarMessage('Changes saved successfully.');
     try {
       const adjustmentResponse = await axios.post(`http://localhost:3000/applytemporaryRateAdjustment`, adjustmentData);
       if (adjustmentResponse.status === 200) {
+        console.log("Temporary rate adjustment saved successfully:", adjustmentResponse.data);
       } else {
-        // console.error("Failed to save the temporary rate adjustment");
+        console.error("Failed to save the temporary rate adjustment");
       }
 
       const updateData = {
@@ -93,13 +103,14 @@ export default function RoomBillingDetail() {
         currentElectricityReading: Number(currentReading.electricity_reading),
         generationDate: billingDetails.generation_date,
       };
-
+      setSnackbarOpen(true);
+      setSnackbarMessage('Failed to save changes.');
       try {
         const updatedBillResponse = await axios.post(`http://localhost:3000/recalculatebillandupdate`, updateData);
 
         if (updatedBillResponse.status === 200) {
           setBillingDetails((prev) => ({ ...prev, ...updatedBillResponse.data.updatedBill }));
-          // console.log(" Updated the recalculated bill:", updatedBillResponse);
+          console.log(" Updated the recalculated bill:", updatedBillResponse);
         } else {
           console.error("Failed to recalculate the bill");
         }
@@ -110,7 +121,9 @@ export default function RoomBillingDetail() {
       console.error("Error saving the temporary rate adjustment:", error);
     }
   };
-
+  const handleCloseRateDetails = () => {
+    setSelectedRate(null); // This will hide the rate details
+  };
   const calculateTotalBill = () => {
     let totalBill = 0;
     let baserent = billingDetails.roombaserent;
@@ -216,7 +229,7 @@ export default function RoomBillingDetail() {
                 )}
 
                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
-                  <Button variant="outlined">Cancel</Button>
+                <Button variant="outlined" onClick={handleCloseRateDetails}>Close</Button>
                   <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
                   </Button>
@@ -228,6 +241,11 @@ export default function RoomBillingDetail() {
       </div>
 
       <Box sx={{ mt: 2 }}></Box>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
