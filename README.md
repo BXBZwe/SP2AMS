@@ -1,6 +1,18 @@
 # Apartment Management System & Dashboard Analysis
 
-A modern, efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
+A modern stand-alone desktop app with efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
+
+## Our App Showcase
+
+<p float="left">
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/cb97c942-5aeb-4713-8080-ddd968d483f8" width="48%" />
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/75e9a82e-7815-45b6-a93a-75edce8dff94" width="48%" /> 
+</p>
+<p float="left">
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/8e5948c6-815c-4ddc-acb0-48de4d55bc35" width="48%" />
+  <img src="https://github.com/sawzwe/SP2AMS/assets/94424420/099c2785-7142-42b8-8378-f608d33d9137" width="48%" />
+</p>
+
 ## External Exposure (PS Park Apartment)
 PS Park Apartment has a management system where they keep track of the tenants and rooms. They have a system where they can generate bills monthly. This system was developed 20+ years ago and now they want a more efficient and modern approach for their system. 
 
@@ -104,9 +116,10 @@ Instructions for setting up a local development environment by followng the deta
 ## Usage
 
 ## App Architecture
-![15](https://github.com/AhmadYasi/SP2AMS/assets/130148111/d7fd7ca1-e31a-45a8-abf7-27f877924ecc)
-![14](https://github.com/AhmadYasi/SP2AMS/assets/130148111/3400aa38-4e87-431a-9646-e6de8a039aef)
-
+<p float="left">
+  <img src="https://github.com/AhmadYasi/SP2AMS/assets/130148111/d7fd7ca1-e31a-45a8-abf7-27f877924ecc" width="48%" />
+  <img src="https://github.com/AhmadYasi/SP2AMS/assets/130148111/3400aa38-4e87-431a-9646-e6de8a039aef" width="48%" /> 
+</p>
 ## Team
 
 #### Ahmad Yasi Faizi, 6238001

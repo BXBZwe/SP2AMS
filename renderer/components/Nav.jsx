@@ -56,6 +56,7 @@ export default function Nav() {
 
 
   const handleLinkClick = (link) => {
+    console.log("Link CLicked");
     setActiveLink(link);
   };
   const router = useRouter();
@@ -94,8 +95,9 @@ export default function Nav() {
     alignItems: "center",
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
-    justifyContent: "flex-end", // Center the content horizontally
+    justifyContent: "flex-start",
   }));
+
 
   const TitleWrapper = styled("div")(({ theme }) => ({
     flex: 1, // Take up all available space
