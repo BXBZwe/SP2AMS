@@ -80,6 +80,7 @@ model manager {
   name             String             @unique @db.VarChar(255)
   email            String             @db.VarChar(255)
   password_hash    String
+  email_key        String
   phone_number     String?            @db.VarChar(20)
   profile_image    String             @db.VarChar(255)
   service_contacts service_contacts[]

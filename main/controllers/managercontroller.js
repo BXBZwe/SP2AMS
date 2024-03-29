@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET - Fetch the manager's details
 const getManager = async (req, res) => {
     try {
         const manager = await prisma.manager.findFirst();
@@ -38,4 +37,27 @@ const addmanager = async (req, res) => {
         res.status(500).send(error.message);
     }
 }
-export { getManager, addmanager };
+
+const updateManager = async (req, res) => {
+    const { manager_id, email, email_key, name, phone_number } = req.body;
+    try {
+        const updatedManager = await prisma.manager.update({
+            where: {
+                manager_id: manager_id,
+            },
+            data: {
+                email,
+                email_key,
+                phone_number,
+                name,
+            },
+        });
+
+        res.status(200).json({ message: 'Manager updated successfully', manager: updatedManager });
+    } catch (error) {
+        console.error('Error updating manager:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export { getManager, addmanager, updateManager };

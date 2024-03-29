@@ -150,13 +150,16 @@ const Emailsender = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL_ACCOUNT,
-                pass: process.env.EMAIL_PASSWORD,
+                // user: process.env.EMAIL_ACCOUNT,
+                user: managerDetails.email,
+                // pass: process.env.EMAIL_PASSWORD,
+                pass: managerDetails.email_key,
             },
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL_ACCOUNT,
+            // from: process.env.EMAIL_ACCOUNT,
+            from: managerDetails.email,
             to: activeTenant.contacts.email,
             subject: subject,
             html: emailContent,
@@ -321,13 +324,16 @@ Manager</p>
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.EMAIL_ACCOUNT,
-                pass: process.env.EMAIL_PASSWORD,
+                // user: process.env.EMAIL_ACCOUNT,
+                user: managerDetails.email,
+                // pass: process.env.EMAIL_PASSWORD,
+                pass: managerDetails.email_key,
             },
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL_ACCOUNT,
+            // from: process.env.EMAIL_ACCOUNT,
+            from: managerDetails.email,
             to: activeTenant.contacts.email,
             subject: subject,
             html: emailContent,
