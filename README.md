@@ -1,4 +1,4 @@
-# Apartment Management System & Dashboard Analysis
+[Set up Guideline.pdf](https://github.com/BXBZwe/SP2AMS/files/14807015/Set.up.Guideline.pdf)# Apartment Management System & Dashboard Analysis
 
 A modern stand-alone desktop app with efficient management system for PS Park Apartment to track tenants, rooms, and generate monthly bills, replacing the outdated 20+ year old system.
 
@@ -111,7 +111,7 @@ List everything needed to get started with your project.
 ### Installation
 Instructions for setting up a local development environment by followng the detailed Setup Guideline PDF.
 
-[Setup Guideline.pdf](https://github.com/AhmadYasi/SP2AMS/files/14738690/Setup.Guideline.pdf)
+[Set up Guideline.pdf](https://github.com/BXBZwe/SP2AMS/files/14807019/Set.up.Guideline.pdf)
 
 ## Usage
 
