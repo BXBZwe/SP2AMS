@@ -81,17 +81,22 @@ export default function updatetenant() {
   //const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  // const handleSaveClick = (e) => {
+  //   e.preventDefault();
+  //   if (validateForm()) {
+  //     // If form is valid, open the confirmation dialog
+  //     setConfirmDialogOpen(true);
+  //   } else {
+  //     // If form is not valid, show an error message or perform other actions as needed
+  //     setSnackbarSeverity("error");
+  //     setSnackbarMessage("Please fill out all required fields.");
+  //     setSnackbarOpen(true);
+  //   }
+  // };
+
   const handleSaveClick = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      // If form is valid, open the confirmation dialog
-      setConfirmDialogOpen(true);
-    } else {
-      // If form is not valid, show an error message or perform other actions as needed
-      setSnackbarSeverity("error");
-      setSnackbarMessage("Please fill out all required fields.");
-      setSnackbarOpen(true);
-    }
+    setConfirmDialogOpen(true);
   };
 
   useEffect(() => {
@@ -271,10 +276,10 @@ export default function updatetenant() {
 
     setErrors(newErrors);
 
-    if (!isValid) {
-      setSnackbarMessage("Please fill out all required fields.");
-      setSnackbarOpen(true);
-    }
+    // if (!isValid) {
+    //   setSnackbarMessage("Please fill out all required fields.");
+    //   setSnackbarOpen(true);
+    // }
 
     return isValid;
   };
@@ -301,12 +306,12 @@ export default function updatetenant() {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      setSnackbarSeverity("error");
-      setSnackbarMessage("Please fill out all required fields.");
-      setSnackbarOpen(true);
-      return; // Prevent form submission if validation fails
-    }
+    // if (!validateForm()) {
+    //   setSnackbarSeverity("error");
+    //   setSnackbarMessage("Please fill out all required fields.");
+    //   setSnackbarOpen(true);
+    //   return; // Prevent form submission if validation fails
+    // }
 
     setLoading(true);
     setMessage("");
